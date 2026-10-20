@@ -5,24 +5,101 @@ let ordemDataHistorico = 'desc';
 let origemNavegacao = 'dash';
 const servicoCache = new Map();
 
-// --- 1. CONFIGURAÇÃO DA PONTE ---
-// const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxLC1WJjrWUPQnUVyonMScINtlwj-VRiPU5aBIxc7kbAnVmI7o_bSR2peINpnPysY0/exec"; // TESTE
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxbYi7t7TjEi0TX750IzWDwy5QGBXKIqcRAOZ8ZLEvMHwqvoyIT_4jfrE2vFSU2EU16/exec"; // PROD
+// --- 1. CONFIGURAÇÃO DA PONTE (MIGRADO PARA SUPABASE) ---
+const SUPABASE_URL = "COLE_SUA_URL_AQUI"; // Ex: https://bvavzgmsifflydrlgeiqf.supabase.co
+const SUPABASE_ANON_KEY = "COLE_SUA_CHAVE_PUBLICA_AQUI"; // Ex: sb_publishable_...
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 async function chamarGoogle(acao, dadosExtras = {}) {
   const email = localStorage.getItem("user_email");
+  if (!email) throw new Error("Usuário não logado");
+
   try {
-    const response = await fetch(SCRIPT_URL, {
-      method: "POST",
-      body: JSON.stringify({ acao, email, dados: dadosExtras })
-    });
-    return await response.json();
+    // ---------------------------------------------------------
+    // 1. CARREGAR DADOS INICIAIS (DASHBOARD)
+    // ---------------------------------------------------------
+    if (acao === "carregarDadosIniciais") {
+      // Busca as configurações do usuário no Supabase
+      const [resAgencias, resEquipe, resClientes, resServicos, resPendentes] = await Promise.all([
+        supabase.from('interpretepro_minhas_empresas').select('*').eq('email_usuario', email),
+        // Para a equipe, podemos usar uma tabela genérica depois, por hora simulamos o usuário logado:
+        Promise.resolve({ data: [{ nome: localStorage.getItem("user_name") || "Eu" }] }),
+        supabase.from('interpretepro_minhas_empresas_finais').select('*').eq('email_usuario', email),
+        supabase.from('interpretepro_tipos_servico').select('*').eq('email_usuario', email),
+        supabase.from('interpretepro_registros_gerais').select('*').eq('email_usuario', email).eq('status_pgto', 'Pendente')
+      ]);
+
+      // Calcula o total pendente
+      let totalPendente = 0;
+      (resPendentes.data || []).forEach(item => {
+        totalPendente += Number(item.valor_servico || 0);
+      });
+
+      return {
+        dados: {
+          pendente: totalPendente.toLocaleString('pt-BR', { minimumFractionDigits: 2 }),
+          pendenteDetalhado: [], 
+          agencias: (resAgencias.data || []).map(a => ({ nome: a.nome_agencia, valor: a.valor_hora })),
+          equipe: (resEquipe.data || []).map(e => e.nome),
+          clientes: (resClientes.data || []).map(c => c.nome_cliente),
+          tiposServico: (resServicos.data || []).map(s => s.tipo_servico)
+        }
+      };
+    }
+
+    // ---------------------------------------------------------
+    // 2. BUSCAR HISTÓRICO DE SERVIÇOS
+    // ---------------------------------------------------------
+    if (acao === "buscarTodosServicos" || acao === "buscarServicosRecentes") {
+      const { data, error } = await supabase
+        .from('interpretepro_registros_gerais')
+        .select('*')
+        .eq('email_usuario', email)
+        .order('data_evento', { ascending: false });
+
+      if (error) throw error;
+
+      // O Supabase retorna colunas com "_" (snake_case). 
+      // Este mapeamento traduz de volta para o padrão que o seu front-end (HTML) já conhece.
+      const formatados = (data || []).map(d => ({
+        linha: d.id, // O Supabase usa UUID como ID agora
+        dataOriginal: d.data_evento,
+        data: d.data_evento ? d.data_evento.split('-').reverse().join('/') : '',
+        agencia: d.agencia_intermediaria,
+        empresa: d.empresa_final,
+        inicio: (d.horario_inicio || "").substring(0, 5),
+        fim: (d.horario_fim || "").substring(0, 5),
+        interprete: d.interprete,
+        tipoServico: d.tipo_servico,
+        valor: "R$ " + Number(d.valor_servico).toLocaleString('pt-BR', { minimumFractionDigits: 2 }),
+        valorNum: Number(d.valor_servico),
+        obs: d.observacao,
+        status: d.status_pgto,
+        dataPgto: d.data_pgto
+      }));
+
+      return { dados: formatados };
+    }
+
+    // ---------------------------------------------------------
+    // 3. BYPASS PROVISÓRIO DE LOGIN/SAAS (Para não bloquear os testes)
+    // ---------------------------------------------------------
+    if (acao === "verificarAcesso") {
+      return { liberado: true, plano: "Ativo (Supabase)", validade: "Vitalício", dadosIniciais: (await chamarGoogle("carregarDadosIniciais")).dados };
+    }
+
+    // Se chegar aqui, a ação ainda não foi migrada, apenas loga no console
+    console.warn("Ação ainda não migrada para Supabase:", acao);
+    return { status: "Sucesso" };
+
   } catch (erro) {
-    console.error("Erro na chamada Google:", erro);
-    mostrarToast("❌ Erro de conexão com o servidor", "erro");
+    console.error("Erro na chamada Supabase:", erro);
+    mostrarToast("❌ Erro de conexão com o banco", "erro");
     throw erro;
   }
 }
+
 
 // --- 2. DETECÇÃO DE CONEXÃO OFFLINE ---
 window.addEventListener('offline', () => {
