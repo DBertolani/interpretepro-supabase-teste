@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+<!-- Teste de deploy automático -->
+  <!-- Google Analytics: carregamento 8s após o carregamento completo da página -->
+  
+  <script>
+    window.addEventListener('load', function () {
+      window.setTimeout(function carregarGtag() {
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function () {
+          window.dataLayer.push(arguments);
+        };
+
+        window.gtag('js', new Date());
+        window.gtag('config', 'G-GJYN95318X');
+
+        const script = document.createElement('script');
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-GJYN95318X';
+        script.async = true;
+        script.setAttribute('data-gtag-lazy', 'true');
+        document.head.appendChild(script);
+      }, 8000);
+    }, { once: true });
+  </script>
+
+  <meta charset="UTF-8">
+  <link rel="preload" as="image" href="logo.webp" type="image/webp" fetchpriority="high">
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#4a148c">
+  <link rel="manifest" href="manifest.json">
+
+  <title>IntérpretePro - App para Gestão de Intérpretes de LIBRAS</title>
+
+  <meta name="description"
+    content="O sistema de gestão definitivo para intérpretes de LIBRAS. Controle financeiro, histórico de atendimentos e relatórios simplificados em um só lugar.">
+  <meta name="keywords" content="intérprete, LIBRAS, gestão, controle financeiro, sistema, app, surdos, acessibilidade">
+  <meta name="author" content="Danilo Bertolani">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://interpretepro.deab.com.br/">
+  <meta property="og:title" content="IntérpretePro | O seu escritório na palma da mão">
+  <meta property="og:description"
+    content="Gestão financeira e controle de atendimentos exclusivo para intérpretes de LIBRAS. Acesse agora!">
+  <meta property="og:image" content="https://interpretepro.deab.com.br/logo.webp">
+  <meta property="og:image:width" content="500">
+  <meta property="og:image:height" content="500">
+
+  <meta name="twitter:url" content="https://interpretepro.deab.com.br/">
+  <meta name="twitter:image" content="https://interpretepro.deab.com.br/logo.webp">
+
+  <link rel="icon" type="image/png" href="logo.webp">
+  <link rel="apple-touch-icon" href="logo.webp">
+
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div id="barra-offline" style="display: none;">
+    ⚠️ Você está sem internet. Verifique sua conexão.
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <div class="container-app" role="main">
+
+    <div id="tela-login-google" class="card" style="display: none; text-align: center; padding: 40px 20px;">
+      <div style="margin-bottom: 20px; display: flex; justify-content: center; width: 100%;">
+        <img src="logo.webp" alt="Logo IntérpretePro" width="150" height="150" decoding="async"
+          style="aspect-ratio: 1 / 1; width: 150px; height: 150px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: #fff;">
+      </div>
+      <h2 style="color: #4a148c; margin-bottom: 8px;">Portal IntérpretePro</h2>
+      <p style="color: #757575; font-size: 14px; margin-bottom: 30px;">Gestão inteligente para intérpretes de LIBRAS.
+      </p>
+
+      <button onclick="solicitarAcessoSaaS()" class="btn-primario"
+        style="background: #4285F4; border: none; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px; border-radius: 8px; font-weight: bold; cursor: pointer;">
+        <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" width="18">
+        Entrar com Google
+      </button>
+
+      <div
+        style="margin-top: 25px; padding: 15px; background-color: #f8f9fa; border-radius: 10px; border: 1px solid #eee;">
+        <label
+          style="display: flex; align-items: flex-start; text-align: left; cursor: pointer; font-size: 13px; line-height: 1.4; color: #616161;">
+          <input type="checkbox" id="aceito-termos" style="margin-top: 2px; margin-right: 12px; transform: scale(1.2);">
+          <span>
+            Estou de acordo com os
+            <a href="#" onclick="abrirModalTermos(event)"
+              style="color: #4285F4; font-weight: 600; text-decoration: none; border-bottom: 1px solid #4285F4;">Termos
+              de Uso</a>
+            e a
+            <a href="privacidade.html" target="_blank"
+              style="color: #4285F4; font-weight: 600; text-decoration: none; border-bottom: 1px solid #4285F4;">Política
+              de Privacidade</a>.
+          </span>
+        </label>
+      </div>
+
+      <div style="margin-top: 20px; font-size: 11px; text-align: center;">
+        <a href="privacidade.html" target="_blank" style="color: #999; text-decoration: underline;">Política de
+          Privacidade</a>
+      </div>
+    </div>
+
+    <div id="tela-loading" style="display: none;">
+      <div style="margin-bottom: 30px;">
+        <img src="logo.webp" alt="Logo IntérpretePro" width="150" height="150" decoding="async"
+          style="aspect-ratio: 1 / 1; width: 150px; height: 150px; border-radius: 50%; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+      </div>
+      <h2 style="color: #4a148c; font-size: 36px; font-weight: 900; margin: 0 0 15px 0;">Olá, <span
+          id="nome-usuario-loading" style="color: #FF9800;">Intérprete</span>! 🤟</h2>
+      <p style="color: #666; font-size: 20px; margin: 0 0 40px 0;">Estamos organizando seu escritório...</p>
+      <div class="loader"></div>
+    </div>
+
+    <div id="tela-trial" class="card" style="display: none; text-align: center; padding: 40px 20px;">
+      <div style="font-size: 50px; margin-bottom: 10px;">🎁</div>
+      <h2 style="color: #4a148c;">Bem-vindo ao IntérpretePro!</h2>
+
+      <p style="color: #666; margin-top: 15px; font-size: 15px; line-height: 1.5;">
+        Vimos que você é novo por aqui.<br>Que tal testar nosso sistema completo de gestão por <strong>7 dias totalmente
+          grátis</strong>?
+      </p>
+
+      <button onclick="iniciarTesteGratis()" class="btn-primario"
+        style="background: #25D366; width: 100%; margin-top: 25px; font-size: 16px; padding: 15px; font-weight: bold; box-shadow: 0 4px 6px rgba(37, 211, 102, 0.3);">
+        🚀 Iniciar meus 7 Dias Grátis
+      </button>
+
+      <p style="font-size: 12px; color: #999; margin-top: 15px;">Nenhum cartão de crédito necessário nesta etapa.</p>
+    </div>
+
+    <div id="tela-bloqueio" class="card" style="display: none; text-align: center; padding: 40px 20px;">
+
+      <div style="display: flex; justify-content: flex-end; width: 100%; margin-bottom: -10px;">
+        <a href="#" onclick="logout()"
+          style="color: #d32f2f; text-decoration: none; font-size: 13px; font-weight: 600; padding: 6px 12px; background: #ffebee; border-radius: 6px;">Sair
+          da conta</a>
+      </div>
+
+      <div style="font-size: 50px; margin-bottom: 10px;">⏳</div>
+
+      <h2 style="color: #FF9800;">Tempo Esgotado</h2>
+
+      <p style="color: #444; margin-top: 10px; font-size: 15px; line-height: 1.5;">
+        O período de acesso para o e-mail <br>
+        <strong id="email-bloqueado" style="color:#4a148c;"></strong><br>
+        chegou ao fim.
+      </p>
+
+      <p id="motivo-bloqueio" style="display:none;"></p>
+      <div
+        style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #4CAF50; margin: 20px 0; text-align: left;">
+        <p style="margin: 0; font-size: 13px; color: #555;">
+          <strong>Seus dados estão seguros!</strong> 🛡️<br>
+          Seu histórico de atendimentos e configurações continuam salvos no nosso banco de dados. Para voltar a
+          adicionar novos serviços e faturar, renove seu acesso abaixo.
+        </p>
+      </div>
+
+
+      <button id="btn-pagar" onclick="abrirModalPlanos()" class="btn-primario" style="display:none; margin-top:15px;">
+        💳 Ver Planos e Assinar
+      </button>
+
+      <a href="https://wa.me/5527996962395?text=Olá, Danilo! Gostaria de renovar meu acesso ao App InterpretePro."
+        target="_blank" class="btn-primario"
+        style="background: #25D366; display: block; width: 100%; margin-top: 10px; text-decoration: none; padding: 12px; font-size: 14px; color: white;">
+        📲 Falar com Suporte (WhatsApp)
+      </a>
+
+      <div style="display: flex; align-items: center; margin: 25px 0 15px 0;">
+        <div style="flex: 1; height: 1px; background: #eee;"></div>
+        <span style="padding: 0 10px; color: #999; font-size: 12px;">ou</span>
+        <div style="flex: 1; height: 1px; background: #eee;"></div>
+      </div>
+
+      <p style="font-size: 12px; color: #777; margin-bottom: 10px;">
+        Precisa apenas gerar uma nota fiscal antiga ou ver seu histórico?
+      </p>
+
+      <button onclick="acessarModoLeitura()" class="btn-voltar"
+        style="width: 100%; margin: 0; padding: 12px; color: #546e7a; border: 1px solid #cfd8dc; background: #eceff1; font-weight: 600;">
+        👀 Entrar no Modo Apenas Visualização
+      </button>
+
+    </div>
+
+    <div id="tela-home" class="card"
+      style="display: block; padding: 40px 20px; text-align: center; border-top: 5px solid #FF9800; border-radius: 15px;">
+
+      <img src="logo.webp" alt="Logo IntérpretePro" width="100" height="100" fetchpriority="high" decoding="async"
+        style="width: 100px; height: 100px; border-radius: 50%; margin-bottom: 15px; box-shadow: 0 8px 16px rgba(0,0,0,0.12); border: 3px solid #f3e5f5;">
+      <h1 style="color: #4a148c; margin: 0; font-size: 26px; font-weight: 900; letter-spacing: -0.5px;">IntérpretePro
+      </h1>
+      <p style="color: #666; font-size: 15px; margin-top: 8px; margin-bottom: 30px;">O seu escritório de LIBRAS na palma
+        da mão.</p>
+
+      <div style="text-align: left; margin-bottom: 35px; display: flex; flex-direction: column; gap: 12px;">
+
+        <div
+          style="padding: 14px 15px; border-radius: 10px; background: #fafafa; border-left: 4px solid #9c27b0; box-shadow: 0 2px 5px rgba(0,0,0,0.03);">
+          <strong style="color:#333; font-size: 16px;">⏱️ Controle de Horas</strong><br>
+          <span style="color:#666; font-size: 14px;">Grave seus atendimentos e valores em segundos.</span>
+        </div>
+
+        <div
+          style="padding: 14px 15px; border-radius: 10px; background: #fafafa; border-left: 4px solid #2196F3; box-shadow: 0 2px 5px rgba(0,0,0,0.03);">
+          <strong style="color:#333; font-size: 16px;">📊 Relatórios e NF</strong><br>
+          <span style="color:#666; font-size: 14px;">Resumos automáticos prontos para faturar agências.</span>
+        </div>
+
+        <div
+          style="padding: 14px 15px; border-radius: 10px; background: #fff8e1; border-left: 4px solid #FF9800; box-shadow: 0 2px 5px rgba(0,0,0,0.03);">
+          <strong style="color:#E65100; font-size: 16px;">🎁 7 Dias Grátis</strong><br>
+          <span style="color:#666; font-size: 14px;">Teste todas as ferramentas sem compromisso.</span>
+        </div>
+
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 30px;">
+
+        <button onclick="mostrarTelaLogin()"
+          style="background: linear-gradient(135deg, #FF9800, #F57C00); color: white; border: none; padding: 16px; font-size: 16px; font-weight: bold; border-radius: 12px; box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3); cursor: pointer; transition: 0.2s;">
+          🚀 Começar Teste Grátis
+        </button>
+
+        <button onclick="mostrarTelaLogin()"
+          style="background: transparent; color: #4a148c; border: 2px solid #4a148c; padding: 14px; font-size: 15px; font-weight: bold; border-radius: 12px; cursor: pointer; transition: 0.2s;">
+          🔑 Já tenho conta (Entrar)
+        </button>
+
+      </div>
+
+      <a href="como-funciona.html" target="_blank"
+        style="color: #4a148c; font-size: 15px; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 20px; transition: 0.2s;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M12 16v-4"></path>
+          <path d="M12 8h.01"></path>
+        </svg>
+        Descubra como funciona
+      </a>
+
+      <br>
+
+      <a href="#" onclick="abrirModalFeedback(event)"
+        style="color: #9e9e9e; font-size: 13px; text-decoration: none; border-bottom: 1px dashed #ccc; padding-bottom: 2px; transition: 0.2s;">
+        💡 Deixar uma sugestão para o App
+      </a>
+
+    </div>
+    <div id="tela-app" style="display: none;">
+
+      <div
+        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #e0e0e0;">
+
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <img src="logo.webp" alt="Logo"
+            style="width: 45px; height: 45px; border-radius: 50%; border: 2px solid #f3e5f5;">
+          <span class="header-app-logo">IntérpretePro</span>
+        </div>
+
+        <a href="#" onclick="logout()"
+          style="color: #d32f2f; text-decoration: none; font-size: 14px; font-weight: 600; padding: 6px 12px; background: #ffebee; border-radius: 6px;">Sair</a>
+      </div>
+
+      <div class="dash-card">
+        <p class="dash-title">Total a Receber</p>
+        <p class="dash-value" id="valor-pendente">R$ 0,00</p>
+        <div id="pendente-detalhado"
+          style="display:flex; justify-content:center; gap:15px; font-size:12px; color:#666; flex-wrap:wrap; margin-top: 5px;">
+        </div>
+      </div>
+
+      <div class="menu-grid">
+
+        <button class="menu-btn" onclick="abrirRegistro()">
+          <div class="menu-icon">➕</div>
+          <div class="menu-text">Novo Serviço</div>
+        </button>
+        <button class="menu-btn" onclick="abrirHistorico()">
+          <div class="menu-icon">🧾</div>
+          <div class="menu-text">Histórico</div>
+        </button>
+        <button class="menu-btn" onclick="abrirRelatorios()">
+          <div class="menu-icon">📊</div>
+          <div class="menu-text">Relatórios/NF</div>
+        </button>
+        <button class="menu-btn" onclick="abrirConfiguracoes()">
+          <div class="menu-icon">⚙️</div>
+          <div class="menu-text">Ajustes / Equipe</div>
+        </button>
+
+        <button id="btn-tab-admin" class="menu-btn" onclick="abrirAdmin()"
+          style="display:none; border: 2px solid #9c27b0; background: #f3e5f5;">
+          <div class="menu-icon">🔑</div>
+          <div class="menu-text" style="color:#4a148c; font-weight:bold;">Master Admin</div>
+        </button>
+
+      </div>
+
+    </div>
+
+
+
+    <div id="tela-registro" style="display: none;">
+      <div class="card">
+
+        <div class="header-app">
+          <button class="btn-voltar-topo" onclick="fecharRegistroManual()">⬅</button>
+          <h2 id="titulo-form">Atendimento</h2>
+        </div>
+
+        <form id="formRegistro" onsubmit="enviarDados(event)">
+          <input type="hidden" id="linha-edicao">
+          <input type="hidden" id="status-antigo">
+          <input type="hidden" id="data-pgto-antiga">
+
+          <div class="form-row-duo">
+            <div style="flex: 1;"><label>Data:</label><input type="date" id="data" required></div>
+            <div style="flex: 1.5;"><label>Tipo de Serviço:</label><select id="tipoServico" required></select></div>
+          </div>
+
+          <label>Intérprete:</label><select id="interprete" required></select>
+
+          <label>Contratação:</label>
+          <div class="toggle-origem">
+            <input type="radio" name="origemAtendimento" value="Particular" id="origem-p"
+              onchange="toggleCamposAgencia()" checked>
+            <label for="origem-p">Particular</label>
+            <input type="radio" name="origemAtendimento" value="Agência" id="origem-a" onchange="toggleCamposAgencia()">
+            <label for="origem-a">Agência</label>
+          </div>
+
+          <div id="box-agencia" style="display: none;">
+            <label>Agência:</label>
+            <select id="agencia" onchange="aoMudarAgencia()"></select>
+          </div>
+
+          <label>Cliente/Empresa Final:</label>
+          <input type="text" id="empresa" list="listaEmpresasDatalist" required
+            placeholder="Selecione ou digite novo...">
+          <datalist id="listaEmpresasDatalist"></datalist>
+
+          <div class="form-row-duo">
+            <div style="flex: 1;"><label>Início:</label><input type="time" id="inicio" required
+                onchange="calcularTotalLive()"></div>
+            <div style="flex: 1;"><label>Término:</label><input type="time" id="fim" required
+                onchange="calcularTotalLive()"></div>
+          </div>
+
+          <label>Cobrança:</label>
+          <div style="display: flex; gap: 10px; margin-top:5px;">
+            <label style="font-weight:normal;"><input type="radio" name="tipoCobranca" value="hora" checked
+                onchange="calcularTotalLive()"> Hora</label>
+            <label style="font-weight:normal;"><input type="radio" name="tipoCobranca" value="fixo"
+                onchange="calcularTotalLive()"> Fixo</label>
+          </div>
+
+          <label id="label-valor">Valor:</label>
+          <input type="text" inputmode="numeric" id="valor-base" oninput="formatarMoeda(this); calcularTotalLive()"
+            required>
+
+          <div class="box-valor-live">
+            <span style="font-size:11px; color:#2e7d32;">Subtotal: </span>
+            <strong style="font-size:20px; color:#1b5e20;" id="valor-live-preview">R$ 0,00</strong>
+          </div>
+
+          <label>Obs:</label><textarea id="obs" rows="2"></textarea>
+
+          <div id="secao-edicao-financeira"
+            style="display:none; background: #f3e5f5; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #ce93d8;">
+            <label style="color: #4a148c; font-weight: bold;">Status do Pagamento:</label>
+            <select id="edit-status" onchange="toggleDataEdicao()">
+              <option value="Pendente">⏳ Pendente</option>
+              <option value="Pago">✅ Pago</option>
+            </select>
+            <div id="box-data-recebimento-edit" style="margin-top: 10px;">
+              <label>Data do Recebimento:</label>
+              <input type="date" id="edit-data-pgto">
+            </div>
+          </div>
+
+          <button type="submit" id="btnSalvar" class="btn-primario">Salvar</button>
+          <button type="button" class="btn-voltar" onclick="fecharRegistroManual()">Cancelar</button>
+
+        </form>
+      </div>
+    </div>
+
+    <div id="tela-historico" style="display: none;">
+
+      <div class="card">
+        <div class="header-app">
+          <button class="btn-voltar-topo" onclick="voltarDashboard()">⬅</button>
+          <h2>Histórico</h2>
+        </div>
+
+        <div class="filtros-box">
+          <div class="grid-filtros">
+            <div>
+              <label>Status:</label>
+              <select id="filtroStatus" onchange="filtrarListaHistorico()" style="background: #fff;">
+                <option value="pendente" selected>⏳ Pendentes</option>
+                <option value="pago">✔️ Pagos</option>
+                <option value="todos">📋 Todos</option>
+              </select>
+            </div>
+            <div><label>Agência:</label><select id="filtroAgenciaHist" onchange="filtrarListaHistorico()"></select>
+            </div>
+            <div><label>Membro:</label><select id="filtroInterpreteHist" onchange="filtrarListaHistorico()"></select>
+            </div>
+            <div><label>Cliente:</label><input type="text" id="filtroClienteHist" onkeyup="filtrarListaHistorico()"
+                placeholder="Buscar..."></div>
+          </div>
+
+          <div style="margin-top: 15px; border-top: 1px dashed #90caf9; padding-top: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+              <label style="margin: 0; font-size: 13px; color: #1976d2;">Período do Atendimento:</label>
+              <button id="btnOrdenacaoData" onclick="alternarOrdemData()"
+                style="background: #e3f2fd; border: none; border-radius: 6px; padding: 5px 10px; font-size: 11px; cursor: pointer; color: #1565c0; font-weight: bold; transition: 0.2s;">
+                ⬇️ Mais Recentes
+              </button>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <input type="date" id="filtroDataInicio" onchange="filtrarListaHistorico()"
+                style="margin: 0; padding: 10px; font-size: 13px !important; color: #444;">
+              <span style="font-size: 12px; color: #666; font-weight: bold;">até</span>
+              <input type="date" id="filtroDataFim" onchange="filtrarListaHistorico()"
+                style="margin: 0; padding: 10px; font-size: 13px !important; color: #444;">
+            </div>
+          </div>
+
+        </div>
+
+        <div id="lista-html"></div>
+      </div>
+    </div>
+
+    <div id="tela-relatorios" style="display: none;">
+      <div class="card">
+        <div class="header-app"><button class="btn-voltar-topo" onclick="voltarDashboard()">⬅</button>
+          <h2>Relatórios</h2>
+        </div>
+        <div class="filtros-box" style="background: #f3e5f5;">
+          <label>Tipo de Relatório:</label>
+          <select id="tipoRelatorio" onchange="gerarRelatorio()">
+            <option value="nf">📄 Nota Fiscal (Por Agência/Membro)</option>
+            <option value="horas">⏱️ Produtividade (Total de Horas)</option>
+          </select>
+          <label id="labelMesFiltro">Mês Recebido:</label><input type="month" id="filtroMesRelatorio"
+            onchange="gerarRelatorio()">
+          <label>Membro:</label><select id="filtroMembroRelatorio" onchange="gerarRelatorio()"></select>
+          <label>Agência (Opcional):</label><select id="filtroAgenciaRelatorio" onchange="gerarRelatorio()"></select>
+        </div>
+        <div class="relatorio-stats">
+          <div class="stat-card"><span class="stat-label">Faturamento</span><strong id="valor-total-relatorio">R$
+              0,00</strong></div>
+          <div class="stat-card"><span class="stat-label">Total Horas</span><strong
+              id="horas-total-relatorio">0.00h</strong></div>
+        </div>
+        <div id="lista-relatorio"></div>
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+          <button id="btnCopiarRelatorio" class="btn-primario" style="background-color: #9c27b0; flex: 1;"
+            onclick="copiarResumo()">📋 Copiar Texto</button>
+          <button id="btnBaixarImagem" class="btn-primario" style="background-color: #1976d2; flex: 1;"
+            onclick="baixarImagemRelatorio()">🖼️ Salvar Imagem</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="tela-admin" style="display: none;">
+      <div class="card">
+        <div class="header-app"><button class="btn-voltar-topo" onclick="voltarDashboard()">⬅</button>
+          <h2>Gestão Master</h2>
+        </div>
+        <p style="font-size:12px; color:#666; margin-bottom:15px;">Gerencie acessos e assinaturas dos usuários.
+        </p>
+        <div id="lista-clientes-master">
+        </div>
+      </div>
+    </div>
+
+    <div id="tela-configuracoes" style="display: none;">
+      <div class="card">
+        <div class="header-app">
+          <button class="btn-voltar-topo" onclick="voltarDashboard()">⬅</button>
+          <h2>Ajustes</h2>
+        </div>
+
+        <div class="tabs-wrapper">
+          <button class="scroll-arrow"
+            onclick="document.querySelector('.tabs-nav').scrollBy({left: -100, behavior: 'smooth'})">❮</button>
+
+          <div class="tabs-nav" style="flex: 1;">
+            <button class="tab-btn active" id="btn-tab-servicos" onclick="mudarAba('servicos')">🛠️
+              Serviços</button>
+            <button class="tab-btn" id="btn-tab-equipe" onclick="mudarAba('equipe')">👥 Equipe</button>
+            <button class="tab-btn" id="btn-tab-agencias" onclick="mudarAba('agencias')">🏢 Agências</button>
+            <button class="tab-btn" id="btn-tab-clientes" onclick="mudarAba('clientes')">🏬 Clientes</button>
+            <button class="tab-btn" id="btn-tab-sobre" onclick="mudarAba('sobre')">ℹ️ Sobre</button>
+            <button class="tab-btn" id="btn-tab-perfil" onclick="mudarAba('perfil')">👤 Meu Perfil</button>
+          </div>
+
+          <button class="scroll-arrow"
+            onclick="document.querySelector('.tabs-nav').scrollBy({left: 100, behavior: 'smooth'})">❯</button>
+        </div>
+
+        <div id="content-servicos" class="tab-content active">
+          <form id="formServicos" onsubmit="salvarTipoServico(event)">
+            <input type="hidden" id="servico-antigo"> <label>Tipo de Serviço:</label>
+            <input type="text" id="configServicoNome" required placeholder="Ex: Tradução, Interpretação...">
+            <button type="submit" class="btn-primario" style="background:#546e7a;">Salvar Serviço</button>
+          </form>
+          <div id="lista-servicos-ui" style="margin-top:15px;"></div>
+        </div>
+
+        <div id="content-equipe" class="tab-content">
+          <form id="formEquipe" onsubmit="salvarEquipe(event)">
+            <input type="hidden" id="equipe-antigo"> <label>Membro da Equipe:</label>
+            <input type="text" id="configEquipeNome" required>
+            <button type="submit" class="btn-primario" style="background:#546e7a;">Salvar</button>
+          </form>
+          <div id="lista-equipe-ui" style="margin-top:15px;"></div>
+        </div>
+
+        <div id="content-agencias" class="tab-content">
+          <form id="formConfig" onsubmit="salvarAgencia(event)">
+            <input type="hidden" id="agencia-antigo"> <label>Agência:</label>
+            <input type="text" id="configNome" required>
+            <label>Valor Hora:</label>
+            <input type="text" inputmode="numeric" id="configValor" oninput="formatarMoeda(this)" required>
+            <button type="submit" class="btn-primario" style="background:#607d8b;">Salvar</button>
+          </form>
+          <div id="lista-configuracoes" style="margin-top:15px;"></div>
+        </div>
+
+        <div id="content-clientes" class="tab-content">
+          <form id="formClientes" onsubmit="salvarCliente(event)">
+            <input type="hidden" id="cliente-antigo"> <label>Cliente/Empresa Final:</label>
+            <input type="text" id="configClienteNome" required>
+            <button type="submit" class="btn-primario" style="background:#FF9800;">Salvar Cliente</button>
+          </form>
+          <div id="lista-clientes-ui" style="margin-top:15px;"></div>
+        </div>
+
+        <div id="content-sobre" class="tab-content" style="text-align: center; padding: 30px 10px;">
+          <img src="logo.webp" alt="IntérpretePro"
+            style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+          <h2 style="color: #4a148c; margin-bottom: 5px;">IntérpretePro</h2>
+          <p style="color: #666; font-size: 14px; margin-bottom: 20px;">Versão 1.0.0</p>
+
+          <p style="font-size: 14px; line-height: 1.5; color: #444; margin-bottom: 20px;">
+            Sistema de gestão desenvolvido exclusivamente para facilitar o dia a dia e o controle financeiro de
+            intérpretes de LIBRAS.
+          </p>
+
+          <div
+            style="background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #eee; text-align: left;">
+            <p style="font-size: 13px; margin: 0 0 10px 0;"><strong>Desenvolvido por:</strong> Danilo Bertolani
+            </p>
+            <p style="font-size: 13px; margin: 0;"><strong>Suporte Técnico:</strong> <br>
+              <a href="https://wa.me/5527996962395" target="_blank"
+                style="color: #25D366; text-decoration: none; font-weight: bold;">📱 Chamar no WhatsApp</a>
+            </p>
+          </div>
+
+          <div style="margin-top: 20px; display: flex; justify-content: center;">
+            <button id="btn-instalar-app" onclick="instalarAplicativo()"
+              style="display: none; background: linear-gradient(135deg, #7b1fa2, #4a148c); color: white; border: none; padding: 14px 22px; font-size: 15px; font-weight: bold; border-radius: 999px; cursor: pointer; transition: 0.2s; box-shadow: 0 6px 16px rgba(74, 20, 140, 0.28); min-width: 230px;">
+              📲 Baixar Aplicativo
+            </button>
+          </div>
+
+          <div style="margin-top: 25px; border-top: 1px solid #eee; padding-top: 20px;">
+            <p style="font-size: 13px; color: #666; margin-bottom: 10px;">Sua opinião nos ajuda a evoluir o App!
+            </p>
+            <button onclick="abrirModalFeedback(event)" class="btn-voltar"
+              style="color: #4a148c; border-color: #4a148c; background: #f3e5f5; width: 100%; margin: 0; padding: 15px; font-weight: bold;">
+              💡 Enviar Sugestão / Feedback
+            </button>
+          </div>
+        </div>
+
+        <div id="content-perfil" class="tab-content">
+          <div style="padding: 10px 0;">
+
+            <!-- Avatar com edição -->
+            <div style="text-align: center; margin-bottom: 20px;">
+              <div style="position: relative; width: 90px; margin: 0 auto 10px auto;">
+                <div id="avatar-display" onclick="document.getElementById('input-foto-perfil').click()"
+                  style="width: 90px; height: 90px; border-radius: 50%; background: #f3e5f5; border: 3px solid #9c27b0; display: flex; align-items: center; justify-content: center; font-size: 48px; cursor: pointer; overflow: hidden;">
+                  👤
+                </div>
+                <button onclick="removerFotoPerfil()" id="btn-remover-foto"
+                  style="display:none; position: absolute; top: 0; right: 0; background: #e53935; border: none; border-radius: 50%; width: 24px; height: 24px; color: white; font-size: 14px; cursor: pointer; line-height: 1;">✕</button>
+                <div onclick="document.getElementById('input-foto-perfil').click()"
+                  style="position: absolute; bottom: 0; right: 0; background: #4a148c; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px;">
+                  ✏️</div>
+              </div>
+              <input type="file" id="input-foto-perfil" accept="image/*" style="display:none"
+                onchange="salvarFotoPerfil(this)">
+
+              <!-- Nome editável -->
+              <div id="nome-display-perfil"
+                style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 4px;">
+                <h3 style="color: #4a148c; margin: 0; font-size: 18px;" id="conta-nome">---</h3>
+                <button onclick="ativarEdicaoNome()"
+                  style="background: none; border: none; cursor: pointer; font-size: 14px; padding: 2px;">✏️</button>
+              </div>
+              <div id="nome-edit-perfil"
+                style="display: none; gap: 6px; align-items: center; justify-content: center; flex-wrap: wrap; margin-bottom: 4px;">
+                <input type="text" id="input-nome-perfil" placeholder="Nome"
+                  style="width: 130px; padding: 6px 10px; font-size: 14px; margin: 0;">
+                <input type="text" id="input-sobrenome-perfil" placeholder="Sobrenome"
+                  style="width: 130px; padding: 6px 10px; font-size: 14px; margin: 0;">
+                <button onclick="salvarNomePerfil()"
+                  style="background: #4a148c; color: white; border: none; border-radius: 6px; padding: 7px 14px; font-size: 13px; cursor: pointer; font-weight: bold;">Salvar</button>
+                <button onclick="cancelarEdicaoNome()"
+                  style="background: #eee; color: #666; border: none; border-radius: 6px; padding: 7px 10px; font-size: 13px; cursor: pointer;">✕</button>
+              </div>
+
+              <p style="color: #888; font-size: 13px; margin: 4px 0 0 0;" id="conta-email">---</p>
+            </div>
+
+            <!-- Card Plano -->
+            <div
+              style="background: #f3e5f5; border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid #ce93d8;">
+              <p
+                style="margin: 0 0 4px 0; font-size: 11px; color: #7b1fa2; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
+                Assinatura</p>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 20px; font-weight: bold; color: #4a148c;" id="conta-plano">---</span>
+                <span style="font-size: 13px; color: #e65100; font-weight: bold;" id="conta-validade">---</span>
+              </div>
+            </div>
+
+            <!-- Botão Renovar -->
+            <button type="button" class="btn-primario" onclick="abrirModalPlanos()"
+              style="margin-top: 0; margin-bottom: 20px;">
+              💳 Fazer Upgrade / Renovar Plano
+            </button>
+
+            <!-- Importar Planilha -->
+            <div style="background: #f9f9f9; padding: 15px; border-radius: 10px; border: 1px dashed #9c27b0;">
+              <h4 style="color: #4a148c; margin: 0 0 10px 0; font-size: 15px;">📦 Importar Planilha</h4>
+
+              <div
+                style="background: #fff3e0; border-left: 4px solid #FF9800; border-radius: 6px; padding: 10px 12px; margin-bottom: 12px; font-size: 13px; color: #555; line-height: 1.6;">
+                ⚠️ Certifique-se de que sua planilha segue o modelo padrão. Colunas fora do padrão podem causar erros.
+                <br><br>
+
+                <span style="color: #9e9e9e; font-weight: bold; cursor: not-allowed;">
+                  📥 Planilha modelo — <em>em breve</em>
+                </span>
+
+              </div>
+
+              <label style="font-size: 13px; font-weight: bold; color: #555; margin-top: 0;">🔗 Link do Google
+                Sheets:</label>
+              <input type="url" id="input-link-planilha"
+                placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?output=csv"
+                style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 12px; font-size: 12px; box-sizing: border-box;">
+
+              <label style="font-size: 13px; font-weight: bold; color: #555; margin-top: 0;">📂 Ou upload do arquivo
+                (.csv / .xlsx):</label>
+              <input type="file" id="input-arquivo-planilha" accept=".csv,.xlsx,.xls"
+                style="margin-bottom: 12px; background: white; border: 1px solid #ccc; font-size: 13px; border-radius: 6px;">
+
+              <button type="button" onclick="prepararImportacaoLink()" class="btn-primario"
+                style="margin: 0; background: #9c27b0; padding: 12px; font-weight: bold;">
+                🔍 Analisar e Importar
+              </button>
+            </div>
+
+            <!-- Modal confirmação importação -->
+            <div id="modal-confirmacao-import"
+              style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;">
+              <div
+                style="background: white; width: 100%; max-width: 350px; border-radius: 12px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+                <h3 style="color: #4a148c; margin-top: 0; text-align: center; font-size: 18px;">Planilha Encontrada! 📊
+                </h3>
+                <p style="font-size: 13px; color: #666; text-align: center;">Verifique se os dados estão corretos antes
+                  de importar.</p>
+                <div id="msg-preview-import"
+                  style="font-size: 13px; color: #333; margin-bottom: 20px; background: #f3e5f5; padding: 12px; border-radius: 8px; border-left: 4px solid #9c27b0; line-height: 1.6;">
+                </div>
+                <div style="display: flex; gap: 10px;">
+                  <button type="button" onclick="fecharModalImport()" class="btn-voltar"
+                    style="flex: 1; margin: 0; padding: 12px;">Cancelar</button>
+                  <button type="button" onclick="executarImportacaoLote()" class="btn-primario"
+                    style="flex: 1; margin: 0; padding: 12px; background: #4caf50; border: none;">✅ Importar</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="atalho-feedback-fixo" class="feedback-atalho" style="display: none;">
+      <a href="#" onclick="abrirModalFeedback(event)">
+        <span>💡</span> Sugerir uma melhoria para o App
+      </a>
+    </div>
+
+  </div>
+  <script src="script.js"></script>
+
+  <div id="modal-termos" class="modal-lgpd" style="display: none;">
+    <div class="modal-content">
+      <div class="header-app"
+        style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+        <h2 style="margin:0; font-size: 18px;">Termos e Privacidade</h2>
+        <button onclick="fecharModalTermos()"
+          style="background:none; border:none; font-size:28px; cursor:pointer; color:#666;">&times;</button>
+      </div>
+      <div class="modal-body"
+        style="text-align: left; padding: 15px 0; max-height: 350px; overflow-y: auto; font-size: 14px; line-height: 1.5; color: #444;">
+        <p><strong>1. Uso de Dados:</strong> O App utiliza seu e-mail apenas para autenticação e controle de
+          licença.
+        </p>
+        <p><strong>2. Armazenamento:</strong> Seus registros são salvos em uma planilha privada vinculada ao sistema
+          SaaS.</p>
+        <p><strong>3. Seus Direitos:</strong> Sob a LGPD, você pode solicitar a exclusão de seus dados.</p>
+        <p><strong>4. Segurança:</strong> Utilizamos protocolos de segurança do Google.</p>
+      </div>
+      <button class="btn-primario" onclick="fecharModalTermos()" style="width: 100%; margin-top: 10px;">Entendi e
+        Fechar</button>
+    </div>
+  </div>
+
+  <div id="modal-detalhes-servico" class="modal-lgpd" style="display: none; z-index: 10000;">
+    <div class="modal-content"
+      style="max-width: 380px; text-align: left; padding: 0; overflow: hidden; border-radius: 15px;">
+
+      <div id="detalhe-header" style="padding: 20px; color: white; text-align: center; background: #4a148c;">
+        <span id="detalhe-status-badge"
+          style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase;">STATUS</span>
+        <h3 id="detalhe-agencia" style="margin: 10px 0 0 0; font-size: 22px;">---</h3>
+      </div>
+
+      <div style="padding: 20px;">
+        <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+          <div style="font-size: 14px;">📍 <strong>Cliente:</strong> <span id="detalhe-cliente">---</span></div>
+          <div style="font-size: 14px;">📅 <strong>Data:</strong> <span id="detalhe-data">---</span></div>
+          <div style="font-size: 14px;">⏱️ <strong>Horário:</strong> <span id="detalhe-horas">---</span></div>
+          <div style="font-size: 14px;">👤 <strong>Intérprete:</strong> <span id="detalhe-interprete">---</span>
+          </div>
+          <div style="font-size: 14px;">🛠️ <strong>Serviço:</strong> <span id="detalhe-tipo">---</span></div>
+          <div id="box-obs-detalhe"
+            style="font-size: 13px; color: #666; background: #f9f9f9; padding: 10px; border-radius: 8px; border-left: 3px solid #ddd;">
+            <strong>Obs:</strong> <span id="detalhe-obs">---</span>
+          </div>
+          <div style="text-align: center;">
+            <span style="font-size: 12px; color: #999;">Valor do Repasse:</span><br>
+            <strong id="detalhe-valor" style="font-size: 24px; color: #2e7d32;">R$ 0,00</strong>
+          </div>
+        </div>
+
+        <div id="acoes-detalhe" style="display: flex; flex-direction: column; gap: 10px;">
+
+          <div id="secao-baixa-pagamento"
+            style="background: #f1f8e9; padding: 15px; border-radius: 10px; border: 1px solid #c5e1a5;">
+            <label style="font-size: 11px; font-weight: bold; color: #33691e;">DATA QUE VOCÊ RECEBEU:</label>
+            <input type="date" id="data-pagamento-modal"
+              style="width: 100%; padding: 10px; border: 1px solid #a5d6a7; border-radius: 6px; margin: 5px 0 10px 0; font-size: 16px;">
+            <button id="btn-confirmar-pgto" class="btn-primario" style="background: #2e7d32; width: 100%; margin: 0;">✔️
+              Confirmar Recebimento</button>
+          </div>
+
+          <div style="display: flex; gap: 10px;">
+            <button id="btn-editar-detalhe" class="btn-voltar"
+              style="flex: 1; margin: 0; border-color: #4a148c; color: #4a148c;">✏️ Editar</button>
+            <button id="btn-excluir-detalhe" class="btn-voltar"
+              style="flex: 1; margin: 0; border-color: #d32f2f; color: #d32f2f;">🗑️ Excluir</button>
+          </div>
+          <button onclick="fecharModalDetalhes()" class="btn-voltar"
+            style="width: 100%; border: none; background: #eee;">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-logout" class="modal-lgpd" style="display: none;">
+    <div class="modal-content" style="text-align: center;">
+      <div style="font-size: 40px; margin-bottom: 10px;">🚪</div>
+      <h3>Deseja sair da conta?</h3>
+      <p style="color: #666; font-size: 14px; margin-bottom: 20px;">Seus dados continuam salvos com segurança.</p>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn-voltar" onclick="fecharModalLogout()"
+          style="flex: 1; margin: 0; padding: 12px;">Cancelar</button>
+        <button class="btn-primario" onclick="confirmarLogout()"
+          style="flex: 1; margin: 0; background: #ff5252; padding: 12px;">Sair agora</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-confirmacao" class="modal-lgpd" style="display: none; z-index: 30000;">
+    <div class="modal-content" style="text-align: center; max-width: 320px;">
+      <div id="confirm-icon" style="font-size: 40px; margin-bottom: 15px;">❓</div>
+      <h3 id="confirm-titulo" style="color: #4a148c; margin-bottom: 10px;">Confirmar Ação</h3>
+      <p id="confirm-mensagem" style="color: #666; font-size: 14px; margin-bottom: 25px;">Você tem certeza que
+        deseja
+        realizar esta alteração?</p>
+
+      <div style="display: flex; gap: 10px;">
+        <button onclick="fecharConfirmacao(false)" class="btn-voltar"
+          style="flex: 1; margin: 0; padding: 12px;">Não</button>
+        <button id="btn-confirmar-ok" class="btn-primario"
+          style="flex: 1; margin: 0; padding: 12px; background: #4a148c;">Sim, confirmar</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="modal-feedback" class="modal-lgpd" style="display: none; z-index: 9999;">
+    <div class="modal-content" style="max-width: 400px; text-align: left;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h3 style="color: #4a148c; margin: 0;">Sua opinião nos ajuda! 💬</h3>
+        <button onclick="fecharModalFeedback()"
+          style="background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">&times;</button>
+      </div>
+
+      <form id="formFeedback" onsubmit="enviarFeedback(event)">
+        <label style="font-size: 13px; font-weight: bold; color: #444;">Como você organiza seus atendimentos
+          hoje?</label>
+        <select id="fb-metodo" class="input-field" required style="margin-bottom: 15px;">
+          <option value="" disabled selected>Selecione...</option>
+          <option value="Papel/Agenda">Papel ou Agenda física</option>
+          <option value="WhatsApp/Cabeca">WhatsApp ou "de cabeça"</option>
+          <option value="Planilha">Planilha no Excel/Sheets</option>
+          <option value="Nao_Organizo">Não tenho uma organização fixa</option>
+        </select>
+
+        <label style="font-size: 13px; font-weight: bold; color: #444;">Já esqueceu de cobrar algum serviço ou
+          perdeu
+          controle de pagamentos?</label>
+        <select id="fb-perda" class="input-field" required style="margin-bottom: 15px;">
+          <option value="" disabled selected>Selecione...</option>
+          <option value="Sim_Frequente">Sim, acontece com frequência</option>
+          <option value="Sim_Raro">Já aconteceu algumas vezes</option>
+          <option value="Nunca">Nunca, sou muito organizado(a)</option>
+        </select>
+
+        <label style="font-size: 13px; font-weight: bold; color: #444;">Quanto tempo você gasta por mês somando
+          horas
+          para faturar?</label>
+        <select id="fb-tempo" class="input-field" required style="margin-bottom: 15px;">
+          <option value="" disabled selected>Selecione...</option>
+          <option value="Minutos">Apenas alguns minutos</option>
+          <option value="Horas">Algumas horas chatas</option>
+          <option value="Muito_Tempo">Muito tempo / Um dia inteiro</option>
+        </select>
+
+        <label style="font-size: 13px; font-weight: bold; color: #444;">Acha que relatórios automáticos te dariam um
+          ar
+          mais profissional?</label>
+        <select id="fb-status" class="input-field" required style="margin-bottom: 15px;">
+          <option value="" disabled selected>Selecione...</option>
+          <option value="Sim">Sim, com certeza</option>
+          <option value="Talvez">Talvez, não tinha pensado nisso</option>
+          <option value="Nao">Não vejo diferença</option>
+        </select>
+
+        <label style="font-size: 13px; font-weight: bold; color: #444;">Quanto você investiria mensalmente para ter
+          toda
+          essa gestão organizada?</label>
+        <select id="fb-preco" class="input-field" required style="margin-bottom: 15px;">
+          <option value="" disabled selected>Escolha um valor mensal...</option>
+          <option value="15-25">R$ 15,00 a R$ 25,00</option>
+          <option value="26-40">R$ 26,00 a R$ 40,00</option>
+          <option value="41-60">R$ 41,00 a R$ 60,00</option>
+          <option value="Nao_Pagaria">Apenas se fosse gratuito</option>
+        </select>
+
+        <label style="font-size: 13px; font-weight: bold; color: #444;">O que falta no App para você assinar o plano
+          hoje?</label>
+        <textarea id="fb-vital" class="input-field" rows="2" placeholder="O que te faria pagar com prazer?"
+          style="margin-bottom: 15px;"></textarea>
+
+        <label style="font-size: 13px; font-weight: bold; color: #444;">Algum elogio ou sugestão específica?</label>
+        <textarea id="fb-obs" class="input-field" rows="2" placeholder="Sua opinião geral..."
+          style="margin-bottom: 15px;"></textarea>
+
+        <button type="submit" id="btn-feedback" class="btn-primario" style="background: #4a148c; width: 100%;">Enviar
+          Feedback</button>
+      </form>
+    </div>
+  </div>
+
+
+
+
+  <div id="modal-planos" class="modal-lgpd" style="display:none;">
+    <div class="modal-content" style="max-width:420px; padding:20px;">
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <div>
+          <h3 style="color:#4a148c; margin:0; font-size:20px;">🚀 Escolha seu Plano</h3>
+          <p style="margin:4px 0 0 0; font-size:12px; color:#888;">Acesso completo ao IntérpretePro</p>
+        </div>
+
+        <button onclick="fecharModal('modal-planos')"
+          style="background:none;border:none;font-size:28px;cursor:pointer;color:#aaa;line-height:1;">&times;</button>
+      </div>
+
+      <hr style="border:none; border-top:1px solid #eee; margin:14px 0;">
+
+      <!-- Os cards de plano são injetados aqui pelo script.js -->
+      <div id="modal-planos-lista">
+        <div class="loader" style="margin:40px auto; border-top-color:#9c27b0;"></div>
+      </div>
+
+      <p style="text-align:center; font-size:11px; color:#bbb; margin-top:16px;">
+        🔒 Pagamento seguro via Mercado Pago
+      </p>
+    </div>
+  </div>
+
+
+  <div id="modal-pix" class="modal-lgpd" style="display:none;">
+    <div class="modal-content" style="max-width:380px;">
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3 style="margin:0; color:#00897b; font-size:18px;">📱 Pague com PIX</h3>
+        <button onclick="fecharModal('modal-pix')"
+          style="background:none;border:none;font-size:26px;cursor:pointer;color:#aaa;">&times;</button>
+      </div>
+
+      <p style="font-size:13px; color:#555; margin:0 0 8px 0; text-align:center;">
+        Escaneie o QR Code ou copie o código abaixo.
+      </p>
+
+      <!-- QR Code -->
+      <div style="text-align:center;">
+        <img id="pix-qrcode-img" class="pix-qrcode-img" src="" alt="QR Code PIX">
+      </div>
+
+      <!-- Código Copia e Cola -->
+      <div class="pix-copia-cola" id="pix-copia-cola-texto">Gerando código...</div>
+
+      <button class="btn-copiar-pix" onclick="copiarCodigoPix()">
+        📋 Copiar código PIX
+      </button>
+
+      <div
+        style="background:#fff8e1; border-left:3px solid #fbc02d; padding:10px; border-radius:6px; margin-top:14px; font-size:12px; color:#555;">
+        ⏱️ <strong>Validade:</strong> 30 minutos. Após o pagamento, seu acesso será liberado
+        automaticamente em até 1 minuto.
+      </div>
+
+      <p style="text-align:center; margin-top:14px; font-size:12px; color:#aaa;">
+        🔒 Gerado pelo Mercado Pago
+      </p>
+    </div>
+  </div>
+
+</body>
+
+</html>

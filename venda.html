@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IntérpretePro | Organize sua agenda e seus recebimentos</title>
+  
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://interpretepro.deab.com.br/venda.html">
+  <meta property="og:title" content="IntérpretePro | Organize sua agenda e seus recebimentos">
+  <meta property="og:description" content="O sistema de gestão definitivo para intérpretes de LIBRAS. Organize atendimentos, controle pagamentos e profissionalize sua rotina.">
+  <meta property="og:image" content="https://interpretepro.deab.com.br/logo.png">
+  <meta property="og:image:width" content="500">
+  <meta property="og:image:height" content="500">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://interpretepro.deab.com.br/logo.png">
+  
+  <meta name="description" content="Landing page oficial do IntérpretePro para intérpretes de LIBRAS. Organize atendimentos, controle pagamentos e profissionalize sua rotina.">
+  <link rel="icon" type="image/png" href="logo.png">
+  <style>
+    :root {
+      --roxo: #4a148c;
+      --roxo-2: #7b1fa2;
+      --roxo-claro: #f3e5f5;
+      --laranja: #FF9800;
+      --laranja-2: #F57C00;
+      --verde: #2E7D32;
+      --fundo: #f4f7f6;
+      --texto: #333;
+      --texto-sec: #666;
+      --card: #fff;
+      --borda: #ececec;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--fundo);
+      color: var(--texto);
+      line-height: 1.5;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, var(--roxo), var(--roxo-2));
+      color: #fff;
+      padding: 56px 18px 74px;
+      text-align: center;
+    }
+
+    .hero-inner {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .logo-hero {
+      width: 92px;
+      height: 92px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid rgba(255, 255, 255, 0.65);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+      background: #fff;
+      padding: 6px;
+    }
+
+    .logo-hero-wrap {
+      width: 116px;
+      height: 116px;
+      margin: 0 auto;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: rgba(255, 255, 255, 0.12);
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.25);
+    }
+
+    h1 {
+      margin: 16px 0 10px;
+      font-size: 40px;
+      font-weight: 900;
+      letter-spacing: -0.6px;
+    }
+
+    .hero p {
+      margin: 0 auto 26px;
+      max-width: 720px;
+      font-size: 19px;
+      opacity: 0.95;
+    }
+
+    .btn-principal {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--laranja), var(--laranja-2));
+      color: #fff;
+      text-decoration: none;
+      font-weight: 900;
+      font-size: 18px;
+      border-radius: 12px;
+      padding: 15px 30px;
+      box-shadow: 0 8px 20px rgba(245, 124, 0, 0.35);
+    }
+
+    .wrap {
+      width: min(1050px, 94%);
+      margin: -34px auto 34px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.09);
+      padding: 28px;
+    }
+
+    .section {
+      margin-top: 30px;
+      border-top: 1px solid #f1f1f1;
+      padding-top: 26px;
+    }
+
+    .section:first-child {
+      margin-top: 0;
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .section h2 {
+      margin: 0 0 8px;
+      color: var(--roxo);
+      font-size: 28px;
+      font-weight: 900;
+    }
+
+    .section .lead {
+      margin: 0 0 16px;
+      color: var(--texto-sec);
+      font-size: 15px;
+    }
+
+    .dores-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .dor-card {
+      background: #fff;
+      border: 1px solid var(--borda);
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+    }
+
+    .dor-card h3 {
+      margin: 0 0 6px;
+      font-size: 16px;
+      color: #d84315;
+    }
+
+    .dor-card p {
+      margin: 0;
+      color: var(--texto-sec);
+      font-size: 14px;
+    }
+
+    .mock-area {
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .app-mock {
+      max-width: 450px;
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.08);
+      border: 1px solid #f2f2f2;
+      overflow: hidden;
+    }
+
+    .mock-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 14px;
+      border-bottom: 1px solid #e8e8e8;
+    }
+
+    .mock-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .mock-logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 2px solid var(--roxo-claro);
+      background: linear-gradient(135deg, #fff, #f8f3fb);
+      flex-shrink: 0;
+    }
+
+    .mock-title {
+      color: var(--roxo);
+      font-size: 23px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .mock-out {
+      background: #ffebee;
+      color: #d32f2f;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 10px;
+      border-radius: 6px;
+    }
+
+    .mock-main { padding: 14px; }
+
+    .mock-dash {
+      background: linear-gradient(135deg, #4CAF50, #2E7D32);
+      color: #fff;
+      text-align: center;
+      border-radius: 16px;
+      padding: 18px 14px;
+    }
+
+    .mock-dash small {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      opacity: 0.92;
+    }
+
+    .mock-dash strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 34px;
+      font-weight: 900;
+    }
+
+    .mock-tags {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .mock-tag {
+      background: rgba(255, 255, 255, 0.92);
+      color: #2f2f2f;
+      border-radius: 16px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 9px;
+    }
+
+    .mock-menu {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .mock-btn {
+      border: 1px solid #f2f2f2;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      min-height: 100px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .mock-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: #eceff1;
+    }
+
+    .mock-text {
+      width: 72%;
+      height: 10px;
+      border-radius: 6px;
+      background: #dfe5e8;
+    }
+
+    .beneficios {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+
+    .beneficios li {
+      display: flex;
+      gap: 10px;
+      align-items: start;
+      background: #fbfbfb;
+      border: 1px solid #f0f0f0;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      color: #4a4a4a;
+    }
+
+    .ok {
+      width: 19px;
+      height: 19px;
+      border-radius: 50%;
+      background: #e8f5e9;
+      color: var(--verde);
+      font-size: 12px;
+      font-weight: 900;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .planos {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .planos-status {
+      border: 1px dashed #d8c9e5;
+      border-radius: 12px;
+      padding: 14px;
+      color: #6d5684;
+      font-size: 14px;
+      background: #faf7fd;
+    }
+
+    .plano {
+      border: 2px solid #ece0f3;
+      border-radius: 14px;
+      padding: 16px;
+      background: #fff;
+    }
+
+    .plano.destaque {
+      border-color: var(--roxo);
+      background: linear-gradient(135deg, #fdf7ff, #faf5ff);
+      box-shadow: 0 6px 16px rgba(74, 20, 140, 0.12);
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.2px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 8px;
+      color: #fff;
+      background: var(--roxo);
+    }
+
+    .plano h3 {
+      margin: 0 0 4px;
+      color: var(--roxo);
+      font-size: 20px;
+    }
+
+    .preco {
+      margin: 0 0 10px;
+      font-size: 30px;
+      font-weight: 900;
+      color: var(--texto);
+    }
+
+    .preco span {
+      font-size: 14px;
+      font-weight: 600;
+      color: #888;
+    }
+
+    .plano ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--texto-sec);
+      font-size: 14px;
+    }
+
+    .acao-final {
+      margin-top: 16px;
+      text-align: center;
+      background: linear-gradient(135deg, var(--roxo), var(--roxo-2));
+      color: #fff;
+      border-radius: 14px;
+      padding: 24px 16px;
+    }
+
+    .acao-final h3 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      font-weight: 900;
+    }
+
+    .acao-final p {
+      margin: 0 0 16px;
+      opacity: 0.93;
+    }
+
+    .btn-final {
+      display: inline-block;
+      text-decoration: none;
+      color: #fff;
+      background: linear-gradient(135deg, var(--laranja), var(--laranja-2));
+      padding: 15px 28px;
+      border-radius: 12px;
+      font-size: 17px;
+      font-weight: 900;
+      box-shadow: 0 8px 20px rgba(245, 124, 0, 0.35);
+    }
+
+    @media (max-width: 950px) {
+      .mock-area {
+        grid-template-columns: 1fr;
+      }
+
+      .app-mock {
+        margin: 0 auto;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .hero {
+        padding: 36px 14px 50px;
+      }
+
+      h1 { font-size: 31px; }
+      .hero p { font-size: 16px; }
+
+      .wrap {
+        width: 100%;
+        margin: -20px auto 0;
+        border-radius: 0;
+        padding: 20px 14px 28px;
+      }
+
+      .dores-grid,
+      .planos {
+        grid-template-columns: 1fr;
+      }
+
+      .mock-title { font-size: 20px; }
+      .acao-final h3 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="logo-hero-wrap">
+        <img class="logo-hero" src="logo.png" alt="Logo IntérpretePro">
+      </div>
+      <h1>Profissionalize sua agenda e nunca mais esqueça de cobrar um serviço.</h1>
+      <p>O IntérpretePro organiza seus atendimentos, pagamentos e relatórios em um só lugar, com foco total na rotina real do intérprete de LIBRAS.</p>
+      <a class="btn-principal" href="index.html">Começar Teste Grátis</a>
+    </div>
+  </section>
+
+  <main class="wrap">
+    <!-- Interesse -->
+    <section class="section">
+      <h2>Você vive alguma dessas dores?</h2>
+      <p class="lead">Se sim, esta página foi feita para você.</p>
+      <div class="dores-grid">
+        <article class="dor-card">
+          <h3>Agenda bagunçada</h3>
+          <p>Anotações espalhadas em papel, WhatsApp e memória, sem histórico confiável do que foi feito.</p>
+        </article>
+        <article class="dor-card">
+          <h3>Várias agências</h3>
+          <p>Dificuldade para controlar valores e atendimentos de cada contratante sem perder tempo com planilhas complexas.</p>
+        </article>
+        <article class="dor-card">
+          <h3>Cobrança sem controle</h3>
+          <p>Pagamentos atrasados, serviços esquecidos e insegurança na hora de fechar o mês.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Desejo -->
+    <section class="section">
+      <h2>Veja como o IntérpretePro facilita sua rotina</h2>
+      <p class="lead">Simulação visual do dashboard real em HTML/CSS para você entender a experiência antes de entrar.</p>
+      <div class="mock-area">
+        <div class="app-mock">
+          <div class="mock-header">
+            <div class="mock-brand">
+              <div class="mock-logo"></div>
+              <span class="mock-title">IntérpretePro</span>
+            </div>
+            <span class="mock-out">Sair</span>
+          </div>
+          <div class="mock-main">
+            <div class="mock-dash">
+              <small>Total a Receber</small>
+              <strong>R$ 0,00</strong>
+              <div class="mock-tags">
+                <span class="mock-tag">Agência A</span>
+                <span class="mock-tag">Agência B</span>
+                <span class="mock-tag">Equipe</span>
+              </div>
+            </div>
+            <div class="mock-menu">
+              <div class="mock-btn"><div class="mock-icon"></div><div class="mock-text"></div></div>
+              <div class="mock-btn"><div class="mock-icon"></div><div class="mock-text"></div></div>
+              <div class="mock-btn"><div class="mock-icon"></div><div class="mock-text"></div></div>
+              <div class="mock-btn"><div class="mock-icon"></div><div class="mock-text"></div></div>
+            </div>
+          </div>
+        </div>
+        <ul class="beneficios">
+          <li><span class="ok">✓</span><span>Registre atendimentos em segundos com data, horário, agência e valor.</span></li>
+          <li><span class="ok">✓</span><span>Tenha visão imediata do que está pendente e do que já foi pago.</span></li>
+          <li><span class="ok">✓</span><span>Filtre histórico por período, cliente, agência e membro da equipe.</span></li>
+          <li><span class="ok">✓</span><span>Gere relatórios para NF com aparência profissional e pronto para compartilhar.</span></li>
+          <li><span class="ok">✓</span><span>Use no celular e no computador com o mesmo padrão visual.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Ação -->
+    <section class="section">
+      <h2>Planos simples para quem quer organização de verdade</h2>
+      <p class="lead">Teste 7 dias grátis e veja os valores reais vindos da sua planilha de planos.</p>
+      <div class="planos" id="planos-container">
+        <article class="plano">
+          <h3>Teste Gratuito</h3>
+          <p class="preco">7 dias <span>sem cartão</span></p>
+          <ul>
+            <li>Acesso completo às funções principais</li>
+            <li>Dashboard, histórico e relatórios</li>
+            <li>Configuração de equipe e agências</li>
+          </ul>
+        </article>
+        <article class="planos-status" id="planos-status">Carregando planos oficiais...</article>
+      </div>
+
+      <div class="acao-final">
+        <h3>Chega de trabalhar no escuro.</h3>
+        <p>Organize sua operação, cobre com segurança e ganhe mais tempo para o que importa.</p>
+        <a class="btn-final" href="index.html">Quero me Organizar Agora</a>
+      </div>
+    </section>
+  </main>
+  <script>
+    // Mantido igual ao front atual (ambiente de testes).
+    // Em produção, troque para a URL PROD usada no script.js.
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxLC1WJjrWUPQnUVyonMScINtlwj-VRiPU5aBIxc7kbAnVmI7o_bSR2peINpnPysY0/exec";
+
+    function moedaBR(v) {
+      return Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    }
+
+    function escaparHTML(txt) {
+      return String(txt || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function cardPlanoHTML(plano) {
+      const nome = escaparHTML(plano.nome || "Plano");
+      const meses = Number(plano.meses || 1);
+      const total = Number(plano.valor_total || 0);
+      const mensal = meses > 0 ? (total / meses) : total;
+      const destaque = !!plano.destaque;
+
+      return `
+        <article class="plano ${destaque ? "destaque" : ""}">
+          ${destaque ? '<span class="badge">Mais escolhido</span>' : ""}
+          <h3>${nome}</h3>
+          <p class="preco">${moedaBR(mensal)} <span>/mês</span></p>
+          <ul>
+            <li>Total do plano: ${moedaBR(total)}</li>
+            <li>Período: ${meses} ${meses === 1 ? "mês" : "meses"}</li>
+            <li>Controle financeiro completo e relatórios</li>
+          </ul>
+        </article>
+      `;
+    }
+
+    async function carregarPlanosLanding() {
+      const container = document.getElementById("planos-container");
+      const status = document.getElementById("planos-status");
+
+      try {
+        const response = await fetch(SCRIPT_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            acao: "buscarPlanosAtivos",
+            email: "landing@interpretepro",
+            dados: {}
+          })
+        });
+
+        const json = await response.json();
+        const planos = (json && Array.isArray(json.planos)) ? json.planos : [];
+
+        if (!planos.length) {
+          status.textContent = "Nenhum plano ativo encontrado no momento.";
+          return;
+        }
+
+        status.remove();
+        container.insertAdjacentHTML("beforeend", planos.map(cardPlanoHTML).join(""));
+      } catch (e) {
+        status.textContent = "Não foi possível carregar os planos agora. Tente novamente em instantes.";
+      }
+    }
+
+    carregarPlanosLanding();
+  </script>
+</body>
+</html>

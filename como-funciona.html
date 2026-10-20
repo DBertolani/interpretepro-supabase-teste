@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Como Funciona | IntérpretePro</title>
+
+  <meta name="description" content="Descubra como configurar o IntérpretePro e veja um tour visual pelo aplicativo de gestão para intérpretes.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://interpretepro.deab.com.br/como-funciona.html">
+  <meta property="og:title" content="Como Funciona | IntérpretePro">
+  <meta property="og:description" content="Descubra como configurar o IntérpretePro e veja um tour visual pelo aplicativo de gestão para intérpretes de LIBRAS.">
+  <meta property="og:image" content="https://interpretepro.deab.com.br/logo.png">
+  <meta property="og:image:width" content="500">
+  <meta property="og:image:height" content="500">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://interpretepro.deab.com.br/logo.png">
+  
+  <style>
+    :root {
+      --roxo: #4a148c;
+      --roxo-claro: #f3e5f5;
+      --laranja: #FF9800;
+      --verde: #2E7D32;
+      --texto: #333;
+      --texto-sec: #666;
+      --borda: #e6e6e6;
+      --bg: #f4f7f6;
+      --card: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--texto);
+      line-height: 1.5;
+      scroll-behavior: smooth;
+    }
+
+    .topo {
+      background: linear-gradient(135deg, var(--roxo), #7b1fa2);
+      color: #fff;
+      padding: 44px 20px 56px;
+      text-align: center;
+    }
+
+    .topo h1 {
+      margin: 0 0 10px;
+      font-size: 32px;
+      font-weight: 900;
+    }
+
+    .topo p {
+      margin: 0 auto;
+      max-width: 720px;
+      font-size: 17px;
+      opacity: 0.95;
+    }
+
+    .wrap {
+      width: min(980px, 94%);
+      margin: -28px auto 34px;
+      background: var(--card);
+      border-radius: 16px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+      padding: 28px;
+    }
+
+    .secao-titulo {
+      margin: 0 0 16px;
+      color: var(--roxo);
+      font-size: 24px;
+      font-weight: 900;
+    }
+
+    .lead {
+      margin: 0 0 22px;
+      color: var(--texto-sec);
+      font-size: 15px;
+    }
+
+    .etapas {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 26px;
+    }
+
+    .etapa {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 12px;
+      align-items: start;
+      background: #fafafa;
+      border: 1px solid #f0f0f0;
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .etapa-num {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--laranja);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .etapa h3 {
+      margin: 0 0 4px;
+      color: var(--roxo);
+      font-size: 17px;
+    }
+
+    .etapa p {
+      margin: 0;
+      color: var(--texto-sec);
+      font-size: 14px;
+    }
+
+    .manual-area {
+      margin-top: 18px;
+      border-top: 1px solid #efefef;
+      padding-top: 22px;
+    }
+
+    .manual-label {
+      margin: 0 0 10px;
+      display: inline-block;
+      background: var(--roxo-claro);
+      color: var(--roxo);
+      border: 1px solid #e1bee7;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      text-transform: uppercase;
+    }
+
+    .tour {
+      margin: 8px 0 22px;
+      padding: 14px;
+      border: 1px solid #ece2f3;
+      background: #fcf9ff;
+      border-radius: 12px;
+    }
+
+    .tour h3 {
+      margin: 0 0 10px;
+      color: var(--roxo);
+      font-size: 16px;
+    }
+
+    .tour-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tour-links a {
+      text-decoration: none;
+      color: var(--roxo);
+      border: 1px solid #d9c0eb;
+      background: #fff;
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: 12px;
+      font-weight: 800;
+      transition: 0.2s;
+    }
+
+    .tour-links a:hover {
+      background: var(--roxo);
+      color: #fff;
+      border-color: var(--roxo);
+    }
+
+    /* Mock visual do app (esqueleto) */
+    .app-mock {
+      max-width: 450px;
+      margin: 8px auto 0;
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.08);
+      border: 1px solid #f2f2f2;
+      overflow: hidden;
+    }
+
+    .mock-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 14px 12px;
+      border-bottom: 1px solid var(--borda);
+    }
+
+    .mock-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .mock-logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 2px solid var(--roxo-claro);
+      background: linear-gradient(135deg, #fff, #f8f3fb);
+    }
+
+    .mock-brand-text {
+      font-size: 23px;
+      font-weight: 900;
+      color: var(--roxo);
+    }
+
+    .mock-logout {
+      background: #ffebee;
+      color: #d32f2f;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 10px;
+      border-radius: 6px;
+    }
+
+    .mock-main {
+      padding: 14px;
+    }
+
+    .mock-dash {
+      background: linear-gradient(135deg, #4CAF50, #2E7D32);
+      border-radius: 16px;
+      color: #fff;
+      text-align: center;
+      padding: 18px 14px;
+    }
+
+    .mock-dash small {
+      display: block;
+      font-size: 12px;
+      opacity: 0.92;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .mock-dash strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+    }
+
+    .mock-tags {
+      margin-top: 9px;
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .mock-tag {
+      background: rgba(255, 255, 255, 0.92);
+      color: #2d2d2d;
+      border-radius: 16px;
+      font-size: 11px;
+      padding: 4px 10px;
+      font-weight: 700;
+    }
+
+    .mock-menu {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .mock-btn {
+      background: #fff;
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      min-height: 100px;
+      padding: 12px 10px;
+      text-align: center;
+      border: 1px solid #f3f3f3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+
+    .mock-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: #eceff1;
+    }
+
+    .mock-text {
+      height: 10px;
+      border-radius: 6px;
+      background: #dfe5e8;
+      width: 70%;
+    }
+
+    .mock-text.short {
+      width: 52%;
+    }
+
+    .manual-sub {
+      margin: 22px 0 10px;
+      color: var(--roxo);
+      font-size: 19px;
+      font-weight: 800;
+    }
+
+    .tabela-mock {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 10px;
+      border: 1px solid #e8eef1;
+    }
+
+    .tabela-mock th {
+      text-align: left;
+      background: #f0f8ff;
+      color: #1565c0;
+      font-size: 12px;
+      padding: 10px 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.2px;
+    }
+
+    .tabela-mock td {
+      border-top: 1px solid #eef3f5;
+      padding: 10px 8px;
+      height: 34px;
+    }
+
+    .linha-esqueleto {
+      width: 100%;
+      height: 9px;
+      border-radius: 6px;
+      background: #eceff1;
+    }
+
+    .bloco {
+      margin-top: 24px;
+      border-top: 1px solid #efefef;
+      padding-top: 22px;
+      scroll-margin-top: 20px;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .checklist li {
+      display: flex;
+      gap: 10px;
+      align-items: start;
+      background: #fbfbfb;
+      border: 1px solid #f0f0f0;
+      border-radius: 10px;
+      padding: 11px 12px;
+      color: #4a4a4a;
+      font-size: 14px;
+    }
+
+    .check {
+      margin-top: 1px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #e8f5e9;
+      color: var(--verde);
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      font-weight: 900;
+      flex-shrink: 0;
+    }
+
+    .fluxo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .fluxo-card {
+      background: #fff;
+      border: 1px solid #ededed;
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .fluxo-card h4 {
+      margin: 0 0 6px;
+      color: var(--roxo);
+      font-size: 16px;
+    }
+
+    .fluxo-card p {
+      margin: 0;
+      color: var(--texto-sec);
+      font-size: 13px;
+    }
+
+    .mock-relatorio {
+      margin-top: 10px;
+      border: 1px solid #ececec;
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .mock-rel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 10px;
+    }
+
+    .mock-pill {
+      background: #f3e5f5;
+      color: var(--roxo);
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .mock-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .mock-stat {
+      border: 1px solid #f1e7f5;
+      border-radius: 10px;
+      padding: 10px;
+      background: #fff;
+      text-align: center;
+    }
+
+    .mock-stat span {
+      display: block;
+      font-size: 11px;
+      color: #888;
+      text-transform: uppercase;
+    }
+
+    .mock-stat strong {
+      display: block;
+      margin-top: 4px;
+      color: var(--roxo);
+      font-size: 18px;
+    }
+
+    .faq {
+      margin-top: 12px;
+      border: 1px solid #eeeeee;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .faq-item {
+      padding: 12px;
+      border-bottom: 1px solid #f1f1f1;
+      background: #fff;
+    }
+
+    .faq-item:last-child {
+      border-bottom: none;
+    }
+
+    .faq-item strong {
+      color: var(--roxo);
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    .faq-item p {
+      margin: 0;
+      color: var(--texto-sec);
+      font-size: 13px;
+    }
+
+    .cta {
+      text-align: center;
+      margin-top: 26px;
+    }
+
+    .btn-voltar {
+      display: inline-block;
+      text-decoration: none;
+      background: var(--roxo);
+      color: #fff;
+      font-weight: 800;
+      padding: 13px 24px;
+      border-radius: 10px;
+      box-shadow: 0 6px 14px rgba(74, 20, 140, 0.25);
+    }
+
+    @media (max-width: 700px) {
+      .topo {
+        padding: 36px 16px 50px;
+      }
+
+      .topo h1 {
+        font-size: 27px;
+      }
+
+      .wrap {
+        width: 100%;
+        margin: -20px auto 0;
+        border-radius: 0;
+        padding: 20px 16px 30px;
+      }
+
+      .mock-brand-text {
+        font-size: 20px;
+      }
+
+      .fluxo-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topo">
+    <h1>Manual do IntérpretePro</h1>
+    <p>Veja como configurar o sistema e conheça uma prévia visual do dashboard antes de começar.</p>
+  </header>
+
+  <main class="wrap">
+    <nav class="tour" aria-label="Tour por telas">
+      <h3>Tour por telas do sistema</h3>
+      <div class="tour-links">
+        <a href="#tela-dashboard">Dashboard</a>
+        <a href="#tela-novo-servico">Novo Serviço</a>
+        <a href="#tela-historico">Histórico</a>
+        <a href="#tela-relatorios">Relatórios/NF</a>
+        <a href="#tela-ajustes">Ajustes</a>
+      </div>
+    </nav>
+
+    <h2 class="secao-titulo">Primeiros passos</h2>
+    <p class="lead">
+      A estrutura do IntérpretePro foi pensada para celular e desktop com o mesmo padrão visual.
+      Siga a ordem abaixo para iniciar rápido e sem dúvidas.
+    </p>
+
+    <section class="etapas" aria-label="Etapas de configuração">
+      <article class="etapa">
+        <div class="etapa-num">1</div>
+        <div>
+          <h3>Monte sua base em Ajustes</h3>
+          <p>Cadastre serviços, equipe, agências e clientes para preencher os formulários com rapidez.</p>
+        </div>
+      </article>
+      <article class="etapa">
+        <div class="etapa-num">2</div>
+        <div>
+          <h3>Registre cada atendimento</h3>
+          <p>Use “Novo Serviço” para lançar data, horário, agência e valor. O app organiza automaticamente.</p>
+        </div>
+      </article>
+      <article class="etapa">
+        <div class="etapa-num">3</div>
+        <div>
+          <h3>Acompanhe pendências no dashboard</h3>
+          <p>No painel principal, você visualiza o total a receber e os atalhos para histórico e relatórios.</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="manual-area" id="tela-dashboard" aria-label="Simulação visual do dashboard">
+      <span class="manual-label">Visual do sistema</span>
+      <p class="lead">Abaixo está um esqueleto em HTML/CSS que replica o layout real do dashboard do IntérpretePro.</p>
+
+      <div class="app-mock">
+        <div class="mock-header">
+          <div class="mock-brand">
+            <div class="mock-logo"></div>
+            <span class="mock-brand-text">IntérpretePro</span>
+          </div>
+          <span class="mock-logout">Sair</span>
+        </div>
+
+        <div class="mock-main">
+          <div class="mock-dash">
+            <small>Total a Receber</small>
+            <strong>R$ 0,00</strong>
+            <div class="mock-tags">
+              <span class="mock-tag">Membro A</span>
+              <span class="mock-tag">Membro B</span>
+              <span class="mock-tag">Membro C</span>
+            </div>
+          </div>
+
+          <div class="mock-menu">
+            <div class="mock-btn">
+              <div class="mock-icon"></div>
+              <div class="mock-text"></div>
+            </div>
+            <div class="mock-btn">
+              <div class="mock-icon"></div>
+              <div class="mock-text short"></div>
+            </div>
+            <div class="mock-btn">
+              <div class="mock-icon"></div>
+              <div class="mock-text"></div>
+            </div>
+            <div class="mock-btn">
+              <div class="mock-icon"></div>
+              <div class="mock-text short"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="manual-sub">Exemplo de tabela de histórico (esqueleto)</h3>
+      <table class="tabela-mock" aria-label="Tabela visual de histórico">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Agência</th>
+            <th>Intérprete</th>
+            <th>Valor</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="linha-esqueleto"></div></td>
+            <td><div class="linha-esqueleto"></div></td>
+            <td><div class="linha-esqueleto"></div></td>
+            <td><div class="linha-esqueleto"></div></td>
+            <td><div class="linha-esqueleto"></div></td>
+          </tr>
+          <tr>
+            <td><div class="linha-esqueleto"></div></td>
+            <td><div class="linha-esqueleto"></div></td>
+            <td><div class="linha-esqueleto"></div></td>
+            <td><div class="linha-esqueleto"></div></td>
+            <td><div class="linha-esqueleto"></div></td>
+          </tr>
+          <tr>
+            <td><div class="linha-esqueleto"></div></td>
+            <td><div class="linha-esqueleto"></div></td>
+            <td><div class="linha-esqueleto"></div></td>
+            <td><div class="linha-esqueleto"></div></td>
+            <td><div class="linha-esqueleto"></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="bloco" id="tela-ajustes" aria-label="Checklist de configuração inicial">
+      <h3 class="manual-sub">Checklist de configuração inicial</h3>
+      <ul class="checklist">
+        <li><span class="check">✓</span><span>Em <strong>Ajustes &gt; Serviços</strong>, cadastre os tipos mais usados (ex.: audiência, consulta, reunião).</span></li>
+        <li><span class="check">✓</span><span>Em <strong>Ajustes &gt; Equipe</strong>, inclua seu nome e os membros que podem receber lançamentos.</span></li>
+        <li><span class="check">✓</span><span>Em <strong>Ajustes &gt; Agências</strong>, salve nome da agência e valor/hora para cálculo automático.</span></li>
+        <li><span class="check">✓</span><span>Em <strong>Ajustes &gt; Clientes</strong>, cadastre empresas para facilitar preenchimento do formulário.</span></li>
+        <li><span class="check">✓</span><span>Confirme no Dashboard se o card <strong>Total a Receber</strong> está atualizando após um lançamento teste.</span></li>
+      </ul>
+    </section>
+
+    <section class="bloco" aria-label="Fluxo de uso diário">
+      <h3 class="manual-sub">Fluxo recomendado no dia a dia</h3>
+      <div class="fluxo-grid">
+        <article class="fluxo-card">
+          <h4>1) Antes do atendimento</h4>
+          <p>Abra “Novo Serviço”, selecione agência e intérprete, e deixe a tela pronta para registrar os horários.</p>
+        </article>
+        <article class="fluxo-card">
+          <h4>2) Após finalizar</h4>
+          <p>Preencha início/fim, confira o valor calculado e salve. O histórico já aparece com status pendente.</p>
+        </article>
+        <article class="fluxo-card">
+          <h4>3) Quando receber</h4>
+          <p>No Histórico, abra o item e marque como pago com a data correta para manter relatórios confiáveis.</p>
+        </article>
+        <article class="fluxo-card">
+          <h4>4) Fechamento mensal</h4>
+          <p>Use Relatórios/NF para filtrar mês e membro, copiar resumo e gerar imagem para prestação de contas.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="bloco" id="tela-novo-servico" aria-label="Guia da tela Novo Serviço">
+      <h3 class="manual-sub">Tela Novo Serviço: como preencher corretamente</h3>
+      <ul class="checklist">
+        <li><span class="check">✓</span><span><strong>Data e Tipo de Serviço:</strong> comece por esses campos para organizar o lançamento no período certo.</span></li>
+        <li><span class="check">✓</span><span><strong>Intérprete e Contratação:</strong> escolha o membro e se o atendimento foi Particular ou Agência.</span></li>
+        <li><span class="check">✓</span><span><strong>Início e Término:</strong> estes horários alimentam o cálculo automático quando a cobrança é por hora.</span></li>
+        <li><span class="check">✓</span><span><strong>Valor e Observações:</strong> registre observações importantes para facilitar conferência futura.</span></li>
+      </ul>
+    </section>
+
+    <section class="bloco" id="tela-historico" aria-label="Guia da tela Histórico">
+      <h3 class="manual-sub">Tela Histórico: filtros e controle financeiro</h3>
+      <ul class="checklist">
+        <li><span class="check">✓</span><span>Use filtro de <strong>Status</strong> para focar em pendentes ou pagos.</span></li>
+        <li><span class="check">✓</span><span>Filtre por <strong>Agência, Membro e Cliente</strong> para localizar atendimentos rapidamente.</span></li>
+        <li><span class="check">✓</span><span>Defina período por data para fechamento semanal, quinzenal ou mensal.</span></li>
+        <li><span class="check">✓</span><span>Abra o item e atualize para <strong>Pago</strong> na data correta para manter os relatórios fiéis.</span></li>
+      </ul>
+    </section>
+
+    <section class="bloco" id="tela-relatorios" aria-label="Simulação da área de relatórios">
+      <h3 class="manual-sub">Simulação de Relatórios/NF (esqueleto)</h3>
+      <p class="lead">Esta prévia replica os cards e organização visual usados na aba de relatórios do IntérpretePro.</p>
+
+      <div class="mock-relatorio">
+        <div class="mock-rel-head">
+          <span class="mock-pill">Relatório NF</span>
+          <span class="mock-pill">Mês 2026-03</span>
+        </div>
+
+        <div class="mock-stats">
+          <div class="mock-stat">
+            <span>Faturamento</span>
+            <strong>R$ 0,00</strong>
+          </div>
+          <div class="mock-stat">
+            <span>Total Horas</span>
+            <strong>0.00h</strong>
+          </div>
+        </div>
+
+        <table class="tabela-mock" aria-label="Tabela visual de relatório">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Cliente</th>
+              <th>Serviço</th>
+              <th>Valor</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="linha-esqueleto"></div></td>
+              <td><div class="linha-esqueleto"></div></td>
+              <td><div class="linha-esqueleto"></div></td>
+              <td><div class="linha-esqueleto"></div></td>
+            </tr>
+            <tr>
+              <td><div class="linha-esqueleto"></div></td>
+              <td><div class="linha-esqueleto"></div></td>
+              <td><div class="linha-esqueleto"></div></td>
+              <td><div class="linha-esqueleto"></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="bloco" aria-label="Dúvidas frequentes e erros comuns">
+      <h3 class="manual-sub">Dúvidas frequentes e erros comuns</h3>
+      <div class="faq">
+        <div class="faq-item">
+          <strong>Meu valor ficou zerado no registro. O que fazer?</strong>
+          <p>Verifique se o tipo de cobrança está correto e se o campo de valor foi preenchido em formato monetário.</p>
+        </div>
+        <div class="faq-item">
+          <strong>Não encontro uma agência no formulário.</strong>
+          <p>Cadastre primeiro em Ajustes &gt; Agências. Depois volte para Novo Serviço e atualize a tela.</p>
+        </div>
+        <div class="faq-item">
+          <strong>Posso usar no celular e no computador?</strong>
+          <p>Sim. O layout é responsivo e você pode instalar como aplicativo via botão “Baixar Aplicativo”.</p>
+        </div>
+        <div class="faq-item">
+          <strong>Como manter os dados organizados?</strong>
+          <p>Padronize nomes de cliente e serviço, preencha a data de recebimento e faça revisão semanal no histórico.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="cta">
+      <a class="btn-voltar" href="index.html">Voltar para o IntérpretePro</a>
+    </div>
+  </main>
+</body>
+</html>

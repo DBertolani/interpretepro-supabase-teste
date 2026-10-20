@@ -1,0 +1,999 @@
+/* 1. Ajuste de Fundo e Centralização Real */
+body {
+  font-family: 'Times New Roman', Times, serif;
+  background-color: #f4f7f6;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px 0;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* Mantém a mesma família tipográfica também nos controles do navegador */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+/* LOGO + NOME NO TOPO (MAIS VISÍVEL) - AUMENTADO */
+.header-app-logo {
+  font-size: 26px !important;
+  /* ✏️ MUDANÇA: 22px → 26px */
+  font-weight: 900 !important;
+  color: #4a148c;
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.05);
+}
+
+.container-app {
+  width: 100%;
+  max-width: 450px;
+  background-color: white;
+  min-height: 100vh;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+#tela-app {
+  padding: 0 15px;
+}
+
+#tela-configuracoes .card {
+  padding: 12px;
+}
+
+/* ✏️ MUDANÇA: Ajuste para alinhar valores na lista de agências */
+.valor-tag {
+  color: #2e7d32;
+  font-weight: bold;
+  background: #e8f5e9;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  margin: 0;
+  min-width: auto;
+  text-align: center;
+  white-space: nowrap;
+  /* ✏️ NOVO: impede quebra de linha */
+  flex-shrink: 0;
+  /* ✏️ NOVO: não encolhe */
+  display: inline-block;
+  /* ✏️ NOVO: alinha melhor */
+}
+
+/* 2. Ajuste para telas de Introdução (Home, Login, Loading) */
+/* Isso faz com que elas ocupem a altura toda e centralizem o conteúdo verticalmente */
+#tela-home,
+#tela-login-google,
+#tela-loading,
+#tela-trial,
+#tela-bloqueio {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center !important;
+  /* !important só AQUI */
+  align-items: center !important;
+  /* !important só AQUI */
+  text-align: center !important;
+  /* !important só AQUI */
+  padding: 20px;
+}
+
+#tela-login-google {
+  min-height: 100vh !important;
+  height: 100vh !important;
+}
+
+#tela-home {
+  min-height: 100vh !important;
+  height: 100vh !important;
+}
+
+#tela-loading {
+  min-height: 100vh !important;
+  height: 100vh !important;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  margin-bottom: 15px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.dash-card {
+  background: linear-gradient(135deg, #4CAF50, #2E7D32);
+  color: white;
+  text-align: center;
+  padding: 25px 15px;
+  border-radius: 16px;
+}
+
+.dash-title {
+  margin: 0;
+  font-size: 14px;
+  text-transform: uppercase;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.dash-value {
+  font-size: 36px;
+  font-weight: bold;
+  margin: 5px 0 0 0;
+}
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.menu-btn {
+  background: white;
+  border: none;
+  border-radius: 12px;
+  padding: 20px 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+}
+
+.menu-btn:active {
+  background: #f0f0f0;
+  transform: scale(0.98);
+}
+
+.menu-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+/* ✏️ MUDANÇA: 28px → 32px */
+.menu-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: #455a64;
+}
+
+#tela-loading {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+
+  display: none;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center !important;
+
+  z-index: 10000 !important;
+  background: white !important;
+
+  margin: 0 !important;
+  padding: 20px !important;
+  box-sizing: border-box !important;
+}
+
+.loader {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #FF9800;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 1s linear infinite;
+  margin: 25px auto;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+label {
+  font-size: 15px;
+  font-weight: 600;
+  margin-top: 18px;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 12px;
+  margin-top: 5px;
+  border: 1px solid #cfd8dc;
+  border-radius: 8px;
+  box-sizing: border-box;
+  font-size: 16px !important;
+  background-color: #f8fafc;
+}
+
+.btn-primario {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.btn-voltar {
+  background-color: transparent;
+  color: #78909c;
+  border: 1px solid #cfd8dc;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 15px;
+}
+
+.header-app {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: none solid #eee;
+  padding-bottom: 10px;
+}
+
+.header-app h2 {
+  margin: 0;
+  font-size: 20px;
+  flex: 1;
+  text-align: center;
+  color: #333;
+}
+
+.btn-voltar-topo {
+  background: none;
+  border: none;
+  font-size: 26px !important;
+  color: #666;
+  cursor: pointer;
+  padding: 5px 15px 5px 0;
+}
+
+.filtros-box {
+  background: #f0f8ff;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #90caf9;
+}
+
+.grid-filtros {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.item-pendente {
+  background: #fff;
+  border-left: 4px solid #ff9800;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+}
+
+/* ALINHAMENTO DAS LISTAS (BOTÕES À DIREITA) */
+.item-config-flex {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 15px;
+}
+
+.item-config-flex strong {
+  flex: 1;
+}
+
+/* Faz o texto ocupar o espaço e empurrar botões */
+
+.acoes-card {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+}
+
+.btn-acao {
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-baixa {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.btn-editar {
+  background-color: #ffb300;
+  color: white;
+}
+
+.btn-excluir {
+  background-color: #e53935;
+  color: white;
+}
+
+/* SETAS DE NAVEGAÇÃO NOS AJUSTES */
+.tabs-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 0 10px;
+}
+
+.scroll-arrow {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #9c27b0;
+  cursor: pointer;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  opacity: 0.6;
+  transition: 0.2s;
+}
+
+.scroll-arrow:hover {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+.tabs-nav {
+  display: flex;
+  overflow-x: auto;
+  /* Habilita o scroll horizontal */
+  gap: 12px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-color: #ccc #f1f1f1;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 15px 0 !important;
+}
+
+/* Estilização da barra para o computador (Chrome/Edge/Safari) */
+.tabs-nav::-webkit-scrollbar {
+  height: 6px;
+  /* Barra fina e visível no PC */
+}
+
+.tabs-nav::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.tabs-nav::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+}
+
+.tabs-nav::-webkit-scrollbar-thumb:hover {
+  background: #9c27b0;
+}
+
+.tab-btn {
+  flex: 0 0 110px;
+  /* Quadrados ligeiramente maiores */
+  height: 110px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border: 2px solid #eee;
+  border-radius: 18px;
+  font-size: 15px;
+  font-weight: bold;
+  white-space: normal;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.tab-btn.active {
+  background: #f3e5f5;
+  border-color: #9c27b0;
+  color: #4a148c;
+  box-shadow: 0 4px 10px rgba(156, 39, 176, 0.15);
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* Outros estilos mantidos */
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  width: 90%;
+  max-width: 400px;
+}
+
+.toast {
+  background: #323232;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: slideUp 0.3s ease, fadeOut 0.5s ease 2.5s forwards;
+}
+
+.toast.sucesso {
+  background: #2e7d32;
+  border-left: 5px solid #1b5e20;
+}
+
+.toast.erro {
+  background: #c62828;
+  border-left: 5px solid #8e0000;
+}
+
+@keyframes slideUp {
+  from {
+    bottom: -50px;
+    opacity: 0;
+  }
+
+  to {
+    bottom: 20px;
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+.relatorio-stats {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  flex: 1;
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f3e5f5;
+  transition: transform 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-card strong {
+  font-size: 18px;
+  color: #4a148c;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.item-relatorio {
+  background: white;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-left: 4px solid #9c27b0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+}
+
+.modal-lgpd {
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background-color: #fff;
+  width: 90%;
+  max-width: 450px;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  animation: subirModal 0.3s ease-out;
+}
+
+/* --- AJUSTE EXCLUSIVO PARA CELULAR (Telas até 450px) --- */
+@media (max-width: 450px) {
+  body {
+    padding: 0 !important;
+    /* Remove o espaço de 20px que mostra o fundo cinza */
+    background-color: white;
+    /* Garante fundo limpo nas laterais */
+  }
+
+  .container-app {
+    box-shadow: none !important;
+    /* Mata a sombra que vira "borda" no celular */
+    max-width: 100%;
+    border-radius: 0;
+    /* Opcional: faz o app ocupar a quina do celular perfeitamente */
+  }
+
+  /* Garante que o loading fixo não tenha margens fantasmas */
+  #tela-loading {
+    padding: 0 !important;
+  }
+}
+
+/* CORREÇÃO DE SINTAXE: Procure sua regra .header-app e corrija a linha do border */
+.header-app {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  /* Estava "none; solid #eee;", o que é erro de digitação */
+  padding-bottom: 10px;
+}
+
+/* ===============================
+   MOBILE FULLSCREEN FIX
+=============================== */
+@media (max-width: 600px) {
+
+  body {
+    padding: 0 !important;
+    background: white !important;
+  }
+
+  .container-app {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+}
+
+.item-historico {
+  cursor: pointer;
+  transition: transform 0.1s, background 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.item-historico:active {
+  transform: scale(0.98);
+  background-color: #f0f0f0;
+}
+
+/* Badge de status no card para ficar discreto e bonito */
+.status-badge-card {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+/* Container para campos lado a lado */
+.form-row-duo {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.form-row-duo>div {
+  flex: 1;
+}
+
+/* Seletor Segmentado (Particular vs Agência) */
+.toggle-origem {
+  display: flex;
+  background: #f0f0f0;
+  border-radius: 8px;
+  padding: 3px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+}
+
+.toggle-origem input {
+  display: none;
+}
+
+.toggle-origem label {
+  flex: 1;
+  text-align: center;
+  padding: 8px 5px;
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #666;
+  transition: 0.2s;
+}
+
+.toggle-origem input:checked+label {
+  background: #4a148c;
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+/* Feedback Fixo no Rodapé do Celular */
+/* Feedback Fixo no Rodapé do Celular */
+.feedback-atalho {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  /* Centraliza o elemento */
+  width: 100%;
+  max-width: 450px;
+  /* Mesma largura máxima do seu app */
+  background-color: #ffffff;
+  text-align: center;
+  padding: 12px 0;
+  border-top: 1px solid #eee;
+  z-index: 998;
+  /* Fica acima do conteúdo, mas abaixo de modais */
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.feedback-atalho a {
+  color: #9e9e9e;
+  font-size: 12px;
+  text-decoration: none;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+/* Ajuste para o conteúdo não ficar escondido atrás do rodapé */
+#tela-app,
+#tela-historico,
+#tela-relatorios {
+  padding-bottom: 60px !important;
+}
+
+
+/* Ajuste para os campos de data ficarem iguais no mobile */
+#filtroDataInicio,
+#filtroDataFim {
+  min-height: 45px;
+  background-color: #ffffff;
+  border: 1px solid #90caf9;
+  color: #1565c0;
+  font-weight: bold;
+  -webkit-appearance: none;
+  /* Remove estilos estranhos no iOS */
+}
+
+#btnOrdenacaoData {
+  padding: 8px 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+
+/* --- Barra de aviso de conexão offline --- */
+#barra-offline {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 450px;
+  background: #c62828;
+  color: white;
+  text-align: center;
+  padding: 10px 15px;
+  font-size: 13px;
+  font-weight: bold;
+  z-index: 99999;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  animation: slideDownBar 0.3s ease;
+}
+
+@keyframes slideDownBar {
+  from {
+    top: -50px;
+    opacity: 0;
+  }
+
+  to {
+    top: 0;
+    opacity: 1;
+  }
+}
+
+/* --- Modal de Planos --- */
+#modal-planos .modal-content {
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.plano-card {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 14px;
+  position: relative;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.plano-card:hover {
+  border-color: #9c27b0;
+  box-shadow: 0 4px 12px rgba(156, 39, 176, 0.12);
+}
+
+.plano-card.destaque {
+  border-color: #4a148c;
+  background: linear-gradient(135deg, #fdf3ff, #f8f0ff);
+}
+
+.badge-desconto {
+  position: absolute;
+  top: -10px;
+  right: 14px;
+  background: #e53935;
+  color: white;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.3px;
+}
+
+.badge-popular {
+  position: absolute;
+  top: -10px;
+  left: 14px;
+  background: #4a148c;
+  color: white;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.plano-nome {
+  font-size: 16px;
+  font-weight: 900;
+  color: #333;
+  margin: 0 0 4px 0;
+}
+
+.plano-preco-equivalente {
+  font-size: 22px;
+  font-weight: 900;
+  color: #4a148c;
+  margin: 4px 0 2px 0;
+}
+
+.plano-preco-equivalente span {
+  font-size: 13px;
+  color: #888;
+  font-weight: 500;
+}
+
+.plano-total {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 14px;
+}
+
+.plano-botoes {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-plano-cartao {
+  flex: 1;
+  padding: 11px 8px;
+  background: #4a148c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-plano-cartao:hover {
+  background: #6a1b9a;
+}
+
+.btn-plano-pix {
+  flex: 1;
+  padding: 11px 8px;
+  background: white;
+  color: #00897b;
+  border: 2px solid #00897b;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-plano-pix:hover {
+  background: #e0f2f1;
+}
+
+/* --- Modal PIX --- */
+#modal-pix .modal-content {
+  text-align: center;
+}
+
+.pix-qrcode-img {
+  width: 200px;
+  height: 200px;
+  margin: 16px auto;
+  display: block;
+  border-radius: 10px;
+  border: 2px solid #e0e0e0;
+}
+
+.pix-copia-cola {
+  background: #f5f5f5;
+  border: 1px dashed #bbb;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 11px;
+  word-break: break-all;
+  color: #555;
+  text-align: left;
+  margin: 12px 0;
+  max-height: 80px;
+  overflow-y: auto;
+}
+
+.btn-copiar-pix {
+  width: 100%;
+  padding: 13px;
+  background: #00897b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+/* Spinner dentro de botão */
+.btn-loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* =========================================
+   AJUSTES CIRÚRGICOS DE ACESSIBILIDADE (a11y)
+========================================= */
+#atalho-feedback-fixo, .feedback-atalho {
+  background-color: #4a148c !important;
+  color: #ffffff !important;
+}
+
+a {
+  color: #4a148c;
+}
+
+.feedback-atalho a {
+  color: #ffffff !important;
+}
+
+
+
+#tela-app .dash-card {
+  background: linear-gradient(135deg, #4CAF50, #2E7D32) !important;
+  color: #ffffff !important;
+  text-align: center;
+  padding: 25px 15px;
+  border-radius: 16px;
+}
+
+#tela-app .dash-card .dash-title {
+  font-family: 'Times New Roman', Times, serif !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+}
+
+#tela-app .dash-card .dash-value {
+  font-family: 'Times New Roman', Times, serif !important;
+  font-size: 36px !important;
+  font-weight: 700 !important;
+}
+
+#tela-app #pendente-detalhado {
+  gap: 10px !important;
+  margin-top: 12px !important;
+}
+
+#tela-historico,
+#tela-historico .card,
+#tela-historico .filtros-box,
+#tela-historico #lista-html,
+#tela-historico .item-historico {
+  font-family: 'Times New Roman', Times, serif !important;
+}
