@@ -6,8 +6,8 @@ let origemNavegacao = 'dash';
 const servicoCache = new Map();
 
 // --- 1. CONFIGURAÇÃO DA PONTE (MIGRADO PARA SUPABASE) ---
-const SUPABASE_URL = "COLE_SUA_URL_AQUI"; // Ex: https://bvavzgmsifflydrlgeiqf.supabase.co
-const SUPABASE_ANON_KEY = "COLE_SUA_CHAVE_PUBLICA_AQUI"; // Ex: sb_publishable_...
+const SUPABASE_URL = "https://bvavzgmsifflydrlgeiqf.supabase.co"; // Ex: https://bvavzgmsifflydrlgeiqf.supabase.co
+const SUPABASE_ANON_KEY = "sb_publishable_IgTCeiytetM678AtADKUtQ_n3SL6akf"; // Ex: sb_publishable_...
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
