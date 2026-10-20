@@ -9,7 +9,7 @@ const servicoCache = new Map();
 const SUPABASE_URL = "https://bvavzgmsifflydrlgeiqf.supabase.co"; // Ex: https://bvavzgmsifflydrlgeiqf.supabase.co
 const SUPABASE_ANON_KEY = "sb_publishable_IgTCeiytetM678AtADKUtQ_n3SL6akf"; // Ex: sb_publishable_...
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 async function chamarGoogle(acao, dadosExtras = {}) {
   const email = localStorage.getItem("user_email");
@@ -22,12 +22,12 @@ async function chamarGoogle(acao, dadosExtras = {}) {
     if (acao === "carregarDadosIniciais") {
       // Busca as configurações do usuário no Supabase
       const [resAgencias, resEquipe, resClientes, resServicos, resPendentes] = await Promise.all([
-        supabase.from('interpretepro_minhas_empresas').select('*').eq('email_usuario', email),
+        supabaseClient.from('interpretepro_minhas_empresas').select('*').eq('email_usuario', email),
         // Para a equipe, podemos usar uma tabela genérica depois, por hora simulamos o usuário logado:
         Promise.resolve({ data: [{ nome: localStorage.getItem("user_name") || "Eu" }] }),
-        supabase.from('interpretepro_minhas_empresas_finais').select('*').eq('email_usuario', email),
-        supabase.from('interpretepro_tipos_servico').select('*').eq('email_usuario', email),
-        supabase.from('interpretepro_registros_gerais').select('*').eq('email_usuario', email).eq('status_pgto', 'Pendente')
+        supabaseClient.from('interpretepro_minhas_empresas_finais').select('*').eq('email_usuario', email),
+        supabaseClient.from('interpretepro_tipos_servico').select('*').eq('email_usuario', email),
+        supabaseClient.from('interpretepro_registros_gerais').select('*').eq('email_usuario', email).eq('status_pgto', 'Pendente')
       ]);
 
       // Calcula o total pendente
@@ -52,7 +52,7 @@ async function chamarGoogle(acao, dadosExtras = {}) {
     // 2. BUSCAR HISTÓRICO DE SERVIÇOS
     // ---------------------------------------------------------
     if (acao === "buscarTodosServicos" || acao === "buscarServicosRecentes") {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseClient
         .from('interpretepro_registros_gerais')
         .select('*')
         .eq('email_usuario', email)
@@ -90,8 +90,8 @@ async function chamarGoogle(acao, dadosExtras = {}) {
     }
 
     // Se chegar aqui, a ação ainda não foi migrada, apenas loga no console
-    console.warn("Ação ainda não migrada para Supabase:", acao);
-    return { status: "Sucesso" };
+    console.error("Ação ainda não migrada para Supabase:", acao);
+    return { status: "Erro", mensagem: `A ação "${acao}" ainda não foi migrada para o Supabase.` };
 
   } catch (erro) {
     console.error("Erro na chamada Supabase:", erro);
