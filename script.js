@@ -9,7 +9,7 @@ const servicoCache = new Map();
 const SUPABASE_URL = "https://bvavzgmsifflydrlgeiqf.supabase.co"; // Ex: https://bvavzgmsifflydrlgeiqf.supabase.co
 const SUPABASE_ANON_KEY = "sb_publishable_IgTCeiytetM678AtADKUtQ_n3SL6akf"; // Ex: sb_publishable_...
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 async function chamarGoogle(acao, dadosExtras = {}) {
   const email = localStorage.getItem("user_email");
@@ -22,12 +22,12 @@ async function chamarGoogle(acao, dadosExtras = {}) {
     if (acao === "carregarDadosIniciais") {
       // Busca as configurações do usuário no Supabase
       const [resAgencias, resEquipe, resClientes, resServicos, resPendentes] = await Promise.all([
-        supabase.from('interpretepro_minhas_empresas').select('*').eq('email_usuario', email),
+        supabaseClient.from('interpretepro_minhas_empresas').select('*').eq('email_usuario', email),
         // Para a equipe, podemos usar uma tabela genérica depois, por hora simulamos o usuário logado:
         Promise.resolve({ data: [{ nome: localStorage.getItem("user_name") || "Eu" }] }),
-        supabase.from('interpretepro_minhas_empresas_finais').select('*').eq('email_usuario', email),
-        supabase.from('interpretepro_tipos_servico').select('*').eq('email_usuario', email),
-        supabase.from('interpretepro_registros_gerais').select('*').eq('email_usuario', email).eq('status_pgto', 'Pendente')
+        supabaseClient.from('interpretepro_minhas_empresas_finais').select('*').eq('email_usuario', email),
+        supabaseClient.from('interpretepro_tipos_servico').select('*').eq('email_usuario', email),
+        supabaseClient.from('interpretepro_registros_gerais').select('*').eq('email_usuario', email).eq('status_pgto', 'Pendente')
       ]);
 
       // Calcula o total pendente
@@ -52,7 +52,7 @@ async function chamarGoogle(acao, dadosExtras = {}) {
     // 2. BUSCAR HISTÓRICO DE SERVIÇOS
     // ---------------------------------------------------------
     if (acao === "buscarTodosServicos" || acao === "buscarServicosRecentes") {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseClient
         .from('interpretepro_registros_gerais')
         .select('*')
         .eq('email_usuario', email)
@@ -90,8 +90,8 @@ async function chamarGoogle(acao, dadosExtras = {}) {
     }
 
     // Se chegar aqui, a ação ainda não foi migrada, apenas loga no console
-    console.warn("Ação ainda não migrada para Supabase:", acao);
-    return { status: "Sucesso" };
+    console.error("Ação ainda não migrada para Supabase:", acao);
+    return { status: "Erro", mensagem: `A ação "${acao}" ainda não foi migrada para o Supabase.` };
 
   } catch (erro) {
     console.error("Erro na chamada Supabase:", erro);
@@ -1455,63 +1455,97 @@ function fecharConfirmacao(valor) {
 
 // --- AUTENTICAÇÃO ---
 // ✅ window.onload — definição única
-window.onload = () => {
+window.onload = async () => {
   inicializarPWA();
 
-  const token = localStorage.getItem("google_access_token");
-  const email = localStorage.getItem("user_email");
-  const nomeCompleto = localStorage.getItem("user_name");
+  try {
+    const { data, error } = await supabaseClient.auth.getSession();
 
-  if (token && email) {
-    const telaHome = document.getElementById('tela-home');
-    if (telaHome) telaHome.style.display = 'none';
-
-    if (nomeCompleto && nomeCompleto !== "Usuário") {
-      const spanNome = document.getElementById('nome-usuario-loading');
-      if (spanNome) spanNome.innerText = nomeCompleto.split(" ")[0];
+    if (error) {
+      throw error;
     }
-    handleSaaSLogin(email);
+
+    const session = data.session;
+
+    if (!session || !session.user) {
+      // Sem sessão Supabase: mantém a tela inicial normal.
+      return;
+    }
+
+    const usuario = session.user;
+    const email = usuario.email;
+
+    if (!email) {
+      throw new Error("A conta autenticada não possui e-mail.");
+    }
+
+    const nome =
+      usuario.user_metadata?.full_name ||
+      usuario.user_metadata?.name ||
+      usuario.user_metadata?.given_name ||
+      "Usuário";
+
+    // Mantém compatibilidade com as funções legadas da interface.
+    localStorage.setItem("user_email", email);
+    localStorage.setItem("user_name", nome);
+
+    const telaHome = document.getElementById('tela-home');
+    if (telaHome) {
+      telaHome.style.display = 'none';
+    }
+
+    const spanNome = document.getElementById('nome-usuario-loading');
+    if (spanNome) {
+      spanNome.innerText = nome.split(" ")[0];
+    }
+
+    await handleSaaSLogin(email);
+
+  } catch (erro) {
+    console.error("Erro ao recuperar sessão Supabase:", erro);
+    mostrarToast(
+      "❌ Não foi possível validar sua sessão. Tente entrar novamente.",
+      "erro"
+    );
   }
 };
 
-function solicitarAcessoSaaS() {
-  const aceito = document.getElementById('aceito-termos').checked;
-  if (!aceito) { mostrarToast("⚠️ Você precisa aceitar os Termos para continuar.", "erro"); return; }
+async function solicitarAcessoSaaS() {
+  const checkboxTermos = document.getElementById('aceito-termos');
 
-  if (!window.google?.accounts?.oauth2) {
-    mostrarToast("⏳ O login Google ainda está carregando. Aguarde um instante e tente novamente.", "info");
-    carregarGoogleIdentityServices().catch(() => {
-      mostrarToast("❌ Não foi possível carregar o login Google. Verifique sua conexão.", "erro");
-    });
+  if (!checkboxTermos || !checkboxTermos.checked) {
+    mostrarToast(
+      "⚠️ Você precisa aceitar os Termos para continuar.",
+      "erro"
+    );
     return;
   }
 
-  const client = google.accounts.oauth2.initTokenClient({
-    client_id: '824713665703-lr9iacceof0mg41c0gb61lm3qia4bpr7.apps.googleusercontent.com',
-    scope: 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
-    ux_mode: 'popup',
-    callback: (tokenResponse) => {
-      if (tokenResponse && tokenResponse.access_token) {
-        localStorage.setItem("google_access_token", tokenResponse.access_token);
-        fetch('https://www.googleapis.com/oauth2/v3/userinfo?access_token=' + tokenResponse.access_token)
-          .then(res => res.json())
-          .then(data => {
-            localStorage.setItem("user_email", data.email);
-            localStorage.setItem("user_name", data.name || data.given_name || "Usuário");
-            handleSaaSLogin(data.email);
-          })
-          .catch(() => {
-            localStorage.setItem("user_email", "Sem email");
-            localStorage.setItem("user_name", "Usuário");
-            handleSaaSLogin("Sem email");
-          });
+  try {
+    const redirectTo =
+      window.location.origin + window.location.pathname;
+
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: redirectTo
       }
-    },
-    error_callback: () => {
-      mostrarToast("❌ Falha no login Google. Tente novamente.", "erro");
+    });
+
+    if (error) {
+      console.error("Erro no login Supabase:", error);
+      mostrarToast(
+        "❌ Não foi possível iniciar o login Google. Tente novamente.",
+        "erro"
+      );
     }
-  });
-  client.requestAccessToken();
+  } catch (erro) {
+    console.error("Falha ao iniciar autenticação:", erro);
+    mostrarToast(
+      "❌ Erro ao iniciar o login. Verifique sua conexão.",
+      "erro"
+    );
+  }
 }
 
 async function handleSaaSLogin(email) {
