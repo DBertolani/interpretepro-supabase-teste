@@ -9,7 +9,7 @@ const servicoCache = new Map();
 const SUPABASE_URL = "https://bvavzgmsifflydrlgeiqf.supabase.co"; // Ex: https://bvavzgmsifflydrlgeiqf.supabase.co
 const SUPABASE_ANON_KEY = "sb_publishable_IgTCeiytetM678AtADKUtQ_n3SL6akf"; // Ex: sb_publishable_...
 
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+var supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 async function chamarGoogle(acao, dadosExtras = {}) {
   const email = localStorage.getItem("user_email");
