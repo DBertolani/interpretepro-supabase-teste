@@ -23,8 +23,7 @@ async function chamarGoogle(acao, dadosExtras = {}) {
       // Busca as configurações do usuário no Supabase
       const [resAgencias, resEquipe, resClientes, resServicos, resPendentes] = await Promise.all([
         supabaseClient.from('interpretepro_minhas_empresas').select('*').eq('email_usuario', email),
-        // Para a equipe, podemos usar uma tabela genérica depois, por hora simulamos o usuário logado:
-        Promise.resolve({ data: [{ nome: localStorage.getItem("user_name") || "Eu" }] }),
+        supabaseClient.from('interpretepro_equipe').select('nome_interprete').eq('email_usuario', email),
         supabaseClient.from('interpretepro_minhas_empresas_finais').select('*').eq('email_usuario', email),
         supabaseClient.from('interpretepro_tipos_servico').select('*').eq('email_usuario', email),
         supabaseClient.from('interpretepro_registros_gerais').select('*').eq('email_usuario', email).eq('status_pgto', 'Pendente')
@@ -41,7 +40,7 @@ async function chamarGoogle(acao, dadosExtras = {}) {
           pendente: totalPendente.toLocaleString('pt-BR', { minimumFractionDigits: 2 }),
           pendenteDetalhado: [], 
           agencias: (resAgencias.data || []).map(a => ({ nome: a.nome_agencia, valor: a.valor_hora })),
-          equipe: (resEquipe.data || []).map(e => e.nome),
+          equipe: (resEquipe.data || []).map(e => e.nome_interprete).filter(Boolean),
           clientes: (resClientes.data || []).map(c => c.nome_cliente),
           tiposServico: (resServicos.data || []).map(s => s.tipo_servico)
         }
@@ -259,11 +258,35 @@ async function chamarGoogle(acao, dadosExtras = {}) {
     // ---------------------------------------------------------
     // 5. CADASTRO E EDIÇÃO DAS CONFIGURAÇÕES DO USUÁRIO
     // ---------------------------------------------------------
-    if (["salvarConfigAgencia", "salvarEmpresaFinal", "salvarTipoServico", "excluirConfig"].includes(acao)) {
+    if (["salvarConfigAgencia", "salvarEmpresaFinal", "salvarTipoServico", "excluirConfig", "salvarMembroEquipe"].includes(acao)) {
       const { data: authData, error: authError } = await supabaseClient.auth.getUser();
       const usuario = authData && authData.user;
       if (authError || !usuario || !usuario.id || !usuario.email) {
         throw new Error("Sessão expirada. Entre novamente para continuar.");
+      }
+
+      if (acao === "salvarMembroEquipe") {
+        const nomeNovo = String(dadosExtras.nome || "").trim();
+        const nomeAntigo = String(dadosExtras.antigo || "").trim();
+        if (!nomeNovo) throw new Error("Informe o nome do intérprete.");
+
+        if (nomeAntigo) {
+          const { data, error } = await supabaseClient.from("interpretepro_equipe")
+            .update({ nome_interprete: nomeNovo, auth_user_id: usuario.id })
+            .eq("email_usuario", usuario.email)
+            .eq("nome_interprete", nomeAntigo)
+            .select("id");
+          if (error) throw error;
+          if (!data || data.length === 0) throw new Error("Membro da equipe não encontrado ou sem permissão para alterá-lo.");
+        } else {
+          const { error } = await supabaseClient.from("interpretepro_equipe").insert({
+            email_usuario: usuario.email,
+            auth_user_id: usuario.id,
+            nome_interprete: nomeNovo
+          });
+          if (error) throw error;
+        }
+        return { status: "Sucesso" };
       }
 
       const configs = {
@@ -276,7 +299,8 @@ async function chamarGoogle(acao, dadosExtras = {}) {
         const mapa = {
           "Minhas_Empresas": { tabela: "interpretepro_minhas_empresas", coluna: "nome_agencia" },
           "Minhas_Empresas_Finais": { tabela: "interpretepro_minhas_empresas_finais", coluna: "nome_cliente" },
-          "Tipos_Servico": { tabela: "interpretepro_tipos_servico", coluna: "tipo_servico" }
+          "Tipos_Servico": { tabela: "interpretepro_tipos_servico", coluna: "tipo_servico" },
+          "Minha_Equipe": { tabela: "interpretepro_equipe", coluna: "nome_interprete" }
         };
         const cfgExclusao = mapa[dadosExtras.aba];
         if (!cfgExclusao) throw new Error("Este tipo de configuração ainda não possui armazenamento no Supabase.");
@@ -308,10 +332,6 @@ async function chamarGoogle(acao, dadosExtras = {}) {
         if (error) throw error;
       }
       return { status: "Sucesso" };
-    }
-
-    if (acao === "salvarMembroEquipe") {
-      throw new Error("A edição da equipe ainda não está disponível: o Supabase não possui uma tabela de equipe configurada.");
     }
 
     // Se chegar aqui, a ação ainda não foi migrada, apenas loga no console
@@ -433,6 +453,7 @@ function executarAposDoisFrames(callback) {
 function validarPortaria(resposta) {
   if (resposta && resposta.liberado === true) {
     localStorage.setItem("user_plano", resposta.plano || "Ativo");
+    localStorage.setItem("user_modo_leitura", "false");
     localStorage.setItem("user_validade", resposta.validade || "Sem data limite");
     montarApp(resposta.dadosIniciais);
 
@@ -471,6 +492,7 @@ async function acessarModoLeitura() {
   document.getElementById('tela-bloqueio').style.display = 'none';
   document.getElementById('tela-loading').style.display = 'flex';
   localStorage.setItem("user_plano", "Vencido");
+  localStorage.setItem("user_modo_leitura", "true");
   localStorage.setItem("user_validade", "Expirado");
   try {
     const res = await chamarGoogle("carregarDadosIniciais");
@@ -513,7 +535,7 @@ function montarApp(dados) {
 
   const planoAtual = localStorage.getItem("user_plano");
   const botoesMenu = document.querySelectorAll('.menu-grid .menu-btn');
-  const podeCriarServico = planoAtual === "Ativo" || planoAtual === "Trial";
+  const podeCriarServico = localStorage.getItem("user_modo_leitura") !== "true";
 
   botoesMenu.forEach(btn => {
     const textoMenu = btn.querySelector('.menu-text')?.textContent || '';
@@ -898,7 +920,7 @@ function calcularTotalLive() {
 
 function verificarBloqueioLeitura() {
   const planoAtual = localStorage.getItem("user_plano");
-  if (planoAtual !== "Ativo" && planoAtual !== "Trial") {
+  if (localStorage.getItem("user_modo_leitura") === "true") {
     mostrarToast("Plano inativo. O sistema está no Modo Somente Leitura.", "erro");
     return true;
   }
@@ -1461,7 +1483,7 @@ function abrirConfiguracoes() {
 
   const d = { tiposServico: tiposServicoGlobal, equipe: equipeGlobal, agencias: agenciasGlobais, clientes: clientesGlobais };
   const planoAtual = localStorage.getItem("user_plano");
-  const bloqueadoLeitura = (planoAtual !== "Ativo" && planoAtual !== "Trial");
+  const bloqueadoLeitura = localStorage.getItem("user_modo_leitura") === "true";
 
   document.getElementById('formServicos').style.display = bloqueadoLeitura ? 'none' : 'block';
   document.getElementById('formEquipe').style.display = bloqueadoLeitura ? 'none' : 'block';
@@ -1501,7 +1523,7 @@ function editarConfig(tipo, nome, valor = "") {
   window.scrollTo(0, 0);
 }
 
-async function salvarAgencia(e) {
+async async function salvarAgencia(e) {
   e.preventDefault();
   if (verificarBloqueioLeitura()) return;
   const nomeNovo = document.getElementById('configNome').value.trim();
@@ -1544,7 +1566,7 @@ async function salvarEquipe(e) {
   abrirConfiguracoes();
 }
 
-async function salvarCliente(e) {
+async async function salvarCliente(e) {
   e.preventDefault();
   if (verificarBloqueioLeitura()) return;
   const nomeNovo = document.getElementById('configClienteNome').value.trim();
@@ -1564,7 +1586,7 @@ async function salvarCliente(e) {
   abrirConfiguracoes();
 }
 
-async function salvarTipoServico(e) {
+async async function salvarTipoServico(e) {
   e.preventDefault();
   if (verificarBloqueioLeitura()) return;
   const nomeNovo = document.getElementById('configServicoNome').value.trim();
@@ -1584,7 +1606,7 @@ async function salvarTipoServico(e) {
   abrirConfiguracoes();
 }
 
-async function excluirConfig(aba, valor) {
+async async function excluirConfig(aba, valor) {
   if (verificarBloqueioLeitura()) return;
   if (!confirm(`Tem certeza que deseja excluir "${valor}"?`)) return;
   mostrarToast("Excluindo...");
