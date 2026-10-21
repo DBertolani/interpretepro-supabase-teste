@@ -255,6 +255,65 @@ async function chamarGoogle(acao, dadosExtras = {}) {
       };
     }
 
+
+    // ---------------------------------------------------------
+    // 5. CADASTRO E EDIÇÃO DAS CONFIGURAÇÕES DO USUÁRIO
+    // ---------------------------------------------------------
+    if (["salvarConfigAgencia", "salvarEmpresaFinal", "salvarTipoServico", "excluirConfig"].includes(acao)) {
+      const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+      const usuario = authData && authData.user;
+      if (authError || !usuario || !usuario.id || !usuario.email) {
+        throw new Error("Sessão expirada. Entre novamente para continuar.");
+      }
+
+      const configs = {
+        salvarConfigAgencia: { tabela: "interpretepro_minhas_empresas", coluna: "nome_agencia", valor: dadosExtras.nome, antigo: dadosExtras.antigo, extras: { valor_hora: Number(String(dadosExtras.valor || "0").replace(",", ".")) } },
+        salvarEmpresaFinal: { tabela: "interpretepro_minhas_empresas_finais", coluna: "nome_cliente", valor: dadosExtras.nome, antigo: dadosExtras.antigo, extras: {} },
+        salvarTipoServico: { tabela: "interpretepro_tipos_servico", coluna: "tipo_servico", valor: dadosExtras.nome, antigo: dadosExtras.antigo, extras: {} }
+      };
+
+      if (acao === "excluirConfig") {
+        const mapa = {
+          "Minhas_Empresas": { tabela: "interpretepro_minhas_empresas", coluna: "nome_agencia" },
+          "Minhas_Empresas_Finais": { tabela: "interpretepro_minhas_empresas_finais", coluna: "nome_cliente" },
+          "Tipos_Servico": { tabela: "interpretepro_tipos_servico", coluna: "tipo_servico" }
+        };
+        const cfgExclusao = mapa[dadosExtras.aba];
+        if (!cfgExclusao) throw new Error("Este tipo de configuração ainda não possui armazenamento no Supabase.");
+        const { data, error } = await supabaseClient.from(cfgExclusao.tabela).delete()
+          .eq("email_usuario", usuario.email).eq(cfgExclusao.coluna, dadosExtras.valor).select(cfgExclusao.coluna);
+        if (error) throw error;
+        if (!data || data.length === 0) throw new Error("Registro não encontrado ou sem permissão para excluí-lo.");
+        return { status: "Sucesso" };
+      }
+
+      const cfg = configs[acao];
+      const nomeNovo = String(cfg.valor || "").trim();
+      const nomeAntigo = String(cfg.antigo || "").trim();
+      if (!nomeNovo) throw new Error("Informe um nome antes de salvar.");
+
+      if (nomeAntigo) {
+        const { data: existentes, error: buscaError } = await supabaseClient.from(cfg.tabela).select("id")
+          .eq("email_usuario", usuario.email).eq(cfg.coluna, nomeAntigo);
+        if (buscaError) throw buscaError;
+        if (!existentes || existentes.length === 0) throw new Error("Configuração original não encontrada.");
+        const { error } = await supabaseClient.from(cfg.tabela)
+          .update({ [cfg.coluna]: nomeNovo, ...cfg.extras })
+          .eq("email_usuario", usuario.email).eq(cfg.coluna, nomeAntigo);
+        if (error) throw error;
+      } else {
+        const { error } = await supabaseClient.from(cfg.tabela).insert({
+          email_usuario: usuario.email, [cfg.coluna]: nomeNovo, ...cfg.extras
+        });
+        if (error) throw error;
+      }
+      return { status: "Sucesso" };
+    }
+
+    if (acao === "salvarMembroEquipe") {
+      throw new Error("A edição da equipe ainda não está disponível: o Supabase não possui uma tabela de equipe configurada.");
+    }
+
     // Se chegar aqui, a ação ainda não foi migrada, apenas loga no console
     console.error("Ação ainda não migrada para Supabase:", acao);
     return { status: "Erro", mensagem: `A ação "${acao}" ainda não foi migrada para o Supabase.` };
@@ -986,7 +1045,7 @@ function renderizarHistorico(l) {
     i.dataExibicaoCompleta = i.data;
     return `
       <div class="item-pendente item-historico"
-           onclick="abrirDetalhesServico(${i.linha})"
+           onclick="abrirDetalhesServico('${i.linha}')"
            style="border-left-color:${p ? '#4CAF50' : '#ff9800'}; cursor:pointer;"
            data-status="${p ? 'pago' : 'pendente'}"
            data-agencia="${String(i.agencia).toLowerCase()}"
