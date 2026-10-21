@@ -368,7 +368,7 @@ async function chamarGoogle(acao, dadosExtras = {}) {
     // 6. PONTE PARA O APPS SCRIPT (PLANOS E PAGAMENTOS)
     // ---------------------------------------------------------
     if (acao === "buscarPlanosAtivos" || acao === "gerarPixAvulso" || acao === "gerarLinkAssinatura") {
-      const URL_GAS = "https://script.google.com/macros/s/AKfycbxbYi7t7TjEi0TX750IzWDwy5QGBXKIqcRAOZ8ZLEvMHwqvoyIT_4jfrE2vFSU2EU16/exec"; // Sua URL do Web App
+      const URL_GAS = "https://script.google.com/macros/s/AKfycbxbYi7t7TjEi0TX750IzWDwy5QGBXKIqcRAOZ8ZLEvMHwqvoyIT_4jfrE2vFSU2EU16/exec";
       
       const respostaGas = await fetch(URL_GAS, {
         method: "POST",
@@ -379,23 +379,16 @@ async function chamarGoogle(acao, dadosExtras = {}) {
       return await respostaGas.json();
     }
 
-    // Se chegar aqui, a ação ainda não foi migrada, apenas loga no console
+    // Se chegar aqui, a ação ainda não foi migrada
     console.error("Ação ainda não migrada para Supabase:", acao);
-    return { status: "Erro", mensagem: `A ação "${acao}" ainda não foi migrada para o Supabase.` };
+    return { status: "Erro", mensagem: `Ação "${acao}" não encontrada.` };
 
   } catch (erro) {
-    
-    // Se chegar aqui, a ação ainda não foi migrada, apenas loga no console
-    console.error("Ação ainda não migrada para Supabase:", acao);
-    return { status: "Erro", mensagem: `A ação "${acao}" ainda não foi migrada para o Supabase.` };
-
-  } catch (erro) {
-    console.error("Erro na chamada Supabase:", erro);
+    console.error("Erro na chamada:", erro);
     mostrarToast("❌ Erro de conexão com o banco", "erro");
     throw erro;
   }
 }
-
 
 // --- 2. DETECÇÃO DE CONEXÃO OFFLINE ---
 window.addEventListener('offline', () => {
