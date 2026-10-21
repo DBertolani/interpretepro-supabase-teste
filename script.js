@@ -83,10 +83,80 @@ async function chamarGoogle(acao, dadosExtras = {}) {
     }
 
     // ---------------------------------------------------------
-    // 3. BYPASS PROVISÓRIO DE LOGIN/SAAS (Para não bloquear os testes)
+    // 3. VERIFICAÇÃO DE ACESSO (nega por padrão)
     // ---------------------------------------------------------
     if (acao === "verificarAcesso") {
-      return { liberado: true, plano: "Ativo (Supabase)", validade: "Vitalício", dadosIniciais: (await chamarGoogle("carregarDadosIniciais")).dados };
+      // Não confiar no e-mail do localStorage: confirmar a sessão no Supabase.
+      const { data: sessaoAtual, error: erroAuth } =
+        await supabaseClient.auth.getUser();
+
+      const usuarioAuth = sessaoAtual && sessaoAtual.user;
+
+      if (erroAuth || !usuarioAuth || !usuarioAuth.id || !usuarioAuth.email) {
+        return {
+          liberado: false,
+          motivo: "Não foi possível confirmar sua autenticação. Entre novamente."
+        };
+      }
+
+      const { data: cliente, error: erroCliente } = await supabaseClient
+        .from("interpretepro_clientes")
+        .select("email, status, data_expiracao, plano")
+        .eq("auth_user_id", usuarioAuth.id)
+        .maybeSingle();
+
+      // Sem consulta autorizada e válida, nunca liberar acesso.
+      if (erroCliente) {
+        console.error("Falha ao validar licença:", erroCliente);
+        return {
+          liberado: false,
+          email: usuarioAuth.email,
+          motivo: "Não foi possível validar sua licença. O acesso permanece bloqueado até a configuração do cadastro e das permissões."
+        };
+      }
+
+      if (!cliente) {
+        return {
+          liberado: false,
+          email: usuarioAuth.email,
+          motivo: "Não há uma licença vinculada à sua conta. Entre em contato com o suporte."
+        };
+      }
+
+      const statusLicenca = String(cliente.status || "").trim().toLowerCase();
+      const dataExpiracao = cliente.data_expiracao
+        ? new Date(cliente.data_expiracao + "T23:59:59")
+        : null;
+
+      if (statusLicenca !== "ativo") {
+        return {
+          liberado: false,
+          email: usuarioAuth.email,
+          motivo: "Sua licença não está ativa."
+        };
+      }
+
+      if (dataExpiracao && (
+        isNaN(dataExpiracao.getTime()) || dataExpiracao < new Date()
+      )) {
+        return {
+          liberado: false,
+          email: usuarioAuth.email,
+          motivo: "Sua licença expirou."
+        };
+      }
+
+      // Só definir a identidade legada depois de confirmar a sessão e a licença.
+      localStorage.setItem("user_email", usuarioAuth.email);
+
+      const respostaDados = await chamarGoogle("carregarDadosIniciais");
+
+      return {
+        liberado: true,
+        plano: cliente.plano || "Ativo",
+        validade: cliente.data_expiracao || "Vitalício",
+        dadosIniciais: respostaDados.dados
+      };
     }
 
     // Se chegar aqui, a ação ainda não foi migrada, apenas loga no console
