@@ -364,6 +364,27 @@ async function chamarGoogle(acao, dadosExtras = {}) {
       return { status: "Sucesso" };
     }
 
+// ---------------------------------------------------------
+    // 6. PONTE PARA O APPS SCRIPT (PLANOS E PAGAMENTOS)
+    // ---------------------------------------------------------
+    if (acao === "buscarPlanosAtivos" || acao === "gerarPixAvulso" || acao === "gerarLinkAssinatura") {
+      const URL_GAS = "https://script.google.com/macros/s/AKfycbxbYi7t7TjEi0TX750IzWDwy5QGBXKIqcRAOZ8ZLEvMHwqvoyIT_4jfrE2vFSU2EU16/exec"; // Sua URL do Web App
+      
+      const respostaGas = await fetch(URL_GAS, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ acao: acao, ...dadosExtras })
+      });
+      
+      return await respostaGas.json();
+    }
+
+    // Se chegar aqui, a ação ainda não foi migrada, apenas loga no console
+    console.error("Ação ainda não migrada para Supabase:", acao);
+    return { status: "Erro", mensagem: `A ação "${acao}" ainda não foi migrada para o Supabase.` };
+
+  } catch (erro) {
+    
     // Se chegar aqui, a ação ainda não foi migrada, apenas loga no console
     console.error("Ação ainda não migrada para Supabase:", acao);
     return { status: "Erro", mensagem: `A ação "${acao}" ainda não foi migrada para o Supabase.` };
