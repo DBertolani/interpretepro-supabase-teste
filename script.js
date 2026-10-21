@@ -1523,7 +1523,7 @@ function editarConfig(tipo, nome, valor = "") {
   window.scrollTo(0, 0);
 }
 
-async async function salvarAgencia(e) {
+async function salvarAgencia(e) {
   e.preventDefault();
   if (verificarBloqueioLeitura()) return;
   const nomeNovo = document.getElementById('configNome').value.trim();
@@ -1566,7 +1566,7 @@ async function salvarEquipe(e) {
   abrirConfiguracoes();
 }
 
-async async function salvarCliente(e) {
+async function salvarCliente(e) {
   e.preventDefault();
   if (verificarBloqueioLeitura()) return;
   const nomeNovo = document.getElementById('configClienteNome').value.trim();
@@ -1586,7 +1586,7 @@ async async function salvarCliente(e) {
   abrirConfiguracoes();
 }
 
-async async function salvarTipoServico(e) {
+async function salvarTipoServico(e) {
   e.preventDefault();
   if (verificarBloqueioLeitura()) return;
   const nomeNovo = document.getElementById('configServicoNome').value.trim();
@@ -1606,7 +1606,7 @@ async async function salvarTipoServico(e) {
   abrirConfiguracoes();
 }
 
-async async function excluirConfig(aba, valor) {
+async function excluirConfig(aba, valor) {
   if (verificarBloqueioLeitura()) return;
   if (!confirm(`Tem certeza que deseja excluir "${valor}"?`)) return;
   mostrarToast("Excluindo...");
