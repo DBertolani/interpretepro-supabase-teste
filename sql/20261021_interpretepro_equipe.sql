@@ -8,14 +8,10 @@ create table if not exists public.interpretepro_equipe (
   nome_interprete text not null,
   created_at timestamptz not null default now(),
   constraint interpretepro_equipe_nome_nao_vazio
-    check (length(btrim(nome_interprete)) > 0)
+    check (length(btrim(nome_interprete)) > 0),
+  constraint interpretepro_equipe_usuario_nome_key
+    unique (email_usuario, nome_interprete)
 );
-
-create unique index if not exists interpretepro_equipe_usuario_nome_uidx
-  on public.interpretepro_equipe (
-    lower(btrim(email_usuario)),
-    lower(btrim(nome_interprete))
-  );
 
 alter table public.interpretepro_equipe enable row level security;
 
