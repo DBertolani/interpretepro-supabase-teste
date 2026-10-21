@@ -891,7 +891,7 @@ async function enviarDados(e) {
       voltarDashboard();
     } else {
       await chamarGoogle("atualizarRegistro", { linha: linhaId, dados: d });
-      const idNumerico = Number(linhaId);
+      const idNumerico = String(linhaId);
       const entradaExistente = servicoCache.get(String(idNumerico)) ?? {};
       const entradaAtualizada = {
         ...entradaExistente,
@@ -943,13 +943,13 @@ async function abrirHistorico() {
   chamarGoogle("buscarTodosServicos").then(resCompleto => {
     if (resCompleto?.dados) {
       historicoGlobal = resCompleto.dados;
-      resCompleto.dados.forEach(s => servicoCache.set(Number(s.linha), s));
+      resCompleto.dados.forEach(s => servicoCache.set(String(s.linha), s));
     }
   });
 }
 
 function renderizarHistorico(l) {
-  l.forEach(s => servicoCache.set(Number(s.linha), s));
+  l.forEach(s => servicoCache.set(String(s.linha), s));
   l.sort((a, b) => {
     let dA = a.dataOriginal || "", dB = b.dataOriginal || "";
     return ordemDataHistorico === 'desc'
@@ -1023,9 +1023,9 @@ function alternarOrdemData() {
 }
 
 async function abrirDetalhesServico(linha) {
-  const idBusca = Number(linha);
+  const idBusca = String(linha);
   let servico = servicoCache.get(idBusca);
-  if (!servico) servico = historicoGlobal.find(s => Number(s.linha) === idBusca);
+  if (!servico) servico = historicoGlobal.find(s => String(s.linha) === idBusca);
   if (!servico) {
     mostrarToast("⏳ Carregando dados...");
     try {
@@ -1143,15 +1143,15 @@ async function chamarExcluir(l) {
 }
 
 function chamarEditar(l) {
-  const idBusca = Number(l);
+  const idBusca = String(l);
   let servico = servicoCache.get(idBusca);
-  if (!servico) servico = historicoGlobal.find(x => Number(x.linha) === idBusca);
+  if (!servico) servico = historicoGlobal.find(x => String(x.linha) === idBusca);
   if (!servico) {
     mostrarToast("⚠️ Dados em sincronização. Tente novamente em 2 segundos.", "erro");
     chamarGoogle("buscarTodosServicos").then(res => {
       if (res?.dados) {
         historicoGlobal = res.dados;
-        res.dados.forEach(s => servicoCache.set(Number(s.linha), s));
+        res.dados.forEach(s => servicoCache.set(String(s.linha), s));
       }
     });
     return;
