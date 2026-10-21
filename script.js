@@ -29,16 +29,36 @@ async function chamarGoogle(acao, dadosExtras = {}) {
         supabaseClient.from('interpretepro_registros_gerais').select('*').eq('email_usuario', email).eq('status_pgto', 'Pendente')
       ]);
 
-      // Calcula o total pendente
+      // Calcula o total pendente e agrupa os valores por intérprete,
+      // reproduzindo o detalhamento que a versão de produção recebe do Apps Script.
       let totalPendente = 0;
+      const pendentePorInterprete = new Map();
+
       (resPendentes.data || []).forEach(item => {
-        totalPendente += Number(item.valor_servico || 0);
+        const valor = Number(item.valor_servico || 0);
+        totalPendente += valor;
+
+        const nome = String(item.interprete || "").trim();
+        if (!nome) return;
+
+        pendentePorInterprete.set(
+          nome,
+          (pendentePorInterprete.get(nome) || 0) + valor
+        );
       });
+
+      const pendenteDetalhado = Array.from(pendentePorInterprete, ([nome, valor]) => ({
+        nome,
+        valor: valor.toLocaleString('pt-BR', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        })
+      })).sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
 
       return {
         dados: {
-          pendente: totalPendente.toLocaleString('pt-BR', { minimumFractionDigits: 2 }),
-          pendenteDetalhado: [], 
+          pendente: totalPendente.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+          pendenteDetalhado,
           agencias: (resAgencias.data || []).map(a => ({ nome: a.nome_agencia, valor: a.valor_hora })),
           equipe: (resEquipe.data || []).map(e => e.nome_interprete).filter(Boolean),
           clientes: (resClientes.data || []).map(c => c.nome_cliente),
