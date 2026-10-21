@@ -126,7 +126,7 @@ async function chamarGoogle(acao, dadosExtras = {}) {
           if (!id) throw new Error("O identificador do atendimento está vazio.");
           // O filtro de proprietário é obrigatório; a RLS também deve validar auth.uid().
           requisicao = await supabaseClient.from(tabela).update(payload)
-            .eq("id", id).eq("auth_user_id", usuario.id).select("id").maybeSingle();
+            .eq("id", id).eq("email_usuario", usuario.email).select("id").maybeSingle();
         }
         if (requisicao.error) throw requisicao.error;
         if (acao === "atualizarRegistro" && !requisicao.data) {
@@ -163,7 +163,7 @@ async function chamarGoogle(acao, dadosExtras = {}) {
         if (!dataPagamento) throw new Error("Informe a data do pagamento.");
         const { data, error } = await supabaseClient.from(tabela)
           .update({ status_pgto: "Pago", data_pgto: dataPagamento })
-          .eq("id", idRecebido).eq("auth_user_id", usuario.id).select("id").maybeSingle();
+          .eq("id", idRecebido).eq("email_usuario", usuario.email).select("id").maybeSingle();
         if (error) throw error;
         if (!data) throw new Error("Atendimento não encontrado ou sem permissão para alterá-lo.");
         return { status: "Sucesso" };
@@ -171,7 +171,7 @@ async function chamarGoogle(acao, dadosExtras = {}) {
 
       if (acao === "excluirRegistro") {
         const { data, error } = await supabaseClient.from(tabela)
-          .delete().eq("id", idRecebido).eq("auth_user_id", usuario.id).select("id").maybeSingle();
+          .delete().eq("id", idRecebido).eq("email_usuario", usuario.email).select("id").maybeSingle();
         if (error) throw error;
         if (!data) throw new Error("Atendimento não encontrado ou sem permissão para excluí-lo.");
         return { status: "Sucesso" };
