@@ -119,7 +119,7 @@ function migrarSomenteEquipes() {
       var abas = ssCliente.getSheets();
       for (var a = 0; a < abas.length; a++) {
         var aba = abas[a];
-        var nomeAba = String(aba.getName()).toLowerCase().replace(/\\s+/g, "_");
+        var nomeAba = String(aba.getName()).toLowerCase().replace(/\s+/g, "_");
         if (nomeAba !== "minha_equipe" && nomeAba !== "minha_equipe_") continue;
         if (aba.getLastRow() < 2) continue;
 
