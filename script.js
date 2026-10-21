@@ -83,7 +83,103 @@ async function chamarGoogle(acao, dadosExtras = {}) {
     }
 
     // ---------------------------------------------------------
-    // 3. VERIFICAÇÃO DE ACESSO (nega por padrão)
+    // 3. GRAVAÇÃO DE ATENDIMENTOS NO SUPABASE
+    // ---------------------------------------------------------
+    if (["salvarRegistro", "atualizarRegistro", "buscarServicoPorLinha", "darBaixaPagamento", "excluirRegistro"].includes(acao)) {
+      const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+      const usuario = authData && authData.user;
+      if (authError || !usuario || !usuario.id || !usuario.email) {
+        throw new Error("Sessão expirada. Entre novamente para continuar.");
+      }
+
+      const tabela = "interpretepro_registros_gerais";
+      const valorNumerico = (valor) => {
+        if (typeof converterParaFloat === "function") return converterParaFloat(valor);
+        const normalizado = String(valor ?? "0").replace(/R\$\s?/g, "").replace(/\./g, "").replace(",", ".");
+        const n = Number(normalizado);
+        return Number.isFinite(n) ? n : 0;
+      };
+
+      if (acao === "salvarRegistro" || acao === "atualizarRegistro") {
+        const dados = acao === "salvarRegistro" ? dadosExtras : (dadosExtras.dados || {});
+        const id = acao === "atualizarRegistro" ? String(dadosExtras.linha ?? "").trim() : "";
+        const payload = {
+          email_usuario: usuario.email,
+          auth_user_id: usuario.id,
+          data_evento: dados.data,
+          agencia_intermediaria: dados.agencia,
+          empresa_final: dados.empresa,
+          horario_inicio: dados.inicio,
+          horario_fim: dados.fim,
+          interprete: dados.interprete,
+          tipo_servico: dados.tipoServico,
+          valor_servico: valorNumerico(dados.valorFinal),
+          observacao: dados.obs || "",
+          status_pgto: dados.statusAntigo || dados.status || "Pendente",
+          data_pgto: dados.dataPgtoAntiga || null
+        };
+
+        let requisicao;
+        if (acao === "salvarRegistro") {
+          requisicao = await supabaseClient.from(tabela).insert(payload).select("id").single();
+        } else {
+          if (!id) throw new Error("O identificador do atendimento está vazio.");
+          // O filtro de proprietário é obrigatório; a RLS também deve validar auth.uid().
+          requisicao = await supabaseClient.from(tabela).update(payload)
+            .eq("id", id).eq("auth_user_id", usuario.id).select("id").maybeSingle();
+        }
+        if (requisicao.error) throw requisicao.error;
+        if (acao === "atualizarRegistro" && !requisicao.data) {
+          throw new Error("Atendimento não encontrado ou sem permissão para alterá-lo.");
+        }
+        return { status: "Sucesso", id: requisicao.data?.id || null };
+      }
+
+      const idRecebido = typeof dadosExtras === "object" && dadosExtras !== null
+        ? String(dadosExtras.linha ?? "").trim()
+        : String(dadosExtras ?? "").trim();
+      if (!idRecebido) throw new Error("O identificador do atendimento está vazio.");
+
+      if (acao === "buscarServicoPorLinha") {
+        const { data, error } = await supabaseClient.from(tabela).select("*")
+          .eq("id", idRecebido).eq("email_usuario", usuario.email).maybeSingle();
+        if (error) throw error;
+        if (!data) return { dados: null };
+        return { dados: {
+          linha: data.id, dataOriginal: data.data_evento,
+          data: data.data_evento ? data.data_evento.split("-").reverse().join("/") : "",
+          agencia: data.agencia_intermediaria, empresa: data.empresa_final,
+          inicio: (data.horario_inicio || "").substring(0, 5),
+          fim: (data.horario_fim || "").substring(0, 5),
+          interprete: data.interprete, tipoServico: data.tipo_servico,
+          valor: "R$ " + Number(data.valor_servico || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 }),
+          valorNum: Number(data.valor_servico || 0), obs: data.observacao,
+          status: data.status_pgto, dataPgto: data.data_pgto
+        }};
+      }
+
+      if (acao === "darBaixaPagamento") {
+        const dataPagamento = dadosExtras.data;
+        if (!dataPagamento) throw new Error("Informe a data do pagamento.");
+        const { data, error } = await supabaseClient.from(tabela)
+          .update({ status_pgto: "Pago", data_pgto: dataPagamento })
+          .eq("id", idRecebido).eq("auth_user_id", usuario.id).select("id").maybeSingle();
+        if (error) throw error;
+        if (!data) throw new Error("Atendimento não encontrado ou sem permissão para alterá-lo.");
+        return { status: "Sucesso" };
+      }
+
+      if (acao === "excluirRegistro") {
+        const { data, error } = await supabaseClient.from(tabela)
+          .delete().eq("id", idRecebido).eq("auth_user_id", usuario.id).select("id").maybeSingle();
+        if (error) throw error;
+        if (!data) throw new Error("Atendimento não encontrado ou sem permissão para excluí-lo.");
+        return { status: "Sucesso" };
+      }
+    }
+
+    // ---------------------------------------------------------
+    // 4. VERIFICAÇÃO DE ACESSO (nega por padrão)
     // ---------------------------------------------------------
     if (acao === "verificarAcesso") {
       // Não confiar no e-mail do localStorage: confirmar a sessão no Supabase.
@@ -796,7 +892,7 @@ async function enviarDados(e) {
     } else {
       await chamarGoogle("atualizarRegistro", { linha: linhaId, dados: d });
       const idNumerico = Number(linhaId);
-      const entradaExistente = servicoCache.get(idNumerico) ?? {};
+      const entradaExistente = servicoCache.get(String(idNumerico)) ?? {};
       const entradaAtualizada = {
         ...entradaExistente,
         linha: idNumerico,
@@ -814,8 +910,8 @@ async function enviarDados(e) {
         dataOriginal: d.data,
         data: d.data.split('-').reverse().join('/'),
       };
-      servicoCache.set(idNumerico, entradaAtualizada);
-      const idx = historicoGlobal.findIndex(s => Number(s.linha) === idNumerico);
+      servicoCache.set(String(idNumerico), entradaAtualizada);
+      const idx = historicoGlobal.findIndex(s => String(s.linha) === idNumerico);
       if (idx !== -1) historicoGlobal[idx] = entradaAtualizada;
       mostrarToast("✅ Alteração salva!");
       abrirHistorico();
@@ -841,7 +937,7 @@ async function abrirHistorico() {
 
   const resRecentes = await chamarGoogle("buscarServicosRecentes");
   historicoGlobal = resRecentes.dados;
-  resRecentes.dados.forEach(s => servicoCache.set(Number(s.linha), s));
+  resRecentes.dados.forEach(s => servicoCache.set(String(s.linha), s));
   renderizarHistorico(historicoGlobal);
 
   chamarGoogle("buscarTodosServicos").then(resCompleto => {
@@ -934,7 +1030,7 @@ async function abrirDetalhesServico(linha) {
     mostrarToast("⏳ Carregando dados...");
     try {
       const res = await chamarGoogle("buscarServicoPorLinha", { linha: idBusca });
-      if (res?.dados) { servico = res.dados; servicoCache.set(idBusca, servico); }
+      if (res?.dados) { servico = res.dados; servicoCache.set(String(idBusca), servico); }
     } catch (e) { mostrarToast("❌ Não foi possível carregar o registro.", "erro"); return; }
   }
   if (!servico) { mostrarToast("❌ Registro não encontrado.", "erro"); return; }
