@@ -19,7 +19,11 @@
 const SUPABASE_URL = "https://bvavzgmsiflydrlgeiqf.supabase.co";
 
 // Cole aqui a chave publicável (Publishable key) do projeto.
-const SUPABASE_KEY = "sb_publishable_IgTCeiytetM678AtADKUtQ_n3SL6akf";
+// Para gravações administrativas com RLS ativo, configure a chave secreta
+// do Supabase em Apps Script > Configurações do projeto > Propriedades do script.
+// Nome da propriedade: SUPABASE_MIGRATION_KEY. Nunca publique essa chave.
+const SUPABASE_KEY = PropertiesService.getScriptProperties().getProperty("SUPABASE_MIGRATION_KEY")
+  || "sb_publishable_IgTCeiytetM678AtADKUtQ_n3SL6akf";
 
 const CONFIG_MIGRACAO = {
   MODO_TESTE: true,
@@ -74,6 +78,100 @@ function testarConexaoSupabase() {
 // 3. MIGRAÇÃO PRINCIPAL
 // ==========================================================
 
+// Migra APENAS a aba Minha_Equipe de cada planilha. Pode ser repetida sem
+// duplicar nomes, pois usa a restrição UNIQUE (email_usuario, nome_interprete).
+// Antes de gravar com MODO_TESTE=false, configure SUPABASE_MIGRATION_KEY
+// com a chave secreta do projeto em Propriedades do script. Não use a chave
+// secreta no código nem no GitHub.
+function migrarSomenteEquipes() {
+  Logger.log("========================================");
+  Logger.log("MIGRAÇÃO SOMENTE DA EQUIPE");
+  Logger.log("Modo de teste: " + CONFIG_MIGRACAO.MODO_TESTE);
+  Logger.log("========================================");
+
+  if (!CONFIG_MIGRACAO.MODO_TESTE) {
+    var chaveConfigurada = PropertiesService.getScriptProperties()
+      .getProperty("SUPABASE_MIGRATION_KEY");
+    if (!chaveConfigurada) {
+      throw new Error("Configure SUPABASE_MIGRATION_KEY nas Propriedades do script antes de gravar com RLS ativo.");
+    }
+  }
+
+  var resumo = { lidos: 0, enviados: 0, simulados: 0, ignorados: 0, erros: 0 };
+  var pastas = DriveApp.getFoldersByName(CONFIG_MIGRACAO.NOME_PASTA_CLIENTES);
+  if (!pastas.hasNext()) throw new Error("Pasta DADOS_CLIENTES não encontrada.");
+  var pasta = pastas.next();
+  var arquivos = pasta.getFiles();
+
+  while (arquivos.hasNext()) {
+    var arquivo = arquivos.next();
+    if (arquivo.getMimeType() !== MimeType.GOOGLE_SHEETS) continue;
+
+    try {
+      var emailCliente = extrairEmailDoNome(arquivo.getName());
+      if (!emailCliente) {
+        Logger.log("IGNORADO: sem e-mail no nome do arquivo " + arquivo.getName());
+        resumo.ignorados++;
+        continue;
+      }
+
+      var ssCliente = SpreadsheetApp.openById(arquivo.getId());
+      var abas = ssCliente.getSheets();
+      for (var a = 0; a < abas.length; a++) {
+        var aba = abas[a];
+        var nomeAba = String(aba.getName()).toLowerCase().replace(/\\s+/g, "_");
+        if (nomeAba !== "minha_equipe" && nomeAba !== "minha_equipe_") continue;
+        if (aba.getLastRow() < 2) continue;
+
+        var valores = aba.getDataRange().getValues();
+        var cabecalho = valores[0].map(function(v) { return String(v || "").trim().toLowerCase(); });
+        var idxNome = cabecalho.findIndex(function(c) {
+          return c.includes("nome") || c.includes("intérprete") ||
+            c.includes("interprete") || c.includes("membro");
+        });
+        if (idxNome < 0) {
+          Logger.log("ERRO: coluna de nome não encontrada na aba " + aba.getName() +
+            " do arquivo " + arquivo.getName());
+          resumo.erros++;
+          continue;
+        }
+
+        for (var r = 1; r < valores.length; r++) {
+          var nome = textoSeguro(valores[r][idxNome]);
+          if (!nome) { resumo.ignorados++; continue; }
+
+          var payload = {
+            email_usuario: normalizarEmail(emailCliente),
+            nome_interprete: nome
+          };
+          resumo.lidos++;
+          enviarParaSupabase(
+            "interpretepro_equipe",
+            payload,
+            "email_usuario,nome_interprete",
+            resumo
+          );
+        }
+      }
+    } catch (erro) {
+      resumo.erros++;
+      Logger.log("ERRO no arquivo " + arquivo.getName() + ": " + erro.message);
+    }
+  }
+
+  Logger.log("Equipe lida: " + resumo.lidos);
+  Logger.log("Equipe gravada: " + resumo.enviados);
+  Logger.log("Simulações: " + resumo.simulados);
+  Logger.log("Ignorados: " + resumo.ignorados);
+  Logger.log("Erros: " + resumo.erros);
+  if (CONFIG_MIGRACAO.MODO_TESTE) {
+    Logger.log("SIMULAÇÃO: nenhum dado foi gravado.");
+  }
+}
+
+// Migração completa original. ATENÇÃO: não execute com MODO_TESTE=false
+// sobre tabelas já preenchidas; as tabelas operacionais não têm chave de
+// conflito nesta rotina e podem receber duplicatas.
 function migrarTudoParaSupabase() {
   Logger.log("========================================");
   Logger.log("INÍCIO DA MIGRAÇÃO INTÉRPRETEPRO");
