@@ -29,6 +29,16 @@ async function chamarGoogle(acao, dadosExtras = {}) {
         supabaseClient.from('interpretepro_registros_gerais').select('*').eq('email_usuario', email).eq('status_pgto', 'Pendente')
       ]);
 
+      // Não tratar falhas de consulta como listas vazias: isso poderia exibir
+      // um dashboard aparentemente válido com totais incompletos.
+      const erroConsultaInicial = [resAgencias, resEquipe, resClientes, resServicos, resPendentes]
+        .find(resultado => resultado && resultado.error);
+
+      if (erroConsultaInicial) {
+        console.error("Erro ao carregar dados iniciais do Supabase:", erroConsultaInicial.error);
+        throw new Error("Não foi possível carregar todos os dados do dashboard. Tente novamente.");
+      }
+
       // Calcula o total pendente e agrupa os valores por intérprete,
       // reproduzindo o detalhamento que a versão de produção recebe do Apps Script.
       let totalPendente = 0;
