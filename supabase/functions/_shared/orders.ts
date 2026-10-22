@@ -14,6 +14,8 @@ export function validateRequestKey(value: unknown): string {
 
 export async function loadActivePlan(db: any, planId: unknown) {
   const id = String(planId ?? "").trim();
+  console.info("[loadActivePlan] planoId recebido:", id || "(vazio)");
+
   if (!id || id.length > 128) {
     throw new HttpError(400, "Selecione um plano válido.", "PLANO_INVALIDO");
   }
@@ -33,13 +35,26 @@ export async function loadActivePlan(db: any, planId: unknown) {
   const amount = Number(data.valor_total);
   // Evita rejeitar valores válidos (ex.: 19.90) por imprecisão binária de ponto flutuante.
   const cents = Math.round(amount * 100);
-  if (
-    !String(data.nome ?? "").trim() ||
-    !Number.isInteger(months) || months < 1 || months > 120 ||
-    !Number.isFinite(amount) || amount <= 0 ||
-    Math.abs(amount * 100 - cents) > 1e-8
-  ) {
-    throw new HttpError(400, "A configuração do plano é inválida.", "PLANO_CONFIG_INVALIDA");
+  const validName = Boolean(String(data.nome ?? "").trim());
+  const validMonths =
+    Number.isInteger(months) && months >= 1 && months <= 120;
+  const validAmount = Number.isFinite(amount) && amount > 0;
+  const validCents = Math.abs(amount * 100 - cents) <= 1e-8;
+
+  if (!validName || !validMonths || !validAmount || !validCents) {
+    console.error("[loadActivePlan] PLANO_CONFIG_INVALIDA", {
+      id: String(data.id),
+      validName,
+      validMonths,
+      validAmount,
+      validCents,
+    });
+
+    throw new HttpError(
+      400,
+      "A configuração do plano é inválida.",
+      "PLANO_CONFIG_INVALIDA",
+    );
   }
 
   return {
