@@ -14,7 +14,7 @@ var supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KE
 // Controle de segurança: manter false até as Edge Functions estarem publicadas
 // e os Secrets de TESTE configurados no projeto de homologação.
 // Não existe fallback para Google Apps Script.
-const PAGAMENTOS_SUPABASE_HABILITADOS = true;
+const PAGAMENTOS_SUPABASE_HABILITADOS = false;
 
 async function chamarGoogle(acao, dadosExtras = {}) {
   const email = localStorage.getItem("user_email");
