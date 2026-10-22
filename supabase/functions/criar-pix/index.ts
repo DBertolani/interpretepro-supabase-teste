@@ -25,9 +25,28 @@ Deno.serve(async (req: Request) => {
     const db = backendClient();
     await validateClientLink(db, user);
 
+    console.info("[criar-pix] antes de loadActivePlan");
+
     const plan = await loadActivePlan(db, body.planoId);
+
+    console.info("[criar-pix] plano carregado", {
+      planoId: plan.id,
+      meses: plan.meses,
+      possuiNome: Boolean(plan.nome),
+      possuiValor: Number.isFinite(plan.valor_total),
+    });
+
     const requestKey = validateRequestKey(body.chaveRequisicao);
+
+    console.info("[criar-pix] antes de getOrCreateOrder");
+
     const order = await getOrCreateOrder(db, user, plan, "pix", requestKey);
+
+    console.info("[criar-pix] ordem obtida", {
+      possuiId: Boolean(order.id),
+      status: order.status,
+      possuiValor: Number.isFinite(Number(order.valor)),
+    });
 
     if (order.status === "concluida") {
       throw new HttpError(409, "Esta ordem já foi concluída. Inicie uma nova solicitação.", "NOVA_TENTATIVA");
