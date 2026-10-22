@@ -3,15 +3,9 @@ import { HttpError } from "./http.ts";
 const MP_API = "https://api.mercadopago.com";
 
 function accessToken(): string {
-  const token = (Deno.env.get("MP_ACCESS_TOKEN") ?? "").trim();
-  if (!token) {
-    throw new HttpError(
-      500,
-      "Configure MP_ACCESS_TOKEN nos Secrets da homologação.",
-      "MP_ACCESS_TOKEN_AUSENTE",
-    );
-  }
-  return token;
+  // A credencial é configurada pelo responsável nos Secrets do projeto.
+  // Não validar prefixo nem registrar o conteúdo do token.
+  return Deno.env.get("MP_ACCESS_TOKEN") ?? "";
 }
 
 export function webhookUrl(): string {
