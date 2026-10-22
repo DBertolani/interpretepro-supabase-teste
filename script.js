@@ -373,7 +373,7 @@ async function chamarGoogle(acao, dadosExtras = {}) {
       const respostaGas = await fetch(URL_GAS, {
         method: "POST",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ acao: acao, email: email, ...dadosExtras })
+        body: JSON.stringify({ acao: acao, email: email, dados: dadosExtras })
       });
       
       return await respostaGas.json();
