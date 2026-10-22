@@ -1,0 +1,8 @@
+[functions.criar-pix]
+verify_jwt = true
+
+[functions.criar-assinatura]
+verify_jwt = true
+
+[functions.webhook-mercadopago]
+verify_jwt = false
