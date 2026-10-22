@@ -31,11 +31,13 @@ export async function loadActivePlan(db: any, planId: unknown) {
 
   const months = Number(data.meses);
   const amount = Number(data.valor_total);
+  // Evita rejeitar valores válidos (ex.: 19.90) por imprecisão binária de ponto flutuante.
+  const cents = Math.round(amount * 100);
   if (
     !String(data.nome ?? "").trim() ||
     !Number.isInteger(months) || months < 1 || months > 120 ||
     !Number.isFinite(amount) || amount <= 0 ||
-    Math.round(amount * 100) !== amount * 100
+    Math.abs(amount * 100 - cents) > 1e-8
   ) {
     throw new HttpError(400, "A configuração do plano é inválida.", "PLANO_CONFIG_INVALIDA");
   }
@@ -44,7 +46,7 @@ export async function loadActivePlan(db: any, planId: unknown) {
     id: String(data.id),
     nome: String(data.nome).trim(),
     meses: months,
-    valor_total: Math.round(amount * 100) / 100,
+    valor_total: cents / 100,
   };
 }
 
