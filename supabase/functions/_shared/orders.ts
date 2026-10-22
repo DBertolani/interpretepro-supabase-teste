@@ -20,12 +20,35 @@ export async function loadActivePlan(db: any, planId: unknown) {
     throw new HttpError(400, "Selecione um plano válido.", "PLANO_INVALIDO");
   }
 
-  const { data, error } = await db
-    .from("interpretepro_planos")
-    .select("id, nome, meses, valor_total, ativo")
-    .eq("id", id)
-    .eq("ativo", true)
-    .maybeSingle();
+  console.info("[loadActivePlan] iniciando consulta", {
+    tabela: "interpretepro_planos",
+    planoId: id,
+    instante: new Date().toISOString(),
+  });
+
+  let resultado: any;
+  try {
+    resultado = await db
+      .from("interpretepro_planos")
+      .select("id, nome, meses, valor_total, ativo")
+      .eq("id", id)
+      .eq("ativo", true)
+      .maybeSingle();
+
+    console.info("[loadActivePlan] consulta concluída", {
+      encontrouPlano: Boolean(resultado?.data),
+      possuiErro: Boolean(resultado?.error),
+      codigoErro: resultado?.error?.code ?? null,
+    });
+  } catch (error) {
+    console.error("[loadActivePlan] exceção na consulta", {
+      tipo: error instanceof Error ? error.name : typeof error,
+      codigoErro: (error as { code?: string } | null)?.code ?? null,
+    });
+    throw error;
+  }
+
+  const { data, error } = resultado;
 
   if (error || !data) {
     throw new HttpError(400, "O plano não existe ou está indisponível.", "PLANO_INDISPONIVEL");
