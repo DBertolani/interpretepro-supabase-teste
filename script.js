@@ -811,11 +811,19 @@ async function assinarComCartao(idPlano, nomePlano) {
     } else {
       throw new Error(res?.mensagem || 'Erro desconhecido');
     }
-  } catch (err) {
-    mostrarToast('❌ Erro ao gerar link. Tente novamente.', 'erro');
-    btn.innerHTML = textoOriginal;
-    btn.disabled = false;
-  }
+    
+    } catch (err) {
+    console.error('[Checkout de teste] Falha ao gerar assinatura:', err);
+  
+    mostrarToast(
+      'Erro ao gerar link: ' + (err.message || 'Erro desconhecido'),
+      'erro'
+    );
+
+  btn.innerHTML = textoOriginal;
+  btn.disabled = false;
+}
+  
 }
 
 async function assinarComPix(idPlano, nomePlano) {
