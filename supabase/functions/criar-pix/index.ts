@@ -1,0 +1,94 @@
+import { errorResponse, HttpError, jsonResponse, preflightResponse } from "../_shared/http.ts";
+import { backUrl, mpRequest, webhookUrl } from "../_shared/mercadopago.ts";
+import { getOrCreateOrder, loadActivePlan, updateOrder, validateClientLink, validateRequestKey } from "../_shared/orders.ts";
+import { authenticatedUser, backendClient, requireEmail } from "../_shared/supabase.ts";
+
+Deno.serve(async (req: Request) => {
+  if (req.method === "OPTIONS") return preflightResponse(req);
+  if (req.method !== "POST") {
+    return jsonResponse(req, { status: "Erro", mensagem: "Método não permitido." }, 405);
+  }
+
+  try {
+    const user = await authenticatedUser(req);
+    const email = requireEmail(user);
+    const body = await req.json().catch(() => null) as Record<string, unknown> | null;
+    if (!body) throw new HttpError(400, "Corpo JSON inválido.", "JSON_INVALIDO");
+
+    const db = backendClient();
+    await validateClientLink(db, user);
+
+    const plan = await loadActivePlan(db, body.planoId);
+    const requestKey = validateRequestKey(body.chaveRequisicao);
+    const order = await getOrCreateOrder(db, user, plan, "pix", requestKey);
+
+    if (order.status === "concluida") {
+      throw new HttpError(409, "Esta ordem já foi concluída. Inicie uma nova solicitação.", "NOVA_TENTATIVA");
+    }
+    if (["cancelada", "expirada"].includes(order.status)) {
+      throw new HttpError(409, "Esta ordem foi encerrada. Inicie uma nova solicitação.", "NOVA_TENTATIVA");
+    }
+
+    if (order.status === "criada" || order.status === "falha") {
+      await updateOrder(db, order.id, {
+        status: "aguardando_pagamento",
+        expira_em: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+      });
+    }
+
+    const payerEmail = (Deno.env.get("MP_TEST_PAYER_EMAIL") ?? email).trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payerEmail)) {
+      throw new HttpError(500, "Configure MP_TEST_PAYER_EMAIL com um e-mail de usuário de teste válido.", "MP_TEST_PAYER_INVALIDO");
+    }
+
+    // A chave é derivada da ordem persistida. Repetir a mesma ordem reutiliza
+    // a mesma chave do provedor, evitando cobranças duplicadas em falhas de rede.
+    const payload: Record<string, unknown> = {
+      transaction_amount: Number(order.valor),
+      description: "IntérpretePro - " + String(order.plano_nome_snapshot),
+      payment_method_id: "pix",
+      payer: { email: payerEmail },
+      external_reference: String(order.referencia_externa),
+      date_of_expiration: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+      notification_url: webhookUrl(),
+    };
+
+    let payment: Record<string, any>;
+    try {
+      payment = await mpRequest("/v1/payments", {
+        method: "POST",
+        headers: { "X-Idempotency-Key": String(order.id) },
+        body: JSON.stringify(payload),
+      });
+    } catch (error) {
+      if (error instanceof HttpError && error.code === "MP_REQUISICAO_RECUSADA") {
+        await updateOrder(db, order.id, { status: "falha" });
+        throw new HttpError(502, error.message, "NOVA_TENTATIVA");
+      }
+      // Erro de rede/5xx é ambíguo: manter a ordem e repetir com a mesma chave.
+      throw error;
+    }
+
+    const paymentId = String(payment.id ?? "");
+    const transactionData = payment.point_of_interaction?.transaction_data ?? {};
+    const qrCodeBase64 = String(transactionData.qr_code_base64 ?? "");
+    const qrCodeTexto = String(transactionData.qr_code ?? "");
+
+    if (!paymentId || !qrCodeBase64 || !qrCodeTexto) {
+      // A ordem permanece aguardando. Repetir a chamada usa a mesma chave MP.
+      throw new HttpError(503, "O Mercado Pago ainda não disponibilizou o QR Code. Tente novamente sem iniciar outra ordem.", "PIX_QR_PENDENTE");
+    }
+
+    // Não inserir pagamento pendente em pagamentos_mp nesta etapa:
+    // a RPC aplicar_pagamento registra a cobrança aprovada dentro da transação.
+    // Pré-inserir aqui faria a RPC atual interpretar a cobrança como duplicada.
+    return jsonResponse(req, {
+      status: "Sucesso",
+      paymentId,
+      qrCodeBase64,
+      qrCodeTexto,
+    });
+  } catch (error) {
+    return errorResponse(req, error);
+  }
+});
