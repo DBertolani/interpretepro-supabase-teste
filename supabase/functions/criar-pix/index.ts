@@ -1,5 +1,5 @@
 import { errorResponse, HttpError, jsonResponse, preflightResponse } from "../_shared/http.ts";
-import { backUrl, mpRequest, webhookUrl } from "../_shared/mercadopago.ts";
+import { mpRequest, webhookUrl } from "../_shared/mercadopago.ts";
 import { getOrCreateOrder, loadActivePlan, updateOrder, validateClientLink, validateRequestKey } from "../_shared/orders.ts";
 import { authenticatedUser, backendClient, requireEmail } from "../_shared/supabase.ts";
 
