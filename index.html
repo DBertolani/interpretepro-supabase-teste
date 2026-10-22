@@ -807,18 +807,27 @@
   </div>
 
   <div id="modal-confirmacao" class="modal-lgpd" style="display: none; z-index: 30000;">
-    <div class="modal-content" style="text-align: center; max-width: 320px;">
+    <div class="modal-content" style="text-align: center; max-width: 420px; width: calc(100% - 32px);">
       <div id="confirm-icon" style="font-size: 40px; margin-bottom: 15px;">❓</div>
       <h3 id="confirm-titulo" style="color: #4a148c; margin-bottom: 10px;">Confirmar Ação</h3>
-      <p id="confirm-mensagem" style="color: #666; font-size: 14px; margin-bottom: 25px;">Você tem certeza que
-        deseja
-        realizar esta alteração?</p>
+      <p id="confirm-mensagem" style="color: #666; font-size: 14px; margin-bottom: 18px;">Você tem certeza que deseja realizar esta alteração?</p>
+
+      <div id="admin-licenca-campos" style="display: none; text-align: left; margin: 0 0 20px;">
+        <div id="admin-licenca-atual" style="font-size: 12px; color: #666; background: #f7f4fa; border-radius: 8px; padding: 10px; margin-bottom: 14px;"></div>
+        <label for="admin-plano-select" style="display:block; font-size:13px; font-weight:bold; margin-bottom:6px; color:#444;">Novo plano</label>
+        <select id="admin-plano-select" class="input-field" style="width:100%; margin-bottom:14px;">
+          <option value="">Carregando planos...</option>
+        </select>
+        <label for="admin-data-expiracao" style="display:block; font-size:13px; font-weight:bold; margin-bottom:6px; color:#444;">Nova data de expiração</label>
+        <input id="admin-data-expiracao" type="date" class="input-field" style="width:100%; margin-bottom:4px;">
+        <small style="display:block; color:#666; font-size:11px;">A data escolhida será gravada exatamente como informada.</small>
+      </div>
 
       <div style="display: flex; gap: 10px;">
         <button onclick="fecharConfirmacao(false)" class="btn-voltar"
-          style="flex: 1; margin: 0; padding: 12px;">Não</button>
+          style="flex: 1; margin: 0; padding: 12px;">Cancelar</button>
         <button id="btn-confirmar-ok" class="btn-primario"
-          style="flex: 1; margin: 0; padding: 12px; background: #4a148c;">Sim, confirmar</button>
+          style="flex: 1; margin: 0; padding: 12px; background: #4a148c;">Confirmar</button>
       </div>
     </div>
   </div>
