@@ -11,6 +11,11 @@ const SUPABASE_ANON_KEY = "sb_publishable_IgTCeiytetM678AtADKUtQ_n3SL6akf"; // E
 
 var supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// Controle de segurança: manter false até as Edge Functions estarem publicadas
+// e os Secrets de TESTE configurados no projeto de homologação.
+// Não existe fallback para Google Apps Script.
+const PAGAMENTOS_SUPABASE_HABILITADOS = false;
+
 async function chamarGoogle(acao, dadosExtras = {}) {
   const email = localStorage.getItem("user_email");
   if (!email) throw new Error("Usuário não logado");
@@ -459,18 +464,82 @@ async function chamarGoogle(acao, dadosExtras = {}) {
       };
     }
 
-    // 7. PONTE PARA O APPS SCRIPT (PAGAMENTOS — NÃO MIGRADOS)
+    // 7. PAGAMENTOS — Edge Functions Supabase (homologação)
     // ---------------------------------------------------------
     if (acao === "gerarPixAvulso" || acao === "gerarLinkAssinatura") {
-      const URL_GAS = "https://script.google.com/macros/s/AKfycbxLC1WJjrWUPQnUVyonMScINtlwj-VRiPU5aBIxc7kbAnVmI7o_bSR2peINpnPysY0/exec";
+      // Habilitar somente depois de publicar as Edge Functions e configurar
+      // os Secrets de teste no projeto bvavzgmsiflydrlgeiqf.
+      // Nunca recorrer ao GAS: o GAS pode estar ligado a credenciais externas.
+      if (!PAGAMENTOS_SUPABASE_HABILITADOS) {
+        return {
+          status: "Erro",
+          codigo: "PAGAMENTOS_AGUARDANDO_IMPLANTACAO",
+          mensagem: "Os pagamentos de homologação aguardam a implantação segura das funções do Supabase. Nenhuma cobrança foi enviada."
+        };
+      }
 
-      const respostaGas = await fetch(URL_GAS, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ acao: acao, email: email, dados: dadosExtras })
+      const { data: sessaoData, error: sessaoError } =
+        await supabaseClient.auth.getSession();
+      if (sessaoError || !sessaoData?.session?.access_token) {
+        return {
+          status: "Erro",
+          mensagem: "Sua sessão expirou. Entre novamente para continuar."
+        };
+      }
+
+      const modalidade = acao === "gerarPixAvulso" ? "pix" : "assinatura";
+      const planoId = String(dadosExtras.idPlano || "").trim();
+      if (!planoId) {
+        return { status: "Erro", mensagem: "Selecione um plano válido." };
+      }
+
+      const storageKey = "ip_pagamento_req_" + modalidade + "_" + planoId;
+      let chaveRequisicao = sessionStorage.getItem(storageKey);
+      if (!chaveRequisicao) {
+        chaveRequisicao = crypto.randomUUID();
+        sessionStorage.setItem(storageKey, chaveRequisicao);
+      }
+
+      const nomeFuncao = modalidade === "pix" ? "criar-pix" : "criar-assinatura";
+      const { data, error } = await supabaseClient.functions.invoke(nomeFuncao, {
+        body: {
+          planoId,
+          chaveRequisicao
+        }
       });
 
-      return await respostaGas.json();
+      if (error) {
+        let detalhe = null;
+        try {
+          if (error.context && typeof error.context.json === "function") {
+            detalhe = await error.context.json();
+          }
+        } catch (_) {
+          // Não registrar tokens nem conteúdo bruto da resposta.
+        }
+
+        if (detalhe?.codigo === "NOVA_TENTATIVA") {
+          sessionStorage.removeItem(storageKey);
+        }
+
+        return {
+          status: "Erro",
+          codigo: detalhe?.codigo || "EDGE_FUNCTION_ERRO",
+          mensagem: detalhe?.mensagem || "Não foi possível iniciar o pagamento. Tente novamente."
+        };
+      }
+
+      if (data?.codigo === "NOVA_TENTATIVA") {
+        sessionStorage.removeItem(storageKey);
+      }
+
+      // Preserva os contratos legados esperados pela interface:
+      // cartão: { status, url }
+      // Pix: { status, paymentId, qrCodeBase64, qrCodeTexto }
+      return data || {
+        status: "Erro",
+        mensagem: "O serviço de pagamento não retornou uma resposta válida."
+      };
     }
 
     // 8.1 ALTERAR STATUS/LICENÇA — EXCLUSIVO DO MASTER ADMIN
