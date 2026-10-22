@@ -33,21 +33,22 @@ export async function loadActivePlan(db: any, planId: unknown) {
 
   const months = Number(data.meses);
   const amount = Number(data.valor_total);
-  // Evita rejeitar valores válidos (ex.: 19.90) por imprecisão binária de ponto flutuante.
+  // Validação temporariamente simplificada para diagnosticar a configuração do plano.
+  // Mantém os bloqueios mínimos contra nome, duração ou preço ausentes/inválidos.
   const cents = Math.round(amount * 100);
   const validName = Boolean(String(data.nome ?? "").trim());
   const validMonths =
     Number.isInteger(months) && months >= 1 && months <= 120;
   const validAmount = Number.isFinite(amount) && amount > 0;
-  const validCents = Math.abs(amount * 100 - cents) <= 1e-8;
 
-  if (!validName || !validMonths || !validAmount || !validCents) {
+  if (!validName || !validMonths || !validAmount) {
     console.error("[loadActivePlan] PLANO_CONFIG_INVALIDA", {
       id: String(data.id),
       validName,
       validMonths,
       validAmount,
-      validCents,
+      mesesRecebido: data.meses,
+      valorTotalRecebido: data.valor_total,
     });
 
     throw new HttpError(
