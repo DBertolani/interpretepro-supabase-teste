@@ -243,6 +243,56 @@ async function chamarGoogle(acao, dadosExtras = {}) {
         };
       }
 
+      // Vincula somente uma licença pré-existente, usando a identidade autenticada
+      // no servidor. A RPC nunca recebe ID ou e-mail enviados pelo navegador.
+      const { data: resultadoVinculo, error: erroVinculo } =
+        await supabaseClient.rpc("vincular_licenca_usuario_atual");
+
+      // Falha fechada: sem a RPC instalada ou se ela retornar erro, não liberar acesso.
+      if (erroVinculo) {
+        console.error("Falha ao verificar vínculo da licença:", erroVinculo);
+        return {
+          liberado: false,
+          email: usuarioAuth.email,
+          motivo: "Não foi possível validar o vínculo da sua licença. O acesso permanece bloqueado até a verificação do cadastro."
+        };
+      }
+
+      if (resultadoVinculo === "email_nao_confirmado") {
+        return {
+          liberado: false,
+          email: usuarioAuth.email,
+          motivo: "Confirme o e-mail da sua conta Google/Supabase e entre novamente."
+        };
+      }
+
+      if (resultadoVinculo === "licenca_ambigua") {
+        return {
+          liberado: false,
+          email: usuarioAuth.email,
+          motivo: "Encontramos mais de uma licença compatível com sua conta. Entre em contato com o suporte para conferir o cadastro."
+        };
+      }
+
+      if (resultadoVinculo === "sem_licenca") {
+        return {
+          liberado: false,
+          email: usuarioAuth.email,
+          motivo: "Não há uma licença compatível com o e-mail da sua conta. Entre em contato com o suporte."
+        };
+      }
+
+      if (!["vinculada", "ja_vinculada"].includes(resultadoVinculo)) {
+        console.error("Resultado inesperado na validação do vínculo:", resultadoVinculo);
+        return {
+          liberado: false,
+          email: usuarioAuth.email,
+          motivo: "Não foi possível confirmar sua licença. O acesso permanece bloqueado até a verificação do cadastro."
+        };
+      }
+
+      // A RPC apenas estabelece/confirma o vínculo. O status e a validade
+      // comercial continuam sendo verificados pela consulta abaixo.
       const { data: cliente, error: erroCliente } = await supabaseClient
         .from("interpretepro_clientes")
         .select("email, status, data_expiracao, plano")
