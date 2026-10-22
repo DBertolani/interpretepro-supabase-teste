@@ -15,6 +15,13 @@ Deno.serve(async (req: Request) => {
     const body = await req.json().catch(() => null) as Record<string, unknown> | null;
     if (!body) throw new HttpError(400, "Corpo JSON inválido.", "JSON_INVALIDO");
 
+    console.info("[criar-pix] payload recebido", {
+      planoId: body.planoId ?? null,
+      tipoPlanoId: typeof body.planoId,
+      possuiChaveRequisicao: Boolean(body.chaveRequisicao),
+      camposRecebidos: Object.keys(body),
+    });
+
     const db = backendClient();
     await validateClientLink(db, user);
 
