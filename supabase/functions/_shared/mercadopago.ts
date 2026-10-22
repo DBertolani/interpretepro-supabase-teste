@@ -3,10 +3,13 @@ import { HttpError } from "./http.ts";
 const MP_API = "https://api.mercadopago.com";
 
 function accessToken(): string {
-  const token = Deno.env.get("MP_ACCESS_TOKEN") ?? "";
-  // Esta branch é exclusiva de homologação: recusar tokens produtivos.
-  if (!token.startsWith("TEST-")) {
-    throw new HttpError(500, "Configure MP_ACCESS_TOKEN com credencial de teste.", "MP_TEST_TOKEN_AUSENTE");
+  const token = (Deno.env.get("MP_ACCESS_TOKEN") ?? "").trim();
+  if (!token) {
+    throw new HttpError(
+      500,
+      "Configure MP_ACCESS_TOKEN nos Secrets da homologação.",
+      "MP_ACCESS_TOKEN_AUSENTE",
+    );
   }
   return token;
 }
