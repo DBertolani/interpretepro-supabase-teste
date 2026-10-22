@@ -368,12 +368,12 @@ async function chamarGoogle(acao, dadosExtras = {}) {
     // 6. PONTE PARA O APPS SCRIPT (PLANOS E PAGAMENTOS)
     // ---------------------------------------------------------
     if (acao === "buscarPlanosAtivos" || acao === "gerarPixAvulso" || acao === "gerarLinkAssinatura") {
-      const URL_GAS = "https://script.google.com/macros/s/AKfycbxLC1WJjrWUPQnUVyonMScINtlwj-VRiPU5aBIxc7kbAnVmI7o_bSR2peINpnPysY0/exec";
+      const URL_GAS = "https://script.google.com/macros/s/AKfycbxbYi7t7TjEi0TX750IzWDwy5QGBXKIqcRAOZ8ZLEvMHwqvoyIT_4jfrE2vFSU2EU16/exec";
       
       const respostaGas = await fetch(URL_GAS, {
         method: "POST",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ acao: acao, ...dadosExtras })
+        body: JSON.stringify({ acao: acao, email: email, ...dadosExtras })
       });
       
       return await respostaGas.json();
