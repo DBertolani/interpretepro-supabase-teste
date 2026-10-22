@@ -423,6 +423,79 @@ async function chamarGoogle(acao, dadosExtras = {}) {
       return await respostaGas.json();
     }
 
+    // 8.1 ALTERAR STATUS/LICENÇA — EXCLUSIVO DO MASTER ADMIN
+    // ---------------------------------------------------------
+    if (acao === "alterarStatusCliente") {
+      const { data: authData, error: authError } =
+        await supabaseClient.auth.getUser();
+      const usuario = authData && authData.user;
+
+      if (
+        authError ||
+        !usuario ||
+        String(usuario.email || "").trim().toLowerCase() !==
+          "danilobertolani@gmail.com"
+      ) {
+        throw new Error("Acesso negado à gestão de clientes.");
+      }
+
+      const emailAlvo = String(dadosExtras.emailAlvo || "").trim().toLowerCase();
+      const novoStatus = String(dadosExtras.novoStatus || "").trim();
+
+      if (!emailAlvo) throw new Error("E-mail do cliente não informado.");
+      if (!["Ativo", "Suspenso"].includes(novoStatus)) {
+        throw new Error("Status solicitado inválido.");
+      }
+
+      const atualizacao = { status: novoStatus };
+
+      if (novoStatus === "Ativo") {
+        const planoEscolhido = String(dadosExtras.plano || "").trim();
+        const novaData = String(dadosExtras.dataExpiracao || "").trim();
+
+        if (!planoEscolhido) throw new Error("Selecione um plano ativo.");
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(novaData)) {
+          throw new Error("Informe uma data de expiração válida.");
+        }
+
+        const dataValidada = new Date(novaData + "T00:00:00Z");
+        if (
+          Number.isNaN(dataValidada.getTime()) ||
+          dataValidada.toISOString().slice(0, 10) !== novaData
+        ) {
+          throw new Error("A data de expiração informada é inválida.");
+        }
+
+        const { data: planoAtivo, error: erroPlano } = await supabaseClient
+          .from("interpretepro_planos")
+          .select("nome")
+          .eq("ativo", true)
+          .eq("nome", planoEscolhido)
+          .maybeSingle();
+
+        if (erroPlano) throw erroPlano;
+        if (!planoAtivo) throw new Error("O plano selecionado não está ativo.");
+
+        atualizacao.plano = planoAtivo.nome;
+        atualizacao.data_expiracao = novaData;
+      }
+
+      const { data, error } = await supabaseClient
+        .from("interpretepro_clientes")
+        .update(atualizacao)
+        .eq("email", emailAlvo)
+        .select("email, status, data_expiracao, plano")
+        .maybeSingle();
+
+      if (error) {
+        console.error("Erro ao atualizar licença do cliente:", error);
+        throw new Error("Não foi possível atualizar o cliente. Confira a política RLS de UPDATE.");
+      }
+      if (!data) throw new Error("Cliente não encontrado ou atualização não autorizada.");
+
+      return { status: "Sucesso", cliente: data };
+    }
+
     // 8. CLIENTES — LISTAGEM ADMINISTRATIVA (SOMENTE LEITURA)
     // ---------------------------------------------------------
     if (acao === "buscarTodosClientes") {
