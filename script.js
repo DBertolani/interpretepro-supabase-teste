@@ -224,6 +224,25 @@ async function chamarGoogle(acao, dadosExtras = {}) {
         };
       }
 
+      // Conta Master Admin: exceção restrita ao e-mail administrativo validado
+      // pela sessão do Supabase. Não depende da licença comercial.
+      if (
+        String(usuarioAuth.email).trim().toLowerCase() ===
+        "danilobertolani@gmail.com"
+      ) {
+        localStorage.setItem("user_email", usuarioAuth.email);
+
+        const respostaDados = await chamarGoogle("carregarDadosIniciais");
+
+        return {
+          liberado: true,
+          email: usuarioAuth.email,
+          plano: "Master Admin",
+          validade: "Acesso administrativo",
+          dadosIniciais: respostaDados.dados
+        };
+      }
+
       const { data: cliente, error: erroCliente } = await supabaseClient
         .from("interpretepro_clientes")
         .select("email, status, data_expiracao, plano")
@@ -365,18 +384,81 @@ async function chamarGoogle(acao, dadosExtras = {}) {
     }
 
 // ---------------------------------------------------------
-    // 6. PONTE PARA O APPS SCRIPT (PLANOS E PAGAMENTOS)
+    // 6. PLANOS ATIVOS — LEITURA DIRETA DO SUPABASE
     // ---------------------------------------------------------
-    if (acao === "buscarPlanosAtivos" || acao === "gerarPixAvulso" || acao === "gerarLinkAssinatura") {
+    if (acao === "buscarPlanosAtivos") {
+      const { data, error } = await supabaseClient
+        .from("interpretepro_planos")
+        .select("id, nome, meses, valor_total, ativo, destaque")
+        .eq("ativo", true)
+        .order("meses", { ascending: true });
+
+      if (error) {
+        console.error("Erro ao consultar planos no Supabase:", error);
+        throw new Error("Não foi possível carregar os planos. Tente novamente.");
+      }
+
+      return {
+        planos: (data || []).map(plano => ({
+          id: plano.id,
+          nome: plano.nome,
+          meses: plano.meses,
+          valor_total: Number(plano.valor_total),
+          destaque: plano.destaque
+        }))
+      };
+    }
+
+    // 7. PONTE PARA O APPS SCRIPT (PAGAMENTOS — NÃO MIGRADOS)
+    // ---------------------------------------------------------
+    if (acao === "gerarPixAvulso" || acao === "gerarLinkAssinatura") {
       const URL_GAS = "https://script.google.com/macros/s/AKfycbxLC1WJjrWUPQnUVyonMScINtlwj-VRiPU5aBIxc7kbAnVmI7o_bSR2peINpnPysY0/exec";
-      
+
       const respostaGas = await fetch(URL_GAS, {
         method: "POST",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify({ acao: acao, email: email, dados: dadosExtras })
       });
-      
+
       return await respostaGas.json();
+    }
+
+    // 8. CLIENTES — LISTAGEM ADMINISTRATIVA (SOMENTE LEITURA)
+    // ---------------------------------------------------------
+    if (acao === "buscarTodosClientes") {
+      const { data: authData, error: authError } =
+        await supabaseClient.auth.getUser();
+      const usuario = authData && authData.user;
+
+      if (
+        authError ||
+        !usuario ||
+        String(usuario.email || "").trim().toLowerCase() !==
+          "danilobertolani@gmail.com"
+      ) {
+        throw new Error("Acesso negado à gestão de clientes.");
+      }
+
+      const { data, error } = await supabaseClient
+        .from("interpretepro_clientes")
+        .select("email, status, data_expiracao, plano")
+        .order("email", { ascending: true });
+
+      if (error) {
+        console.error("Erro ao consultar clientes no Supabase:", error);
+        throw new Error("Não foi possível carregar os clientes.");
+      }
+
+      return {
+        clientes: (data || []).map(cliente => ({
+          // A coluna de nome não foi confirmada no esquema.
+          nome: cliente.email || "Cliente",
+          email: cliente.email || "",
+          status: cliente.status || "Sem status",
+          vencimento: cliente.data_expiracao || "Sem data",
+          plano: cliente.plano || "S/ Plano"
+        }))
+      };
     }
 
     // Se chegar aqui, a ação ainda não foi migrada
