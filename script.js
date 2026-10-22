@@ -2088,16 +2088,112 @@ async function abrirAdmin() {
 }
 
 async function gerenciarAcesso(emailAlvo, novoStatus) {
-  document.getElementById('confirm-titulo').innerText = "Alterar Acesso";
-  document.getElementById('confirm-mensagem').innerHTML = `Deseja alterar o acesso de <b>${emailAlvo}</b> para <b>${novoStatus}</b>?`;
-  document.getElementById('confirm-icon').innerText = novoStatus === 'Ativo' ? "✅" : "🚫";
-  document.getElementById('modal-confirmacao').style.display = 'flex';
-  const confirmado = await esperarConfirmacao();
-  if (confirmado) {
-    mostrarToast("⏳ Atualizando...");
-    const res = await chamarGoogle("alterarStatusCliente", { emailAlvo, novoStatus });
-    if (res.status === "Sucesso") { mostrarToast("✅ Acesso atualizado!"); abrirAdmin(); }
-    else mostrarToast("❌ Erro na atualização.", "erro");
+  const modal = document.getElementById('modal-confirmacao');
+  const camposLicenca = document.getElementById('admin-licenca-campos');
+  const resumoAtual = document.getElementById('admin-licenca-atual');
+  const selectPlano = document.getElementById('admin-plano-select');
+  const inputData = document.getElementById('admin-data-expiracao');
+
+  try {
+    const respostaClientes = await chamarGoogle("buscarTodosClientes");
+    const clienteAtual = (respostaClientes.clientes || []).find(
+      cliente => String(cliente.email).toLowerCase() === String(emailAlvo).toLowerCase()
+    );
+
+    if (!clienteAtual) {
+      throw new Error("Não foi possível localizar os dados atuais deste cliente.");
+    }
+
+    document.getElementById('confirm-titulo').innerText =
+      novoStatus === 'Ativo' ? "Ativar ou renovar acesso" : "Bloquear acesso";
+    document.getElementById('confirm-mensagem').textContent =
+      novoStatus === 'Ativo'
+        ? "Confira os dados atuais, selecione o plano e defina a nova data de expiração."
+        : "Confirma o bloqueio de acesso deste cliente?";
+    document.getElementById('confirm-icon').innerText =
+      novoStatus === 'Ativo' ? "✅" : "🚫";
+    document.getElementById('btn-confirmar-ok').textContent =
+      novoStatus === 'Ativo' ? "Salvar licença" : "Confirmar bloqueio";
+
+    camposLicenca.style.display = novoStatus === 'Ativo' ? 'block' : 'none';
+    resumoAtual.textContent =
+      "Cliente: " + clienteAtual.email +
+      " | Status atual: " + clienteAtual.status +
+      " | Plano atual: " + (clienteAtual.plano || "Sem plano") +
+      " | Expiração atual: " + (clienteAtual.vencimento || "Sem data");
+
+    if (novoStatus === 'Ativo') {
+      selectPlano.innerHTML = "";
+      const respostaPlanos = await chamarGoogle("buscarPlanosAtivos");
+      const planos = respostaPlanos.planos || [];
+
+      if (!planos.length) {
+        throw new Error("Não há planos ativos disponíveis para selecionar.");
+      }
+
+      planos.forEach(plano => {
+        const option = document.createElement("option");
+        option.value = plano.nome;
+        option.textContent = plano.nome + " — " +
+          Number(plano.valor_total).toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL"
+          });
+        selectPlano.appendChild(option);
+      });
+
+      const normalizarPlano = valor =>
+        String(valor || "").trim().toLowerCase().replace(/^plano\s+/, "");
+      const planoAtual = planos.find(
+        plano => normalizarPlano(plano.nome) === normalizarPlano(clienteAtual.plano)
+      );
+      selectPlano.value = planoAtual ? planoAtual.nome : planos[0].nome;
+
+      const dataAtual = String(clienteAtual.vencimento || "").slice(0, 10);
+      const hoje = new Date();
+      const hojeLocal = [
+        hoje.getFullYear(),
+        String(hoje.getMonth() + 1).padStart(2, "0"),
+        String(hoje.getDate()).padStart(2, "0")
+      ].join("-");
+      inputData.value = /^\d{4}-\d{2}-\d{2}$/.test(dataAtual) ? dataAtual : hojeLocal;
+      inputData.required = true;
+    }
+
+    modal.style.display = 'flex';
+    const confirmado = await esperarConfirmacao();
+
+    if (!confirmado) return;
+
+    const dadosAtualizacao = { emailAlvo, novoStatus };
+    if (novoStatus === 'Ativo') {
+      if (!selectPlano.value) {
+        mostrarToast("❌ Selecione um plano.", "erro");
+        return;
+      }
+      if (!inputData.value) {
+        mostrarToast("❌ Informe a data de expiração.", "erro");
+        return;
+      }
+      dadosAtualizacao.plano = selectPlano.value;
+      dadosAtualizacao.dataExpiracao = inputData.value;
+    }
+
+    mostrarToast("⏳ Atualizando acesso...");
+    const resultado = await chamarGoogle("alterarStatusCliente", dadosAtualizacao);
+    if (resultado.status === "Sucesso") {
+      mostrarToast("✅ Acesso atualizado!", "sucesso");
+      await abrirAdmin();
+    } else {
+      throw new Error(resultado.mensagem || "A atualização não foi concluída.");
+    }
+  } catch (erro) {
+    console.error("Erro ao gerenciar acesso do cliente:", erro);
+    mostrarToast("❌ " + (erro.message || "Erro na atualização."), "erro");
+  } finally {
+    camposLicenca.style.display = 'none';
+    selectPlano.innerHTML = '<option value="">Selecione um plano</option>';
+    inputData.required = false;
   }
 }
 
