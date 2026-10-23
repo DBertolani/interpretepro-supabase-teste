@@ -89,7 +89,7 @@ Deno.serve(async (req: Request) => {
       usaEmailTeste: Boolean(Deno.env.get("MP_TEST_PAYER_EMAIL")),
     });
     const payerEmail = (Deno.env.get("MP_TEST_PAYER_EMAIL") ?? email).trim().toLowerCase();
-    const payerEmailValido = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(payerEmail);
+    const payerEmailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payerEmail);
     console.info("[criar-pix] validação de e-mail concluída", { valido: payerEmailValido });
     if (!payerEmailValido) {
       throw new HttpError(500, "Configure MP_TEST_PAYER_EMAIL com um e-mail de usuário de teste válido.", "MP_TEST_PAYER_INVALIDO");
