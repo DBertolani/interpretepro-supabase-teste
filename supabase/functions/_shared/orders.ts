@@ -111,72 +111,172 @@ export async function getOrCreateOrder(
   modality: Modality,
   requestKey: string,
 ) {
-  const email = requireEmail(user);
+  let etapa = "validacao_inicial";
 
-  const { data: existing, error: existingError } = await db
-    .from("ordens_pagamento")
-    .select("*")
-    .eq("auth_user_id", user.id)
-    .eq("chave_idempotencia", requestKey)
-    .maybeSingle();
+  try {
+    console.info("[getOrCreateOrder] início", {
+      possuiUser: Boolean(user),
+      possuiUserId: Boolean(user?.id),
+      possuiEmail: Boolean(user?.email),
+      possuiPlanoId: Boolean(plan?.id),
+      modalidade: modality,
+      possuiChaveRequisicao: Boolean(requestKey),
+    });
 
-  if (existingError) {
-    throw new HttpError(503, "Não foi possível consultar a ordem de pagamento.", "ORDEM_CONSULTA");
-  }
+    if (!user?.id) {
+      throw new HttpError(401, "Sessão inválida. Entre novamente.", "USUARIO_INVALIDO");
+    }
+    if (!plan?.id || !requestKey || !["pix", "assinatura"].includes(modality)) {
+      throw new HttpError(400, "Dados da ordem de pagamento inválidos.", "ORDEM_DADOS_INVALIDOS");
+    }
 
-  if (existing) {
-    if (
-      String(existing.plano_id) !== plan.id ||
-      existing.modalidade !== modality
-    ) {
+    etapa = "validar_email";
+    const email = requireEmail(user);
+    if (!email) {
+      throw new HttpError(401, "A conta não possui um e-mail válido.", "EMAIL_INVALIDO");
+    }
+
+    etapa = "consultar_ordem_existente";
+    console.info("[getOrCreateOrder] antes de consultar ordens_pagamento", {
+      etapa,
+      possuiUserId: Boolean(user.id),
+      possuiChaveRequisicao: Boolean(requestKey),
+    });
+
+    const existingResult = await db
+      .from("ordens_pagamento")
+      .select("*")
+      .eq("auth_user_id", user.id)
+      .eq("chave_idempotencia", requestKey)
+      .maybeSingle();
+
+    const existing = existingResult?.data ?? null;
+    const existingError = existingResult?.error ?? null;
+
+    console.info("[getOrCreateOrder] consulta concluída", {
+      etapa,
+      encontrouOrdem: Boolean(existing),
+      possuiErro: Boolean(existingError),
+      codigoErro: existingError?.code ?? null,
+    });
+
+    if (existingError) {
+      throw new HttpError(503, "Não foi possível consultar a ordem de pagamento.", "ORDEM_CONSULTA");
+    }
+
+    if (existing) {
+      if (
+        String(existing.plano_id) !== plan.id ||
+        existing.modalidade !== modality
+      ) {
+        throw new HttpError(409, "A chave de requisição já está vinculada a outra operação.", "NOVA_TENTATIVA");
+      }
+      if (["concluida", "cancelada", "expirada"].includes(existing.status)) {
+        throw new HttpError(409, "Esta ordem já foi encerrada. Inicie uma nova solicitação.", "NOVA_TENTATIVA");
+      }
+      console.info("[getOrCreateOrder] reutilizando ordem existente", {
+        status: existing.status ?? null,
+      });
+      return existing;
+    }
+
+    etapa = "montar_ordem";
+    const id = crypto.randomUUID();
+    const payload = {
+      id,
+      auth_user_id: user.id,
+      email_snapshot: email,
+      plano_id: plan.id,
+      plano_nome_snapshot: plan.nome,
+      plano_meses_snapshot: plan.meses,
+      valor: plan.valor_total,
+      moeda: "BRL",
+      modalidade: modality,
+      status: "criada",
+      referencia_externa: "ordem:" + id,
+      chave_idempotencia: requestKey,
+    };
+
+    etapa = "inserir_ordem";
+    console.info("[getOrCreateOrder] antes de inserir em ordens_pagamento", {
+      etapa,
+      possuiId: Boolean(payload.id),
+      possuiUserId: Boolean(payload.auth_user_id),
+      possuiEmail: Boolean(payload.email_snapshot),
+      possuiPlanoId: Boolean(payload.plano_id),
+      modalidade: payload.modalidade,
+      possuiValor: Number.isFinite(Number(payload.valor)),
+    });
+
+    const createResult = await db
+      .from("ordens_pagamento")
+      .insert(payload)
+      .select("*")
+      .single();
+
+    const created = createResult?.data ?? null;
+    const createError = createResult?.error ?? null;
+
+    console.info("[getOrCreateOrder] inserção concluída", {
+      etapa,
+      criouOrdem: Boolean(created),
+      possuiErro: Boolean(createError),
+      codigoErro: createError?.code ?? null,
+    });
+
+    if (!createError && created) return created;
+
+    etapa = "consultar_ordem_concorrente";
+    console.info("[getOrCreateOrder] antes de consultar possível ordem concorrente", {
+      etapa,
+      possuiUserId: Boolean(user.id),
+      possuiChaveRequisicao: Boolean(requestKey),
+    });
+
+    const raceResult = await db
+      .from("ordens_pagamento")
+      .select("*")
+      .eq("auth_user_id", user.id)
+      .eq("chave_idempotencia", requestKey)
+      .maybeSingle();
+
+    const raced = raceResult?.data ?? null;
+    const raceError = raceResult?.error ?? null;
+
+    console.info("[getOrCreateOrder] consulta concorrente concluída", {
+      etapa,
+      encontrouOrdem: Boolean(raced),
+      possuiErro: Boolean(raceError),
+      codigoErro: raceError?.code ?? null,
+    });
+
+    if (!raceError && raced) {
+      if (String(raced.plano_id) === plan.id && raced.modalidade === modality) {
+        return raced;
+      }
       throw new HttpError(409, "A chave de requisição já está vinculada a outra operação.", "NOVA_TENTATIVA");
     }
-    if (["concluida", "cancelada", "expirada"].includes(existing.status)) {
-      throw new HttpError(409, "Esta ordem já foi encerrada. Inicie uma nova solicitação.", "NOVA_TENTATIVA");
-    }
-    return existing;
+
+    throw new HttpError(503, "Não foi possível registrar a ordem de pagamento.", "ORDEM_CRIACAO");
+  } catch (error) {
+    console.error("[getOrCreateOrder] falha", {
+      etapa,
+      tipo: error instanceof Error ? error.name : typeof error,
+      codigo: error instanceof HttpError
+        ? error.code ?? null
+        : (error as { code?: string } | null)?.code ?? null,
+      status: error instanceof HttpError ? error.status : null,
+    });
+
+    if (error instanceof HttpError) throw error;
+
+    throw new HttpError(
+      503,
+      "Não foi possível processar a ordem de pagamento.",
+      "ORDEM_PROCESSAMENTO",
+    );
   }
-
-  const id = crypto.randomUUID();
-  const payload = {
-    id,
-    auth_user_id: user.id,
-    email_snapshot: email,
-    plano_id: plan.id,
-    plano_nome_snapshot: plan.nome,
-    plano_meses_snapshot: plan.meses,
-    valor: plan.valor_total,
-    moeda: "BRL",
-    modalidade: modality,
-    status: "criada",
-    referencia_externa: "ordem:" + id,
-    chave_idempotencia: requestKey,
-  };
-
-  const { data: created, error: createError } = await db
-    .from("ordens_pagamento")
-    .insert(payload)
-    .select("*")
-    .single();
-
-  if (!createError && created) return created;
-
-  // Concorrência: se outra chamada inseriu a mesma chave, reutilizar a ordem.
-  const { data: raced, error: raceError } = await db
-    .from("ordens_pagamento")
-    .select("*")
-    .eq("auth_user_id", user.id)
-    .eq("chave_idempotencia", requestKey)
-    .maybeSingle();
-
-  if (!raceError && raced) {
-    if (String(raced.plano_id) === plan.id && raced.modalidade === modality) return raced;
-    throw new HttpError(409, "A chave de requisição já está vinculada a outra operação.", "NOVA_TENTATIVA");
-  }
-
-  throw new HttpError(503, "Não foi possível registrar a ordem de pagamento.", "ORDEM_CRIACAO");
 }
-
 export async function updateOrder(
   db: any,
   orderId: string,
