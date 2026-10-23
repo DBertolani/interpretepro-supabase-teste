@@ -6,3 +6,6 @@ verify_jwt = true
 
 [functions.webhook-mercadopago]
 verify_jwt = false
+
+[functions.gerar-conta-teste]
+verify_jwt = true
