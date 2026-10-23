@@ -68,16 +68,36 @@ Deno.serve(async (req: Request) => {
     }
 
     if (order.status === "criada" || order.status === "falha") {
-      await updateOrder(db, order.id, {
-        status: "aguardando_pagamento",
-        expira_em: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
-      });
+      console.info("[criar-pix] antes de atualizar ordem para aguardando_pagamento");
+      try {
+        await updateOrder(db, order.id, {
+          status: "aguardando_pagamento",
+          expira_em: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+        });
+        console.info("[criar-pix] ordem atualizada para aguardando_pagamento");
+      } catch (error) {
+        console.error("[criar-pix] falha ao atualizar ordem", {
+          tipo: error instanceof Error ? error.name : typeof error,
+          codigo: error instanceof HttpError ? error.code ?? null : null,
+          status: error instanceof HttpError ? error.status : null,
+        });
+        throw error;
+      }
     }
 
+    console.info("[criar-pix] antes de validar e-mail do pagador", {
+      usaEmailTeste: Boolean(Deno.env.get("MP_TEST_PAYER_EMAIL")),
+    });
     const payerEmail = (Deno.env.get("MP_TEST_PAYER_EMAIL") ?? email).trim().toLowerCase();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payerEmail)) {
+    const payerEmailValido = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(payerEmail);
+    console.info("[criar-pix] validação de e-mail concluída", { valido: payerEmailValido });
+    if (!payerEmailValido) {
       throw new HttpError(500, "Configure MP_TEST_PAYER_EMAIL com um e-mail de usuário de teste válido.", "MP_TEST_PAYER_INVALIDO");
     }
+
+    console.info("[criar-pix] antes de validar URL do webhook");
+    const notificationUrl = webhookUrl();
+    console.info("[criar-pix] URL do webhook validada");
 
     // A chave é derivada da ordem persistida. Repetir a mesma ordem reutiliza
     // a mesma chave do provedor, evitando cobranças duplicadas em falhas de rede.
@@ -88,17 +108,31 @@ Deno.serve(async (req: Request) => {
       payer: { email: payerEmail },
       external_reference: String(order.referencia_externa),
       date_of_expiration: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
-      notification_url: webhookUrl(),
+      notification_url: notificationUrl,
     };
 
     let payment: Record<string, any>;
     try {
+      console.info("[criar-pix] antes de chamar Mercado Pago", {
+        endpoint: "/v1/payments",
+        possuiIdempotencyKey: Boolean(order.id),
+        possuiValor: Number.isFinite(Number(order.valor)),
+      });
       payment = await mpRequest("/v1/payments", {
         method: "POST",
         headers: { "X-Idempotency-Key": String(order.id) },
         body: JSON.stringify(payload),
       });
+      console.info("[criar-pix] resposta recebida do Mercado Pago", {
+        possuiPaymentId: Boolean(payment?.id),
+        possuiDadosTransacao: Boolean(payment?.point_of_interaction?.transaction_data),
+      });
     } catch (error) {
+      console.error("[criar-pix] chamada ao Mercado Pago falhou", {
+        tipo: error instanceof Error ? error.name : typeof error,
+        codigo: error instanceof HttpError ? error.code ?? null : null,
+        status: error instanceof HttpError ? error.status : null,
+      });
       if (error instanceof HttpError && error.code === "MP_REQUISICAO_RECUSADA") {
         await updateOrder(db, order.id, { status: "falha" });
         throw new HttpError(502, error.message, "NOVA_TENTATIVA");
