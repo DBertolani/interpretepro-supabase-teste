@@ -105,7 +105,15 @@ Deno.serve(async (req: Request) => {
       transaction_amount: Number(order.valor),
       description: "IntérpretePro - " + String(order.plano_nome_snapshot),
       payment_method_id: "pix",
-      payer: { email: payerEmail },
+      payer: {
+        email: payerEmail,
+        first_name: "Test",
+        last_name: "User",
+        identification: {
+          type: "CPF",
+          number: "19119119100",
+        },
+      },
       external_reference: String(order.referencia_externa),
       date_of_expiration: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
       notification_url: notificationUrl,
@@ -113,6 +121,15 @@ Deno.serve(async (req: Request) => {
 
     let payment: Record<string, any>;
     try {
+      // Diagnóstico sem cobrança: identifica a conta vinculada ao token atual.
+      // Registrar somente id e site_id; nunca registrar o token ou a resposta completa.
+      console.info("[criar-pix] validando identidade da credencial Mercado Pago");
+      const mpIdentity = await mpRequest("/users/me", { method: "GET" });
+      console.info("[criar-pix] identidade da credencial Mercado Pago", {
+        id: mpIdentity.id ?? null,
+        site_id: mpIdentity.site_id ?? null,
+      });
+
       console.info("[criar-pix] antes de chamar Mercado Pago", {
         endpoint: "/v1/payments",
         possuiIdempotencyKey: Boolean(order.id),
