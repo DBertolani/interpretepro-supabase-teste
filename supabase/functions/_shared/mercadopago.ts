@@ -42,13 +42,23 @@ export async function mpRequest(
   if (init.body) headers.set("Content-Type", "application/json");
 
   let response: Response;
+  console.info("[mpRequest] iniciando chamada", { path, method: init.method ?? "GET" });
   try {
     response = await fetch(MP_API + path, {
       ...init,
       headers,
       signal: AbortSignal.timeout(15000),
     });
-  } catch {
+    console.info("[mpRequest] resposta HTTP recebida", {
+      path,
+      status: response.status,
+      ok: response.ok,
+    });
+  } catch (error) {
+    console.error("[mpRequest] falha de rede/timeout", {
+      path,
+      tipo: error instanceof Error ? error.name : typeof error,
+    });
     throw new HttpError(503, "Não foi possível confirmar a resposta do Mercado Pago. A ordem foi preservada para recuperação segura.", "MP_INDISPONIVEL");
   }
 
