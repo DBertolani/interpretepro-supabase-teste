@@ -62,10 +62,50 @@ export async function mpRequest(
     throw new HttpError(503, "Não foi possível confirmar a resposta do Mercado Pago. A ordem foi preservada para recuperação segura.", "MP_INDISPONIVEL");
   }
 
-  const payload = await response.json().catch(() => ({}));
+  const responseText = await response.text();
+  let payload: Record<string, any> = {};
+  try {
+    const parsed = JSON.parse(responseText);
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      payload = parsed as Record<string, any>;
+    }
+  } catch {
+    // Respostas não-JSON não devem impedir o tratamento seguro do erro HTTP.
+  }
+
   if (!response.ok) {
     const status = response.status;
-    // Não expor resposta completa da API ou dados de cobrança ao navegador.
+
+    // Registrar somente campos de diagnóstico selecionados; nunca headers,
+    // token, e-mail, payload enviado ou corpo completo da resposta.
+    const safeCause = Array.isArray(payload.cause)
+      ? payload.cause.slice(0, 10).map((item: unknown) => {
+        const cause = item && typeof item === "object"
+          ? item as Record<string, unknown>
+          : {};
+        return {
+          code: typeof cause.code === "string" || typeof cause.code === "number"
+            ? cause.code
+            : null,
+          description: typeof cause.description === "string"
+            ? cause.description.slice(0, 300)
+            : null,
+        };
+      })
+      : [];
+
+    console.info("[mpRequest] detalhe seguro do erro Mercado Pago", {
+      path,
+      httpStatus: status,
+      message: typeof payload.message === "string" ? payload.message.slice(0, 500) : null,
+      error: typeof payload.error === "string" ? payload.error.slice(0, 200) : null,
+      status: typeof payload.status === "string" || typeof payload.status === "number"
+        ? payload.status
+        : null,
+      cause: safeCause,
+    });
+
+    // O detalhe fica nos logs do servidor; a resposta ao frontend permanece genérica.
     throw new HttpError(
       status >= 500 ? 503 : 502,
       status >= 500
