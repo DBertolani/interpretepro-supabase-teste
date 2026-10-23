@@ -36,7 +36,19 @@ Deno.serve(async (req: Request) => {
       possuiValor: Number.isFinite(plan.valor_total),
     });
 
-    const requestKey = validateRequestKey(body.chaveRequisicao);
+    let requestKey: string;
+    console.info("[criar-pix] antes de validar chave de requisição");
+    try {
+      requestKey = validateRequestKey(body.chaveRequisicao);
+      console.info("[criar-pix] chave de requisição validada");
+    } catch (error) {
+      console.warn("[criar-pix] chave de requisição rejeitada", {
+        tipo: error instanceof Error ? error.name : typeof error,
+        codigo: error instanceof HttpError ? error.code ?? null : null,
+        status: error instanceof HttpError ? error.status : null,
+      });
+      return errorResponse(req, error);
+    }
 
     console.info("[criar-pix] antes de getOrCreateOrder");
 
