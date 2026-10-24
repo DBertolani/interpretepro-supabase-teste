@@ -5,7 +5,7 @@ const MP_API = "https://api.mercadopago.com";
 function accessToken(): string {
   // A credencial é configurada pelo responsável nos Secrets do projeto.
   // Não validar prefixo nem registrar o conteúdo do token.
-  return Deno.env.get("MP_ACCESS_TOKEN") ?? "";
+  return (Deno.env.get("MP_ACCESS_TOKEN") ?? "").trim();
 }
 
 export function webhookUrl(): string {
