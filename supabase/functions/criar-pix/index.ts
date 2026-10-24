@@ -124,7 +124,24 @@ Deno.serve(async (req: Request) => {
       // Diagnóstico sem cobrança: identifica a conta vinculada ao token atual.
       // Registrar somente id e site_id; nunca registrar o token ou a resposta completa.
       console.info("[criar-pix] validando identidade da credencial Mercado Pago");
-      const mpIdentity = await mpRequest("/users/me", { method: "GET" });
+      const mpAccessToken = (Deno.env.get("MP_ACCESS_TOKEN") ?? "").trim();
+      if (!mpAccessToken) {
+        throw new HttpError(500, "Credencial do Mercado Pago não configurada.", "MP_CREDENCIAL_AUSENTE");
+      }
+
+      const identityResponse = await fetch("https://api.mercadolibre.com/users/me", {
+        method: "GET",
+        headers: { Authorization: `Bearer ${mpAccessToken}` },
+      });
+      if (!identityResponse.ok) {
+        console.warn("[criar-pix] validação de identidade recusada", {
+          endpoint: "https://api.mercadolibre.com/users/me",
+          status: identityResponse.status,
+        });
+        throw new HttpError(502, "Não foi possível validar a identidade da credencial do Mercado Pago.", "MP_REQUISICAO_RECUSADA");
+      }
+
+      const mpIdentity = await identityResponse.json();
       console.info("[criar-pix] identidade da credencial Mercado Pago", {
         id: mpIdentity.id ?? null,
         site_id: mpIdentity.site_id ?? null,
