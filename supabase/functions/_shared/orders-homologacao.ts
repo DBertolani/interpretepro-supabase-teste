@@ -17,7 +17,7 @@ export async function validateClientLinkHomologacao(db: any, user: User) {
   const { data, error } = await db
     .from("clientes_teste")
     .select("id, email")
-    .ilike("email", email)
+    .eq("email", email)
     .maybeSingle();
 
   if (error) {
