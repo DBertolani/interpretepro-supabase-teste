@@ -1183,7 +1183,7 @@ function abrirModalPixDemonstracao(nomePlano) {
   // Nunca exibir QR ou código Pix falsos: o placeholder não é pagável.
   if (img) img.style.display = 'none';
   if (placeholder) {
-    placeholder.textContent = 'QR CODE DE DEMONSTRAÇÃO\\nNÃO PAGÁVEL';
+    placeholder.textContent = 'QR CODE DE DEMONSTRAÇÃO — NÃO PAGÁVEL';
     placeholder.style.display = 'flex';
   }
   if (aviso) aviso.style.display = 'block';
