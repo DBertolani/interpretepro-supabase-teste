@@ -113,11 +113,12 @@ Deno.serve(async (req: Request) => {
     }
 
     const preapprovalId = String(subscription.id ?? "");
-    const url = validateMpCheckoutUrlHomologacao(subscription.init_point);
     if (!preapprovalId) {
       throw new HttpError(503, "O Mercado Pago não retornou o identificador da assinatura de teste. A ordem foi preservada para reconciliação.", "ASSINATURA_SEM_ID");
     }
 
+    // Persist the provider ID before validating/returning the checkout URL,
+    // so a bad or missing URL does not lose the created subscription reference.
     const { error: linkError } = await db
       .from("ordens_pagamento")
       .update({
@@ -130,6 +131,8 @@ Deno.serve(async (req: Request) => {
       throw new HttpError(503, "A assinatura de teste pode ter sido criada no provedor, mas o vínculo interno precisa ser reconciliado. Não repita a solicitação.", "ASSINATURA_SEM_VINCULO");
     }
 
+    // Never return the regular checkout URL from a sandbox endpoint.
+    const url = validateMpCheckoutUrlHomologacao(subscription.sandbox_init_point);
     return jsonResponse(req, { status: "Sucesso", url });
   } catch (error) {
     return errorResponse(req, error);
