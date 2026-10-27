@@ -16,6 +16,11 @@ var supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KE
 // Não existe fallback para Google Apps Script.
 const PAGAMENTOS_SUPABASE_HABILITADOS = true;
 
+// Modo exclusivo para validar visualmente o modal Pix.
+// true: não chama Edge Function, Mercado Pago nem grava no banco.
+// Manter false fora de uma sessão de teste visual autorizada.
+const PIX_DEMONSTRACAO_INTERFACE_HABILITADO = false;
+
 async function chamarGoogle(acao, dadosExtras = {}) {
   const email = localStorage.getItem("user_email");
   if (!email) throw new Error("Usuário não logado");
@@ -467,6 +472,16 @@ async function chamarGoogle(acao, dadosExtras = {}) {
     // 7. PAGAMENTOS — Edge Functions Supabase (homologação)
     // ---------------------------------------------------------
     if (acao === "gerarPixAvulso" || acao === "gerarLinkAssinatura") {
+      // Simulação visual isolada: retorna antes da sessão de pagamento,
+      // da Edge Function, da criação de ordem e de qualquer chamada ao MP.
+      if (acao === "gerarPixAvulso" && PIX_DEMONSTRACAO_INTERFACE_HABILITADO) {
+        return {
+          status: "Demonstracao",
+          modo: "simulacao_interface",
+          mensagem: "Demonstração visual: nenhum pagamento foi criado."
+        };
+      }
+
       // Habilitar somente depois de publicar as Edge Functions e configurar
       // os Secrets de teste no projeto bvavzgmsiflydrlgeiqf.
       // Nunca recorrer ao GAS: o GAS pode estar ligado a credenciais externas.
@@ -1108,7 +1123,10 @@ async function assinarComPix(idPlano, nomePlano) {
 
   try {
     const res = await chamarGoogle('gerarPixAvulso', { idPlano });
-    if (res && res.status === 'Sucesso') {
+    if (res && res.status === 'Demonstracao' && res.modo === 'simulacao_interface') {
+      fecharModalPlanos();
+      abrirModalPixDemonstracao(nomePlano);
+    } else if (res && res.status === 'Sucesso') {
       fecharModalPlanos();
       abrirModalPix(res.qrCodeBase64, res.qrCodeTexto, nomePlano);
     } else {
@@ -1125,10 +1143,58 @@ async function assinarComPix(idPlano, nomePlano) {
 // --- MODAL PIX ---
 function abrirModalPix(qrCodeBase64, copiaCola, nomePlano) {
   const img = document.getElementById('pix-qrcode-img');
+  const placeholder = document.getElementById('pix-demo-placeholder');
   const texto = document.getElementById('pix-copia-cola-texto');
-  if (img) { img.src = 'data:image/png;base64,' + qrCodeBase64; img.alt = `QR Code PIX — ${nomePlano}`; }
-  if (texto) texto.textContent = copiaCola;
+  const botaoCopiar = document.getElementById('btn-copiar-pix');
+  const aviso = document.getElementById('pix-demo-aviso');
+  const instrucao = document.getElementById('pix-modal-instrucao');
+  const validade = document.getElementById('pix-modal-validade');
+  const origem = document.getElementById('pix-modal-origem');
+
+  if (img) {
+    img.src = 'data:image/png;base64,' + qrCodeBase64;
+    img.alt = `QR Code PIX — ${nomePlano}`;
+    img.style.display = '';
+  }
+  if (placeholder) placeholder.style.display = 'none';
+  if (aviso) aviso.style.display = 'none';
+  if (texto) { texto.textContent = copiaCola; texto.style.display = ''; }
+  if (botaoCopiar) botaoCopiar.style.display = '';
+  if (instrucao) instrucao.textContent = 'Escaneie o QR Code ou copie o código abaixo.';
+  if (validade) {
+    validade.innerHTML = '⏱️ <strong>Validade:</strong> 30 minutos. Após o pagamento, seu acesso será liberado automaticamente em até 1 minuto.';
+  }
+  if (origem) origem.textContent = '🔒 Gerado pelo Mercado Pago';
   window._pixCopiaCola = copiaCola;
+  const modal = document.getElementById('modal-pix');
+  if (modal) modal.style.display = 'flex';
+}
+
+function abrirModalPixDemonstracao(nomePlano) {
+  const img = document.getElementById('pix-qrcode-img');
+  const placeholder = document.getElementById('pix-demo-placeholder');
+  const texto = document.getElementById('pix-copia-cola-texto');
+  const botaoCopiar = document.getElementById('btn-copiar-pix');
+  const aviso = document.getElementById('pix-demo-aviso');
+  const instrucao = document.getElementById('pix-modal-instrucao');
+  const validade = document.getElementById('pix-modal-validade');
+  const origem = document.getElementById('pix-modal-origem');
+
+  // Nunca exibir QR ou código Pix falsos: o placeholder não é pagável.
+  if (img) img.style.display = 'none';
+  if (placeholder) {
+    placeholder.textContent = 'QR CODE DE DEMONSTRAÇÃO\\nNÃO PAGÁVEL';
+    placeholder.style.display = 'flex';
+  }
+  if (aviso) aviso.style.display = 'block';
+  if (texto) texto.style.display = 'none';
+  if (botaoCopiar) botaoCopiar.style.display = 'none';
+  if (instrucao) instrucao.textContent = `Prévia visual do Pix para o plano ${nomePlano}. Nenhuma cobrança foi criada.`;
+  if (validade) {
+    validade.innerHTML = '⚠️ <strong>Modo demonstração:</strong> não escaneie. Este QR Code não existe e não libera acesso.';
+  }
+  if (origem) origem.textContent = '🧪 Simulação local da interface — não gerado pelo Mercado Pago';
+  window._pixCopiaCola = '';
   const modal = document.getElementById('modal-pix');
   if (modal) modal.style.display = 'flex';
 }
