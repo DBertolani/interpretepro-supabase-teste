@@ -4,9 +4,17 @@ const MP_API = "https://api.mercadopago.com";
 
 function testAccessToken(): string {
   const token = (Deno.env.get("MP_TEST_ACCESS_TOKEN") ?? "").trim();
-  // Fail closed to prevent accidentally calling Mercado Pago with a production token.
-  if (!token || !token.startsWith("TEST-")) {
-    throw new HttpError(500, "Configure uma credencial de teste do Mercado Pago (token TEST-).", "MP_TEST_CREDENCIAL_INVALIDA");
+
+  // Esta função é exclusiva das Edge Functions de homologação.
+  // O prefixo APP_USR- também é usado nas credenciais de teste atuais do MP.
+  // A garantia de ambiente de teste depende de MP_TEST_ACCESS_TOKEN receber
+  // exclusivamente a credencial copiada da seção "Credenciais de teste".
+  if (!token || !/^(TEST-|APP_USR-)/.test(token)) {
+    throw new HttpError(
+      500,
+      "Configure uma credencial de teste do Mercado Pago (TEST- ou APP_USR-).",
+      "MP_TEST_CREDENCIAL_INVALIDA",
+    );
   }
   return token;
 }
