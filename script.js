@@ -1123,10 +1123,39 @@ async function assinarComPix(idPlano, nomePlano) {
 }
 
 // --- MODAL PIX ---
-function abrirModalPix(qrCodeBase64, copiaCola, nomePlano) {
+async function abrirModalPix(qrCodeBase64, copiaCola, nomePlano) {
   const img = document.getElementById('pix-qrcode-img');
   const texto = document.getElementById('pix-copia-cola-texto');
-  if (img) { img.src = 'data:image/png;base64,' + qrCodeBase64; img.alt = `QR Code PIX — ${nomePlano}`; }
+
+  if (img) {
+    img.alt = `QR Code PIX — ${nomePlano}`;
+    if (qrCodeBase64) {
+      // Compatibilidade com respostas antigas da Payments API.
+      img.src = 'data:image/png;base64,' + qrCodeBase64;
+    } else if (copiaCola && typeof window.QRCode === 'function') {
+      // A Orders API de teste pode retornar qr_code_base64 vazio.
+      // Nesse caso, gerar a imagem localmente a partir do Pix Copia e Cola.
+      const holder = document.createElement('div');
+      new window.QRCode(holder, {
+        text: copiaCola,
+        width: 256,
+        height: 256,
+        correctLevel: window.QRCode.CorrectLevel.M
+      });
+      const canvas = holder.querySelector('canvas');
+      const generatedImage = holder.querySelector('img');
+      if (canvas) {
+        img.src = canvas.toDataURL('image/png');
+      } else if (generatedImage?.src) {
+        img.src = generatedImage.src;
+      } else {
+        img.removeAttribute('src');
+      }
+    } else {
+      img.removeAttribute('src');
+    }
+  }
+
   if (texto) texto.textContent = copiaCola;
   window._pixCopiaCola = copiaCola;
   const modal = document.getElementById('modal-pix');
