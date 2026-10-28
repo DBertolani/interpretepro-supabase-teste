@@ -1,0 +1,38 @@
+name: Deno check - homologacao
+
+on:
+  push:
+    branches:
+      - homologacao
+    paths:
+      - "supabase/functions/**"
+      - ".github/workflows/deno-check-homologacao.yml"
+  pull_request:
+    branches:
+      - homologacao
+    paths:
+      - "supabase/functions/**"
+      - ".github/workflows/deno-check-homologacao.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deno-check:
+    name: Type-check Edge Functions de homologação
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Verificar funções isoladas de homologação
+        run: |
+          deno check supabase/functions/criar-pix-homologacao/index.ts
+          deno check supabase/functions/criar-assinatura-homologacao/index.ts
+          deno check supabase/functions/webhook-mercadopago-homologacao/index.ts
