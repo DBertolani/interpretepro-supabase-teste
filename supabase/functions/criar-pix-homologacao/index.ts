@@ -26,6 +26,14 @@ Deno.serve(async (req: Request) => {
     await validateClientLinkHomologacao(db, user);
     const plan = await loadActivePlanHomologacao(db, body.planoId);
     const requestKey = validateRequestKeyHomologacao(body.chaveRequisicao);
+
+    // Validar a configuração antes de criar/alterar o estado de uma ordem.
+    const payerEmail = (Deno.env.get("MP_TEST_PAYER_EMAIL") ?? "").trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payerEmail)) {
+      throw new HttpError(500, "Configure MP_TEST_PAYER_EMAIL com o e-mail de um usuário de teste do Mercado Pago.", "MP_TEST_PAYER_INVALIDO");
+    }
+    const notificationUrl = webhookUrlHomologacao();
+
     const order = await getOrCreateOrderHomologacao(db, user, plan, "pix", requestKey);
 
     if (order.status === "concluida" || ["cancelada", "expirada"].includes(String(order.status))) {
@@ -39,12 +47,6 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    const payerEmail = (Deno.env.get("MP_TEST_PAYER_EMAIL") ?? "").trim().toLowerCase();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payerEmail)) {
-      throw new HttpError(500, "Configure MP_TEST_PAYER_EMAIL com o e-mail de um usuário de teste do Mercado Pago.", "MP_TEST_PAYER_INVALIDO");
-    }
-
-    const notificationUrl = webhookUrlHomologacao();
     const payload = {
       transaction_amount: Number(order.valor),
       description: "IntérpretePro HOMOLOGAÇÃO - " + String(order.plano_nome_snapshot),
