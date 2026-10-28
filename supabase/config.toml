@@ -12,3 +12,12 @@ verify_jwt = true
 
 [functions.diagnostico-mp]
 verify_jwt = true
+
+[functions.criar-pix-homologacao]
+verify_jwt = true
+
+[functions.criar-assinatura-homologacao]
+verify_jwt = true
+
+[functions.webhook-mercadopago-homologacao]
+verify_jwt = false
