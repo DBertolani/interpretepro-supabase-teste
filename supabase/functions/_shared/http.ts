@@ -1,5 +1,6 @@
 const ALLOWED_ORIGINS = new Set([
   "https://dbertolani.github.io",
+  "http://127.0.0.1:5500",
 ]);
 
 export class HttpError extends Error {
