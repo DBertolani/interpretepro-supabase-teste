@@ -21,3 +21,6 @@ verify_jwt = true
 
 [functions.webhook-mercadopago-homologacao]
 verify_jwt = false
+
+[functions.diagnostico-mp-homologacao]
+verify_jwt = true
