@@ -1,4 +1,4 @@
-import { errorResponse, HttpError, jsonResponse, preflightResponse } from "../_shared/http.ts";
+import { errorResponseHomologacao as errorResponse, HttpError, jsonResponseHomologacao as jsonResponse, preflightResponseHomologacao as preflightResponse } from "../_shared/http-homologacao.ts";
 import {
   backUrlHomologacao,
   mpRequestHomologacao,
