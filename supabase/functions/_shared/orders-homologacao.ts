@@ -15,12 +15,18 @@ export function validateRequestKeyHomologacao(value: unknown): string {
 export async function validateClientLinkHomologacao(db: any, user: User) {
   const email = requireEmail(user);
   const { data, error } = await db
+    .schema("homologacao")
     .from("clientes_teste")
     .select("id, email")
     .eq("email", email)
     .maybeSingle();
 
   if (error) {
+    // Registrar somente o código técnico; não expor e-mail nem dados do cliente.
+    console.error("[CLIENTE_TESTE_VALIDACAO]", {
+      code: error.code ?? "SEM_CODIGO",
+    });
+
     throw new HttpError(503, "Não foi possível validar o cliente fictício.", "CLIENTE_TESTE_VALIDACAO");
   }
   if (!data) {
