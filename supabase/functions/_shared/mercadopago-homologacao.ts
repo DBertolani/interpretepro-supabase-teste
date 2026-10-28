@@ -9,22 +9,19 @@ function testAccessToken(): string {
   // Diagnóstico seguro: não registrar nenhum caractere do segredo.
   console.info("[mp-homologacao] diagnóstico da credencial", {
     length: token.length,
-    prefixType: token.startsWith("APP_USR-")
-      ? "APP_USR-"
-      : token.startsWith("TEST-")
+    prefixType: token.startsWith("TEST-")
       ? "TEST-"
       : "DESCONHECIDO",
     hasLeadingOrTrailingWhitespace: rawToken !== token,
     configured: rawToken.length > 0,
   });
 
-  // Esta função é exclusiva das Edge Functions de homologação.
-  // A garantia de ambiente de teste depende de MP_TEST_ACCESS_TOKEN receber
-  // exclusivamente a credencial copiada da seção "Credenciais de teste".
-  if (!token || !/^(TEST-|APP_USR-)/.test(token)) {
+  // Homologação aceita exclusivamente credenciais de teste TEST-.
+  // Credenciais APP_USR- são recusadas para reduzir o risco de cobrança real.
+  if (!token || !token.startsWith("TEST-")) {
     throw new HttpError(
       500,
-      "Configure uma credencial de teste do Mercado Pago (TEST- ou APP_USR-).",
+      "Configure uma credencial TEST- obtida na seção de credenciais de teste do Mercado Pago.",
       "MP_TEST_CREDENCIAL_INVALIDA",
     );
   }
