@@ -114,6 +114,9 @@ Deno.serve(async (req: Request) => {
     logPixStage(etapaAtual, "inicio");
     const mpOrder = await mpRequestHomologacao("/v1/orders", {
       method: "POST",
+      headers: {
+        "X-Idempotency-Key": requestKey,
+      },
       body: JSON.stringify(payload),
     });
     logPixStage(etapaAtual);
