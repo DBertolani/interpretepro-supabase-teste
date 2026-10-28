@@ -1,4 +1,5 @@
 import { HttpError } from "./http.ts";
+export { HttpError };
 
 const ALLOWED_ORIGINS = new Set([
   "https://dbertolani.github.io",
