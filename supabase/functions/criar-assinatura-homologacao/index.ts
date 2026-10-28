@@ -33,7 +33,7 @@ Deno.serve(async (req: Request) => {
     let order = await getOrCreateOrderHomologacao(db, user, plan, "assinatura", requestKey);
 
     if (["concluida", "cancelada", "expirada"].includes(String(order.status))) {
-      throw new HttpError(409, "Esta ordem de teste já foi encerrada. Inicie uma nova solicitação.", "ORDEM_ENCERRADA");
+      throw new HttpError(409, "Esta ordem de teste já foi encerrada. Inicie uma nova solicitação.", "NOVA_TENTATIVA");
     }
 
     if (order.mp_preapproval_id) {
