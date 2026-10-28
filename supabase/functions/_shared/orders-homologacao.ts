@@ -101,7 +101,7 @@ export async function getOrCreateOrderHomologacao(
       throw new HttpError(409, "A chave já está vinculada a outra operação de teste.", "CHAVE_REUTILIZADA");
     }
     if (["concluida", "cancelada", "expirada"].includes(String(existing.status))) {
-      throw new HttpError(409, "A ordem de teste já foi encerrada. Use uma nova chave.", "ORDEM_ENCERRADA");
+      throw new HttpError(409, "A ordem de teste já foi encerrada. Use uma nova chave.", "NOVA_TENTATIVA");
     }
     return existing;
   }
