@@ -125,15 +125,42 @@ Deno.serve(async (req: Request) => {
       return new Response("OK", { status: 200 });
     }
 
-    // Only payment notifications can apply a test license.
-    if (!(eventType === "payment" || String(body.action ?? "").startsWith("payment."))) {
+    // Only approved payment notifications or processed Orders can apply a test license.
+    const isOrderEvent = eventType === "order" || String(body.action ?? "").startsWith("order.");
+    const isPaymentEvent = eventType === "payment" || String(body.action ?? "").startsWith("payment.");
+    if (!isOrderEvent && !isPaymentEvent) {
       await markWebhookProcessed(db, eventKey, eventType, resourceId, "ignorado_tipo_evento");
       return new Response("Ignored", { status: 200 });
     }
 
-    const payment = await mpRequestHomologacao(
-      "/v1/payments/" + encodeURIComponent(resourceId),
-    );
+    let payment: Record<string, any>;
+    if (isOrderEvent) {
+      const orderResource = await mpRequestHomologacao(
+        "/v1/orders/" + encodeURIComponent(resourceId),
+      );
+      const orderPayments = orderResource.transactions?.payments;
+      const orderPayment = Array.isArray(orderPayments) ? orderPayments[0] : null;
+      if (!orderPayment) {
+        throw new HttpError(503, "A ordem de teste ainda não contém uma transação consultável.", "ORDER_SEM_PAGAMENTO");
+      }
+
+      const orderPaid = String(orderResource.status) === "processed" &&
+        String(orderPayment.status) === "processed";
+      payment = {
+        id: orderPayment.id,
+        status: orderPaid ? "approved" : String(orderPayment.status ?? orderResource.status ?? "pending"),
+        external_reference: orderResource.external_reference,
+        transaction_amount: orderPayment.amount ?? orderPayment.paid_amount ?? orderResource.total_paid_amount,
+        currency_id: orderResource.currency_id ?? orderResource.currency,
+        date_approved: orderPayment.date_approved ?? (orderPaid ? orderResource.last_updated_date : null),
+        payment_method_id: orderPayment.payment_method?.id,
+      };
+    } else {
+      payment = await mpRequestHomologacao(
+        "/v1/payments/" + encodeURIComponent(resourceId),
+      );
+    }
+
     if (String(payment.status) !== "approved") {
       // A mesma cobrança pode receber novas notificações quando o estado mudar.
       // Não registrar como "processado": isso bloquearia uma futura aprovação
