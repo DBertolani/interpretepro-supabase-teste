@@ -1,19 +1,11 @@
+import { HttpError } from "./http.ts";
+
 const ALLOWED_ORIGINS = new Set([
   "https://dbertolani.github.io",
   "http://127.0.0.1:5500",
   "http://localhost:5500",
 ]);
 
-export class HttpError extends Error {
-  constructor(
-    public status: number,
-    message: string,
-    public code?: string,
-  ) {
-    super(message);
-    this.name = "HttpError";
-  }
-}
 
 export function corsHeadersHomologacao(req: Request): HeadersInit {
   const origin = req.headers.get("origin") ?? "";
