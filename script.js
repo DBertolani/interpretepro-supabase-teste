@@ -500,7 +500,7 @@ async function chamarGoogle(acao, dadosExtras = {}) {
         sessionStorage.setItem(storageKey, chaveRequisicao);
       }
 
-      const nomeFuncao = modalidade === "pix" ? "criar-pix" : "criar-assinatura";
+      const nomeFuncao = modalidade === "pix" ? "criar-pix-homologacao" : "criar-assinatura-homologacao";
       const { data, error } = await supabaseClient.functions.invoke(nomeFuncao, {
         body: {
           planoId,
