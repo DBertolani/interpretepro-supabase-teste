@@ -135,8 +135,27 @@ Deno.serve(async (req: Request) => {
       "/v1/payments/" + encodeURIComponent(resourceId),
     );
     if (String(payment.status) !== "approved") {
-      await markWebhookProcessed(db, eventKey, eventType, resourceId, "pagamento_nao_aprovado");
-      return new Response("OK", { status: 200 });
+      // A mesma cobrança pode receber novas notificações quando o estado mudar.
+      // Não registrar como "processado": isso bloquearia uma futura aprovação
+      // com o mesmo eventKey (tipo + ID do pagamento).
+      const { error: pendingError } = await db
+        .from("eventos_webhook")
+        .upsert({
+          event_key: eventKey,
+          tipo_evento: eventType,
+          recurso_id: resourceId,
+          status_processamento: "pendente",
+          processado_em: null,
+          metadata: { resultado: "pagamento_nao_aprovado", status_mp: String(payment.status ?? "desconhecido") },
+        }, { onConflict: "event_key" });
+
+      if (pendingError) {
+        throw new HttpError(503, "Não foi possível registrar o estado pendente da notificação de teste.", "WEBHOOK_PENDENTE_AUDITORIA");
+      }
+      return jsonResponse(req, {
+        recebido: true,
+        resultado: "aguardando_aprovacao",
+      });
     }
 
     const reference = String(payment.external_reference ?? "");
