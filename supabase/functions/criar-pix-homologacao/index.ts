@@ -100,44 +100,59 @@ Deno.serve(async (req: Request) => {
 
     etapaAtual = "montagem_payload_pix";
     logPixStage(etapaAtual, "inicio");
+    const valorPix = Number(order.valor).toFixed(2);
     const payload = {
-      transaction_amount: Number(order.valor),
-      description: "IntérpretePro HOMOLOGAÇÃO - " + String(order.plano_nome_snapshot),
-      payment_method_id: "pix",
-      payer: { email: payerEmail, first_name: "Test", last_name: "User" },
+      type: "online",
       external_reference: String(order.referencia_externa),
-      date_of_expiration: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
-      notification_url: notificationUrl,
+      total_amount: valorPix,
+      payer: { email: payerEmail, first_name: "APRO" },
+      transactions: {
+        payments: [{
+          amount: valorPix,
+          payment_method: { id: "pix", type: "bank_transfer" },
+        }],
+      },
     };
     logPixStage(etapaAtual);
 
     etapaAtual = "chamada_api_mercado_pago";
     logPixStage(etapaAtual, "inicio");
-    const payment = await mpRequestHomologacao("/v1/payments", {
+    const mpOrder = await mpRequestHomologacao("/v1/orders", {
       method: "POST",
-      headers: { "X-Idempotency-Key": String(order.id) },
       body: JSON.stringify(payload),
     });
     logPixStage(etapaAtual);
 
     etapaAtual = "validacao_dados_qr_code";
     logPixStage(etapaAtual, "inicio");
-    const paymentId = String(payment.id ?? "");
-    const transactionData = payment.point_of_interaction?.transaction_data ?? {};
-    const qrCodeBase64 = String(transactionData.qr_code_base64 ?? "");
-    const qrCodeTexto = String(transactionData.qr_code ?? "");
-    if (!paymentId || !qrCodeBase64 || !qrCodeTexto) {
-      throw new HttpError(503, "O Mercado Pago não disponibilizou o QR Code de teste. A ordem foi preservada para reconciliação.", "PIX_QR_PENDENTE");
+    const mpPayment = mpOrder.transactions?.payments?.[0] ?? {};
+    const paymentMethod = mpPayment.payment_method ?? {};
+    const orderId = String(mpOrder.id ?? "");
+    const paymentId = String(mpPayment.id ?? "");
+    const qrCodeBase64 = String(paymentMethod.qr_code_base64 ?? "");
+    const qrCodeTexto = String(paymentMethod.qr_code ?? "");
+    const ticketUrl = String(paymentMethod.ticket_url ?? "");
+    if (!orderId || !paymentId || !qrCodeTexto) {
+      throw new HttpError(503, "O Mercado Pago não retornou os dados necessários do Pix de teste. A ordem foi preservada para reconciliação.", "PIX_QR_PENDENTE");
     }
     logPixStage(etapaAtual);
 
     console.info("[criar-pix-homologacao] Pix de teste criado", {
       etapa: "resposta_pronta",
+      possuiOrderId: true,
       possuiPaymentId: true,
       possuiQrCode: true,
+      possuiQrCodeBase64: Boolean(qrCodeBase64),
     });
 
-    return jsonResponse(req, { status: "Sucesso", paymentId, qrCodeBase64, qrCodeTexto });
+    return jsonResponse(req, {
+      status: "Sucesso",
+      orderId,
+      paymentId,
+      qrCodeBase64,
+      qrCodeTexto,
+      ticketUrl,
+    });
   } catch (error) {
     // Logar a etapa e uma versão higienizada; nunca registrar body, e-mail ou tokens.
     const errorName = error instanceof Error ? error.name : typeof error;
