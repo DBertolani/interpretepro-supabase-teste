@@ -80,7 +80,7 @@ Deno.serve(async (req: Request) => {
     logPixStage(etapaAtual);
 
     if (order.status === "concluida" || ["cancelada", "expirada"].includes(String(order.status))) {
-      throw new HttpError(409, "Esta ordem de teste foi encerrada. Inicie uma nova solicitação.", "ORDEM_ENCERRADA");
+      throw new HttpError(409, "Esta ordem de teste foi encerrada. Inicie uma nova solicitação.", "NOVA_TENTATIVA");
     }
 
     if (order.status === "criada" || order.status === "falha") {
