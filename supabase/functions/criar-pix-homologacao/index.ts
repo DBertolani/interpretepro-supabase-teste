@@ -1,5 +1,5 @@
 import { errorResponseHomologacao as errorResponse, HttpError, jsonResponseHomologacao as jsonResponse, preflightResponseHomologacao as preflightResponse } from "../_shared/http-homologacao.ts";
-import { mpRequestHomologacao, webhookUrlHomologacao } from "../_shared/mercadopago-homologacao.ts";
+import { mpRequestHomologacao } from "../_shared/mercadopago-homologacao.ts";
 import {
   getOrCreateOrderHomologacao,
   loadActivePlanHomologacao,
@@ -72,11 +72,6 @@ Deno.serve(async (req: Request) => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payerEmail)) {
       throw new HttpError(500, "Configure MP_TEST_PAYER_EMAIL com o e-mail de um usuário de teste do Mercado Pago.", "MP_TEST_PAYER_INVALIDO");
     }
-    logPixStage(etapaAtual);
-
-    etapaAtual = "validacao_url_webhook";
-    logPixStage(etapaAtual, "inicio");
-    const notificationUrl = webhookUrlHomologacao();
     logPixStage(etapaAtual);
 
     etapaAtual = "consulta_ou_criacao_ordem";
