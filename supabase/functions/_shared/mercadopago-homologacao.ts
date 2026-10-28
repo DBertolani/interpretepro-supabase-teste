@@ -3,10 +3,22 @@ import { HttpError } from "./http.ts";
 const MP_API = "https://api.mercadopago.com";
 
 function testAccessToken(): string {
-  const token = (Deno.env.get("MP_TEST_ACCESS_TOKEN") ?? "").trim();
+  const rawToken = Deno.env.get("MP_TEST_ACCESS_TOKEN") ?? "";
+  const token = rawToken.trim();
+
+  // Diagnóstico seguro: não registrar nenhum caractere do segredo.
+  console.info("[mp-homologacao] diagnóstico da credencial", {
+    length: token.length,
+    prefixType: token.startsWith("APP_USR-")
+      ? "APP_USR-"
+      : token.startsWith("TEST-")
+      ? "TEST-"
+      : "DESCONHECIDO",
+    hasLeadingOrTrailingWhitespace: rawToken !== token,
+    configured: rawToken.length > 0,
+  });
 
   // Esta função é exclusiva das Edge Functions de homologação.
-  // O prefixo APP_USR- também é usado nas credenciais de teste atuais do MP.
   // A garantia de ambiente de teste depende de MP_TEST_ACCESS_TOKEN receber
   // exclusivamente a credencial copiada da seção "Credenciais de teste".
   if (!token || !/^(TEST-|APP_USR-)/.test(token)) {
