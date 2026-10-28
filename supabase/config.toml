@@ -23,4 +23,4 @@ verify_jwt = true
 verify_jwt = false
 
 [functions.diagnostico-mp-homologacao]
-verify_jwt = true
+verify_jwt = false
