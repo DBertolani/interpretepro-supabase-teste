@@ -67,14 +67,6 @@ Deno.serve(async (req: Request) => {
     const requestKey = validateRequestKeyHomologacao(body.chaveRequisicao);
     logPixStage(etapaAtual);
 
-    etapaAtual = "validacao_email_pagador_teste";
-    logPixStage(etapaAtual, "inicio");
-    const payerEmail = (Deno.env.get("MP_TEST_PAYER_EMAIL") ?? "").trim().toLowerCase();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payerEmail)) {
-      throw new HttpError(500, "Configure MP_TEST_PAYER_EMAIL com o e-mail de um usuário de teste do Mercado Pago.", "MP_TEST_PAYER_INVALIDO");
-    }
-    logPixStage(etapaAtual);
-
     etapaAtual = "consulta_ou_criacao_ordem";
     logPixStage(etapaAtual, "inicio");
     const order = await getOrCreateOrderHomologacao(db, user, plan, "pix", requestKey);
@@ -101,7 +93,7 @@ Deno.serve(async (req: Request) => {
       type: "online",
       external_reference: String(order.referencia_externa),
       total_amount: valorPix,
-      payer: { email: payerEmail, first_name: "APRO" },
+      payer: { first_name: "APRO" },
       transactions: {
         payments: [{
           amount: valorPix,
