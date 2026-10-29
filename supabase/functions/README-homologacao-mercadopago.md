@@ -24,9 +24,9 @@
 3. Criar, por procedimento aprovado, um cliente fictício em `homologacao.clientes_teste` com o e-mail exato da conta autenticada que será usada nos testes.
 4. Cadastrar planos explicitamente aprovados em `homologacao.interpretepro_planos`. O código não cria planos nem define preços.
 5. Configurar somente os secrets de homologação, após confirmar manualmente no painel do Mercado Pago que a credencial pertence ao ambiente de teste:
-   - `MP_TEST_ACCESS_TOKEN` (o código aceita exclusivamente credencial de teste com prefixo `TEST-`; tokens `APP_USR-` são rejeitados por segurança, pois o prefixo também pode estar associado a credenciais de produção)
-   - `MP_TEST_CREDENTIALS_CONFIRMED=true` (segunda barreira explícita; não substitui a verificação manual da origem da credencial)
-   - Se a conta disponibilizar apenas uma credencial de teste `APP_USR-`, **não contorne a validação nem publique as funções**. Primeiro será necessário definir e validar outro mecanismo confiável de comprovação do ambiente de teste.
+   - `MP_TEST_ACCESS_TOKEN` (aceita prefixos `TEST-` ou `APP_USR-`; como `APP_USR-` também pode identificar credenciais de produção, use somente a credencial confirmada no painel de credenciais de teste da aplicação)
+   - `MP_TEST_CREDENTIALS_CONFIRMED=true` (confirmação operacional obrigatória; não substitui a verificação manual da origem da credencial)
+   - O diagnóstico de identidade com HTTP 200 confirma que o token é válido para a API consultada, mas **não comprova sozinho** que seja de teste. Antes de configurar o secret, confira explicitamente no painel do Mercado Pago que ele pertence ao ambiente de testes.
    - `MP_TEST_WEBHOOK_SECRET`
    - `MP_TEST_NOTIFICATION_URL` (URL exata do endpoint `/functions/v1/webhook-mercadopago-homologacao`)
    - `MP_TEST_PAYER_EMAIL` (e-mail de usuário de teste do Mercado Pago)
