@@ -18,18 +18,15 @@ function testAccessToken(): string {
     configured: rawToken.length > 0,
   });
 
-  // Prefixos não distinguem, por si só, credenciais de teste e produção.
-  // Exigimos uma confirmação explícita de que MP_TEST_ACCESS_TOKEN veio do
-  // ambiente de teste. Sem ela, a função falha de forma segura.
+  // Proteção fail-closed: este endpoint de homologação aceita somente
+  // tokens com prefixo TEST-. APP_USR- também pode identificar credenciais
+  // de produção e, por isso, não é aceito aqui mesmo com confirmação manual.
+  // A confirmação explícita é uma segunda barreira, não uma prova da origem.
   const testConfirmation = Deno.env.get("MP_TEST_CREDENTIALS_CONFIRMED") ?? "";
-  if (
-    !token ||
-    !/^(TEST-|APP_USR-)/.test(token) ||
-    testConfirmation !== "true"
-  ) {
+  if (!token.startsWith("TEST-") || testConfirmation !== "true") {
     throw new HttpError(
       500,
-      "Confirme a credencial de teste configurando MP_TEST_CREDENTIALS_CONFIRMED=true após verificar sua origem.",
+      "A homologação exige uma credencial de teste com prefixo TEST- e MP_TEST_CREDENTIALS_CONFIRMED=true.",
       "MP_TEST_CREDENCIAL_INVALIDA",
     );
   }
