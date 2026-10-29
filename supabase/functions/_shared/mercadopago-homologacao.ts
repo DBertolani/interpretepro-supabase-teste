@@ -18,15 +18,16 @@ function testAccessToken(): string {
     configured: rawToken.length > 0,
   });
 
-  // Proteção fail-closed: este endpoint de homologação aceita somente
-  // tokens com prefixo TEST-. APP_USR- também pode identificar credenciais
-  // de produção e, por isso, não é aceito aqui mesmo com confirmação manual.
-  // A confirmação explícita é uma segunda barreira, não uma prova da origem.
+  // O Mercado Pago pode fornecer credenciais de teste com prefixo APP_USR-.
+  // Como esse prefixo também pode aparecer em credenciais de produção, só o
+  // aceitamos após confirmação explícita da origem no painel de testes.
+  // A confirmação é uma barreira operacional; não substitui a verificação humana.
   const testConfirmation = Deno.env.get("MP_TEST_CREDENTIALS_CONFIRMED") ?? "";
-  if (!token.startsWith("TEST-") || testConfirmation !== "true") {
+  const prefixoAceito = token.startsWith("TEST-") || token.startsWith("APP_USR-");
+  if (!prefixoAceito || testConfirmation !== "true") {
     throw new HttpError(
       500,
-      "A homologação exige uma credencial de teste com prefixo TEST- e MP_TEST_CREDENTIALS_CONFIRMED=true.",
+      "Configure uma credencial verificada de teste (TEST- ou APP_USR-) e MP_TEST_CREDENTIALS_CONFIRMED=true.",
       "MP_TEST_CREDENCIAL_INVALIDA",
     );
   }
