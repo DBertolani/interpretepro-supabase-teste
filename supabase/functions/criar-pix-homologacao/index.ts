@@ -19,6 +19,7 @@ function sanitizeDiagnosticText(value: string): string {
   return value
     .replace(/Bearer\s+[^\s"'\\]+/gi, "Bearer [REDACTED]")
     .replace(/TEST-[A-Za-z0-9_-]+/g, "[MP_TEST_TOKEN_REDACTED]")
+    .replace(/APP_USR-[A-Za-z0-9_-]+/g, "[MP_ACCESS_TOKEN_REDACTED]")
     .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[EMAIL_REDACTED]")
     .replace(/([?&](?:access_token|token|key|secret|signature)=)[^&\s]+/gi, "$1[REDACTED]")
     .replace(/eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g, "[JWT_REDACTED]");
