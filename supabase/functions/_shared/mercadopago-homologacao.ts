@@ -11,17 +11,25 @@ function testAccessToken(): string {
     length: token.length,
     prefixType: token.startsWith("TEST-")
       ? "TEST-"
+      : token.startsWith("APP_USR-")
+      ? "APP_USR-"
       : "DESCONHECIDO",
     hasLeadingOrTrailingWhitespace: rawToken !== token,
     configured: rawToken.length > 0,
   });
 
-  // Homologação aceita exclusivamente credenciais de teste TEST-.
-  // Credenciais APP_USR- são recusadas para reduzir o risco de cobrança real.
-  if (!token || !token.startsWith("TEST-")) {
+  // Prefixos não distinguem, por si só, credenciais de teste e produção.
+  // Exigimos uma confirmação explícita de que MP_TEST_ACCESS_TOKEN veio do
+  // ambiente de teste. Sem ela, a função falha de forma segura.
+  const testConfirmation = Deno.env.get("MP_TEST_CREDENTIALS_CONFIRMED") ?? "";
+  if (
+    !token ||
+    !/^(TEST-|APP_USR-)/.test(token) ||
+    testConfirmation !== "true"
+  ) {
     throw new HttpError(
       500,
-      "Configure uma credencial TEST- obtida na seção de credenciais de teste do Mercado Pago.",
+      "Confirme a credencial de teste configurando MP_TEST_CREDENTIALS_CONFIRMED=true após verificar sua origem.",
       "MP_TEST_CREDENCIAL_INVALIDA",
     );
   }
