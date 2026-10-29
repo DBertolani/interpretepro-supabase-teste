@@ -64,8 +64,19 @@ Deno.serve(async (req: Request) => {
       url.searchParams.get("topic") ??
       "",
     );
-    const resourceId = String(body.data?.id ?? dataId);
-    const eventKey = (eventType || "unknown") + ":" + resourceId;
+    const bodyDataId = String(body.data?.id ?? "");
+    if (bodyDataId && bodyDataId !== dataId) {
+      throw new HttpError(400, "O identificador da notificação não corresponde à assinatura validada.", "WEBHOOK_ID_DIVERGENTE");
+    }
+    // Use the ID covered by the validated signature, never an unsigned body ID.
+    const resourceId = dataId;
+    const action = String(body.action ?? "");
+    // Order/subscription resources can change state while keeping the same ID.
+    // Include the action so an earlier event cannot suppress a later transition.
+    const actionKey = eventType === "order" || eventType.startsWith("subscription")
+      ? (action || "event") + ":"
+      : "";
+    const eventKey = (eventType || "unknown") + ":" + actionKey + resourceId;
     const db = backendClientHomologacao();
 
     const { data: priorEvent, error: priorError } = await db
