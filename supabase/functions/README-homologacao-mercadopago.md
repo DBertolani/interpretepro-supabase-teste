@@ -23,8 +23,9 @@
 2. Adicionar `homologacao` aos Exposed schemas da Data API do Supabase e revisar os privilégios. O cliente usa explicitamente `.schema("homologacao")`; sem a exposição da API, as consultas/RPC podem falhar.
 3. Criar, por procedimento aprovado, um cliente fictício em `homologacao.clientes_teste` com o e-mail exato da conta autenticada que será usada nos testes.
 4. Cadastrar planos explicitamente aprovados em `homologacao.interpretepro_planos`. O código não cria planos nem define preços.
-5. Configurar somente os secrets de sandbox:
-   - `MP_TEST_ACCESS_TOKEN` (o código exige prefixo `TEST-`)
+5. Configurar somente os secrets de homologação, após confirmar manualmente no painel do Mercado Pago que a credencial pertence ao ambiente de teste:
+   - `MP_TEST_ACCESS_TOKEN` (credenciais de teste da Orders API podem começar com `APP_USR-`; o prefixo sozinho não comprova o ambiente)
+   - `MP_TEST_CREDENTIALS_CONFIRMED=true` (confirmação explícita exigida pelo código; definir somente após verificar a origem da credencial)
    - `MP_TEST_WEBHOOK_SECRET`
    - `MP_TEST_NOTIFICATION_URL` (URL exata do endpoint `/functions/v1/webhook-mercadopago-homologacao`)
    - `MP_TEST_PAYER_EMAIL` (e-mail de usuário de teste do Mercado Pago)
@@ -35,5 +36,7 @@
 
 - O schema `homologacao` não é uma fronteira de segurança equivalente a um segundo projeto Supabase. O cliente backend usa `service_role`, que ignora RLS; cada endpoint deve manter as consultas qualificadas e validações do servidor.
 - O cliente de teste é associado pelo e-mail exato, porque `homologacao.clientes_teste` não possui `auth_user_id`.
+- O webhook de homologação trata notificações `order` consultando `GET /v1/orders/{id}` e mantém o fluxo legado de notificações `payment` separado. Antes de aplicar licença, confere o status processado/accredited, referência externa, valor, moeda e modalidade.
+- O webhook valida que o ID no corpo corresponde ao ID coberto pela assinatura HMAC. A chave de auditoria inclui a ação para que uma notificação inicial de uma order não suprima a notificação posterior de aprovação.
 - O webhook verifica o recurso na API do Mercado Pago antes de chamar `homologacao.aplicar_pagamento_homologacao`. A função SQL mantém a idempotência pelo `mp_payment_id`; o registro em `eventos_webhook` é uma camada adicional de auditoria.
 - Nenhum teste de compilação, deploy ou chamada ao Mercado Pago foi executado durante esta entrega.
