@@ -94,10 +94,39 @@ export async function mpRequestHomologacao(
   }
 
   if (!response.ok) {
+    // Registrar campos diagnósticos retornados pelo MP, sem despejar o body inteiro
+    // (que pode conter dados pessoais ou valores sensíveis).
+    const sanitizeProviderText = (value: unknown, max = 300): string | null => {
+      if (typeof value !== "string") return null;
+      return value
+        .replace(/Bearer\s+[^\s"'\\]+/gi, "Bearer [REDACTED]")
+        .replace(/TEST-[A-Za-z0-9_-]+/g, "[MP_TEST_TOKEN_REDACTED]")
+        .replace(/APP_USR-[A-Za-z0-9_-]+/g, "[MP_ACCESS_TOKEN_REDACTED]")
+        .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[EMAIL_REDACTED]")
+        .replace(/eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g, "[JWT_REDACTED]")
+        .slice(0, max);
+    };
+    const causes = Array.isArray(payload.cause)
+      ? payload.cause.slice(0, 10).map((item: unknown) => {
+        if (!item || typeof item !== "object") return { value: sanitizeProviderText(String(item)) };
+        const cause = item as Record<string, unknown>;
+        return {
+          code: sanitizeProviderText(cause.code, 100),
+          description: sanitizeProviderText(cause.description, 300),
+          data: sanitizeProviderText(cause.data, 200),
+        };
+      })
+      : [];
     console.warn("[mp-homologacao] requisição recusada", {
       path,
       httpStatus: response.status,
-      errorCode: typeof payload.error === "string" ? payload.error.slice(0, 100) : null,
+      requestId: response.headers.get("x-request-id") ?? response.headers.get("x-correlation-id"),
+      providerError: sanitizeProviderText(payload.error, 150),
+      providerMessage: sanitizeProviderText(payload.message, 300),
+      providerStatus: sanitizeProviderText(payload.status, 100),
+      providerCause: causes,
+      bodyIsJsonObject: Object.keys(payload).length > 0,
+      bodyLength: text.length,
     });
     throw new HttpError(
       response.status >= 500 ? 503 : 502,
