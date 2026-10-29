@@ -138,20 +138,31 @@ Deno.serve(async (req: Request) => {
       const orderResource = await mpRequestHomologacao(
         "/v1/orders/" + encodeURIComponent(resourceId),
       );
+      if (String(orderResource.id ?? "") !== resourceId) {
+        throw new HttpError(422, "O identificador da ordem consultada não corresponde à notificação.", "ORDER_ID_INVALIDO");
+      }
+
       const orderPayments = orderResource.transactions?.payments;
       const orderPayment = Array.isArray(orderPayments) ? orderPayments[0] : null;
-      if (!orderPayment) {
+      if (!orderPayment || !orderPayment.id) {
         throw new HttpError(503, "A ordem de teste ainda não contém uma transação consultável.", "ORDER_SEM_PAGAMENTO");
       }
 
+      // No recurso Orders, o status de sucesso é "processed" (não "approved").
+      // Exigimos também o detalhe "accredited" antes de encaminhar à RPC de licença.
       const orderPaid = String(orderResource.status) === "processed" &&
-        String(orderPayment.status) === "processed";
+        String(orderResource.status_detail) === "accredited" &&
+        String(orderPayment.status) === "processed" &&
+        String(orderPayment.status_detail) === "accredited";
       payment = {
         id: orderPayment.id,
         status: orderPaid ? "approved" : String(orderPayment.status ?? orderResource.status ?? "pending"),
         external_reference: orderResource.external_reference,
-        transaction_amount: orderPayment.amount ?? orderPayment.paid_amount ?? orderResource.total_paid_amount,
+        // Para uma ordem com um único Pix, validar o total efetivamente pago.
+        transaction_amount: orderResource.total_paid_amount ?? orderPayment.paid_amount ?? orderPayment.amount,
         currency_id: orderResource.currency_id ?? orderResource.currency,
+        // Orders não expõe necessariamente date_approved; last_updated_date só é usado
+        // após confirmarmos que a ordem e a transação foram processadas e acreditadas.
         date_approved: orderPayment.date_approved ?? (orderPaid ? orderResource.last_updated_date : null),
         payment_method_id: orderPayment.payment_method?.id,
       };
