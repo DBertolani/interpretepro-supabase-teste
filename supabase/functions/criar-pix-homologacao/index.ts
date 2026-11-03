@@ -94,30 +94,32 @@ Deno.serve(async (req: Request) => {
 
     etapaAtual = "montagem_payload_pix";
     logPixStage(etapaAtual, "inicio");
-    const notificationUrl = webhookUrlHomologacao();
-    const valorPix = Math.round(Number(order.valor) * 100) / 100;
+    const valorPix = Number(order.valor).toFixed(2);
     const payload = {
-      transaction_amount: valorPix,
-      description: `IntérpretePro - ${order.plano_nome_snapshot || plan.nome}`,
-      payment_method_id: "pix",
+      type: "online",
+      external_reference: String(order.referencia_externa),
+      total_amount: valorPix,
       payer: {
         email: payerEmail,
-        first_name: "Test",
-        last_name: "User",
-        identification: {
-          type: "CPF",
-          number: "19119119100",
-        },
+        first_name: "APRO",
       },
-      external_reference: String(order.referencia_externa),
-      date_of_expiration: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
-      notification_url: notificationUrl,
+      transactions: {
+        payments: [
+          {
+            amount: valorPix,
+            payment_method: {
+              id: "pix",
+              type: "bank_transfer",
+            },
+          },
+        ],
+      },
     };
     logPixStage(etapaAtual);
 
     etapaAtual = "chamada_api_mercado_pago";
     logPixStage(etapaAtual, "inicio");
-    const mpPayment = await mpRequestHomologacao("/v1/payments", {
+    const mpPayment = await mpRequestHomologacao("/v1/orders", {
       method: "POST",
       headers: {
         "X-Idempotency-Key": requestKey,
@@ -128,12 +130,13 @@ Deno.serve(async (req: Request) => {
 
     etapaAtual = "validacao_dados_qr_code";
     logPixStage(etapaAtual, "inicio");
-    const paymentId = String(mpPayment.id ?? "");
-    const transactionData = mpPayment.point_of_interaction?.transaction_data ?? {};
-    const qrCodeBase64 = String(transactionData.qr_code_base64 ?? "");
-    const qrCodeTexto = String(transactionData.qr_code ?? "");
-    const ticketUrl = String(transactionData.ticket_url ?? "");
-    if (!paymentId || !qrCodeTexto) {
+    const paymentData = mpPayment.transactions?.payments?.[0] ?? {};
+    const paymentId = String(paymentData.id ?? "");
+    const paymentMethod = paymentData.payment_method ?? {};
+    const qrCodeBase64 = String(paymentMethod.qr_code_base64 ?? "");
+    const qrCodeTexto = String(paymentMethod.qr_code ?? "");
+    const ticketUrl = String(paymentMethod.ticket_url ?? "");
+    if (!mpPayment.id || !paymentId || !qrCodeTexto || !ticketUrl) {
       throw new HttpError(
         503,
         "O Mercado Pago não retornou os dados necessários do Pix de teste. A ordem foi preservada para reconciliação.",
