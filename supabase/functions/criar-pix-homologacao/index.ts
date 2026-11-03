@@ -1,5 +1,5 @@
 import { errorResponseHomologacao as errorResponse, HttpError, jsonResponseHomologacao as jsonResponse, preflightResponseHomologacao as preflightResponse } from "../_shared/http-homologacao.ts";
-import { mpRequestHomologacao } from "../_shared/mercadopago-homologacao.ts";
+import { mpRequestHomologacao, webhookUrlHomologacao } from "../_shared/mercadopago-homologacao.ts";
 import {
   getOrCreateOrderHomologacao,
   loadActivePlanHomologacao,
@@ -86,26 +86,38 @@ Deno.serve(async (req: Request) => {
       logPixStage(etapaAtual);
     }
 
+    etapaAtual = "obter_email_pagador";
+    const payerEmail = (Deno.env.get("MP_TEST_PAYER_EMAIL") ?? requireEmail(user)).trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payerEmail)) {
+      throw new HttpError(500, "Configure MP_TEST_PAYER_EMAIL com um e-mail de teste válido.", "MP_TEST_PAYER_INVALIDO");
+    }
+
     etapaAtual = "montagem_payload_pix";
     logPixStage(etapaAtual, "inicio");
-    const valorPix = Number(order.valor).toFixed(2);
+    const notificationUrl = webhookUrlHomologacao();
+    const valorPix = Math.round(Number(order.valor) * 100) / 100;
     const payload = {
-      type: "online",
-      external_reference: String(order.referencia_externa),
-      total_amount: valorPix,
-      payer: { first_name: "APRO" },
-      transactions: {
-        payments: [{
-          amount: valorPix,
-          payment_method: { id: "pix", type: "bank_transfer" },
-        }],
+      transaction_amount: valorPix,
+      description: `IntérpretePro - ${order.plano_nome_snapshot || plan.nome}`,
+      payment_method_id: "pix",
+      payer: {
+        email: payerEmail,
+        first_name: "Test",
+        last_name: "User",
+        identification: {
+          type: "CPF",
+          number: "19119119100",
+        },
       },
+      external_reference: String(order.referencia_externa),
+      date_of_expiration: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+      notification_url: notificationUrl,
     };
     logPixStage(etapaAtual);
 
     etapaAtual = "chamada_api_mercado_pago";
     logPixStage(etapaAtual, "inicio");
-    const mpOrder = await mpRequestHomologacao("/v1/orders", {
+    const mpPayment = await mpRequestHomologacao("/v1/payments", {
       method: "POST",
       headers: {
         "X-Idempotency-Key": requestKey,
@@ -116,15 +128,17 @@ Deno.serve(async (req: Request) => {
 
     etapaAtual = "validacao_dados_qr_code";
     logPixStage(etapaAtual, "inicio");
-    const mpPayment = mpOrder.transactions?.payments?.[0] ?? {};
-    const paymentMethod = mpPayment.payment_method ?? {};
-    const orderId = String(mpOrder.id ?? "");
     const paymentId = String(mpPayment.id ?? "");
-    const qrCodeBase64 = String(paymentMethod.qr_code_base64 ?? "");
-    const qrCodeTexto = String(paymentMethod.qr_code ?? "");
-    const ticketUrl = String(paymentMethod.ticket_url ?? "");
-    if (!orderId || !paymentId || !qrCodeTexto) {
-      throw new HttpError(503, "O Mercado Pago não retornou os dados necessários do Pix de teste. A ordem foi preservada para reconciliação.", "PIX_QR_PENDENTE");
+    const transactionData = mpPayment.point_of_interaction?.transaction_data ?? {};
+    const qrCodeBase64 = String(transactionData.qr_code_base64 ?? "");
+    const qrCodeTexto = String(transactionData.qr_code ?? "");
+    const ticketUrl = String(transactionData.ticket_url ?? "");
+    if (!paymentId || !qrCodeTexto) {
+      throw new HttpError(
+        503,
+        "O Mercado Pago não retornou os dados necessários do Pix de teste. A ordem foi preservada para reconciliação.",
+        "PIX_QR_PENDENTE",
+      );
     }
     logPixStage(etapaAtual);
 
@@ -138,7 +152,7 @@ Deno.serve(async (req: Request) => {
 
     return jsonResponse(req, {
       status: "Sucesso",
-      orderId,
+      orderId: String(order.id),
       paymentId,
       qrCodeBase64,
       qrCodeTexto,
