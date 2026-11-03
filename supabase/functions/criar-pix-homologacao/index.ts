@@ -1,5 +1,5 @@
 import { errorResponseHomologacao as errorResponse, HttpError, jsonResponseHomologacao as jsonResponse, preflightResponseHomologacao as preflightResponse } from "../_shared/http-homologacao.ts";
-import { mpRequestHomologacao, webhookUrlHomologacao } from "../_shared/mercadopago-homologacao.ts";
+import { mpRequestHomologacao } from "../_shared/mercadopago-homologacao.ts";
 import {
   getOrCreateOrderHomologacao,
   loadActivePlanHomologacao,
