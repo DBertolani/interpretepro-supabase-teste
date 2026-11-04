@@ -1048,7 +1048,7 @@ function renderizarModalPlanos(planos) {
         ? 'por mês (cobrado anualmente)'
         : `por mês (cobrado a cada ${meses} meses)`;
 
-    const ehDestaque = idx === Math.floor(planos.length / 2) || plano.destaque === true;
+    const ehDestaque = plano.destaque === true;
     const fmtBRL = (v) => v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
     let badges = '';
