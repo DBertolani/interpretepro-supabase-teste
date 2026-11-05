@@ -2,6 +2,21 @@ var dadosFiltradosAtuais = [];
 var agenciasGlobais = [], dadosPagosGlobais = [], historicoGlobal = [], equipeGlobal = [], clientesGlobais = [], tiposServicoGlobal = [];
 var dadosGeraisRelatorio = [];
 
+// Identifica automaticamente a execução em homologação ou desenvolvimento local.
+const isHomologacao = window.location.hostname.includes("github.io") || window.location.hostname.includes("localhost");
+
+function aplicarIdentificacaoAmbiente() {
+  const badge = document.getElementById("badge-ambiente");
+  const rodapeAmbiente = document.getElementById("rodape-ambiente");
+
+  if (badge) badge.style.display = isHomologacao ? "inline-flex" : "none";
+  if (rodapeAmbiente) {
+    rodapeAmbiente.textContent = isHomologacao
+      ? "IntérpretePro v2.0.0 • Ambiente de Testes / Supabase"
+      : "IntérpretePro v2.0.0";
+  }
+}
+
 // Carrega os documentos do Google Drive vinculados ao usuário logado.
 async function carregarDocumentosDrive(emailUsuario) {
   const { data, error } = await supabaseClient
@@ -2069,6 +2084,7 @@ function fecharConfirmacao(valor) {
 // ✅ window.onload — definição única
 window.onload = async () => {
   inicializarPWA();
+  aplicarIdentificacaoAmbiente();
 
   try {
     const { data, error } = await supabaseClient.auth.getSession();
