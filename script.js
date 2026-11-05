@@ -1301,7 +1301,11 @@ function calcularTotalLive() {
     // O valor/hora sugerido pela agência é editável; não limitar o valor informado.
     p.innerText = "R$ " + (horas * vI).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   } else {
-    // No modo fixo, o valor digitado representa o total fechado do serviço.
+    // Preserva a conversão automática antiga somente enquanto o valor não foi editado.
+    if (objAg && vI === valorAgencia && horas > 0 && !valorBaseEditadoManualmente) {
+      vI = horas * valorAgencia;
+      campoValor.value = vI.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
     p.innerText = "R$ " + vI.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 }
