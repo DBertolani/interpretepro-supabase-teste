@@ -1277,12 +1277,19 @@ function abrirRegistro(linha = "", dados = null) {
     document.getElementById('interprete').value = dados.interprete || "";
     document.getElementById('tipoServico').value = dados.tipoServico || "";
 
-    // O banco armazena o valor TOTAL. No formulário por hora, exibir o valor/hora.
+    // O banco armazena o valor TOTAL. Identifica cobrança fixa comparando
+    // o total salvo com duração × valor/hora cadastrado para a agência.
     const valorTotalBanco = Number.isFinite(Number(dados.valorNum))
       ? Number(dados.valorNum)
       : converterParaFloat(dados.valor || 0);
     const duracaoOriginal = calcularDuracaoEmHoras(dados.inicio || "", dados.fim || "");
-    const cobrancaOriginal = duracaoOriginal > 0 ? "hora" : "fixo";
+    const agenciaOriginal = agenciasGlobais.find(a => a.nome === dados.agencia);
+    const valorHoraReferencia = agenciaOriginal ? converterParaFloat(agenciaOriginal.valor) : 0;
+    const totalPrevistoPorHora = duracaoOriginal * valorHoraReferencia;
+    const cobrancaOriginal = duracaoOriginal <= 0 ||
+      (valorHoraReferencia > 0 && Math.abs(totalPrevistoPorHora - valorTotalBanco) > 0.01)
+      ? "fixo"
+      : "hora";
     const valorBaseOriginal = Number((cobrancaOriginal === "hora"
       ? valorTotalBanco / duracaoOriginal
       : valorTotalBanco).toFixed(2));
@@ -1361,45 +1368,34 @@ function aoMudarAgencia() {
 }
 
 function calcularTotalLive() {
-  var tipo = document.querySelector('input[name="tipoCobranca"]:checked').value;
-  var campoValor = document.getElementById('valor-base');
-  var vI = converterParaFloat(campoValor.value);
-  var p = document.getElementById('valor-live-preview');
-  var hI = document.getElementById('inicio').value;
-  var hF = document.getElementById('fim').value;
-  var horas = 0;
+  const tipo = document.querySelector('input[name="tipoCobranca"]:checked')?.value || "hora";
+  const campoValor = document.getElementById('valor-base');
+  const valorDigitado = converterParaFloat(campoValor.value);
+  const preview = document.getElementById('valor-live-preview');
+  const inicio = document.getElementById('inicio').value;
+  const fim = document.getElementById('fim').value;
+  const horas = calcularDuracaoEmHoras(inicio, fim);
 
-  if (hI && hF) {
-    var dI = new Date(0, 0, 0, hI.split(":")[0], hI.split(":")[1]);
-    var dF = new Date(0, 0, 0, hF.split(":")[0], hF.split(":")[1]);
-    if (dF < dI) dF.setDate(dF.getDate() + 1);
-    horas = (dF - dI) / 3600000;
-  }
+  // Fixo representa o valor total informado, sem multiplicação ou conversão.
+  const subtotal = tipo === "fixo"
+    ? valorDigitado
+    : horas * valorDigitado;
 
-  if (tipo === "hora") {
-    // O valor/hora sugerido pela agência é editável; não limitar o valor informado.
-    p.innerText = "R$ " + (horas * vI).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  } else {
-    // Preserva a conversão automática antiga somente enquanto o valor não foi editado.
-    if (objAg && vI === valorAgencia && horas > 0 && !valorBaseEditadoManualmente) {
-      vI = horas * valorAgencia;
-      campoValor.value = vI.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
-    p.innerText = "R$ " + vI.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  }
+  preview.innerText = "R$ " + subtotal.toLocaleString('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
 
-  // Enquanto valor e horários não forem alterados, a prévia deve refletir
-  // exatamente o total já gravado, inclusive em divisões com fração de centavo.
+  // Preserva o total gravado somente enquanto todos os campos financeiros
+  // continuam exatamente iguais aos carregados na edição.
   if (estadoFinanceiroOriginalEdicao) {
-    const tipoAtual = document.querySelector('input[name="tipoCobranca"]:checked').value;
-    const valorAtual = converterParaFloat(campoValor.value);
     const financeiroIntacto =
-      hI === estadoFinanceiroOriginalEdicao.inicio &&
-      hF === estadoFinanceiroOriginalEdicao.fim &&
-      tipoAtual === estadoFinanceiroOriginalEdicao.tipoCobranca &&
-      Math.abs(valorAtual - estadoFinanceiroOriginalEdicao.valorBase) < 0.000001;
+      inicio === estadoFinanceiroOriginalEdicao.inicio &&
+      fim === estadoFinanceiroOriginalEdicao.fim &&
+      tipo === estadoFinanceiroOriginalEdicao.tipoCobranca &&
+      Math.abs(valorDigitado - estadoFinanceiroOriginalEdicao.valorBase) < 0.000001;
     if (financeiroIntacto) {
-      p.innerText = "R$ " + estadoFinanceiroOriginalEdicao.valorTotal.toLocaleString('pt-BR', {
+      preview.innerText = "R$ " + estadoFinanceiroOriginalEdicao.valorTotal.toLocaleString('pt-BR', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       });
