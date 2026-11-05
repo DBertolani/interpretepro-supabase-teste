@@ -475,6 +475,10 @@
             <select id="filtroMembroCobranca" aria-label="Filtrar extrato por membro" onchange="gerarRelatorio()">
               <option value="todos">Todos os Membros</option>
             </select>
+            <label for="filtroClienteFinalCobranca">Cliente Final (Opcional):</label>
+            <select id="filtroClienteFinalCobranca" onchange="gerarRelatorio()">
+              <option value="todos">Todos os Clientes</option>
+            </select>
             <label>Data Início:</label>
             <input type="date" id="filtroDataInicioCobranca" onchange="gerarRelatorio()">
             <label>Data Fim:</label>
