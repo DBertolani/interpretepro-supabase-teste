@@ -1634,14 +1634,22 @@ async function abrirRelatorios() {
 
   var sa = document.getElementById('filtroAgenciaRelatorio');
   var sm = document.getElementById('filtroMembroRelatorio');
+  var sc = document.getElementById('filtroAgenciaCobranca');
   sa.innerHTML = '<option value="todas">Todas as Agências</option>';
   sm.innerHTML = '<option value="todos">Todos os Membros</option>';
+  if (sc) sc.innerHTML = '<option value="todas">Todas as Agências</option>';
 
   var lAg = [], lMem = [];
   res.dados.forEach(i => {
-    if (!lAg.includes(i.agencia)) { lAg.push(i.agencia); sa.innerHTML += `<option value="${i.agencia}">${i.agencia}</option>`; }
+    if (!lAg.includes(i.agencia)) {
+      lAg.push(i.agencia);
+      sa.innerHTML += `<option value="${i.agencia}">${i.agencia}</option>`;
+      if (sc) sc.innerHTML += `<option value="${i.agencia}">${i.agencia}</option>`;
+    }
     if (!lMem.includes(i.interprete)) { lMem.push(i.interprete); sm.innerHTML += `<option value="${i.interprete}">${i.interprete}</option>`; }
   });
+  const dataFimCobranca = document.getElementById('filtroDataFimCobranca');
+  if (dataFimCobranca) dataFimCobranca.value = hj.toISOString().split('T')[0];
   gerarRelatorio();
 }
 
@@ -1745,7 +1753,7 @@ function gerarRelatorio() {
   const statsRelatorio = document.getElementById('relatorio-stats');
   if (filtrosPadrao) filtrosPadrao.style.display = tipo === 'cobranca_pendencias' ? 'none' : 'block';
   if (filtrosCobranca) filtrosCobranca.style.display = tipo === 'cobranca_pendencias' ? 'block' : 'none';
-  if (statsRelatorio) statsRelatorio.style.display = tipo === 'cobranca_pendencias' ? 'none' : 'grid';
+  if (statsRelatorio) statsRelatorio.style.display = tipo === 'cobranca_pendencias' ? 'none' : '';
   const btnCopiar = document.getElementById('btnCopiarRelatorio');
   const btnImagem = document.getElementById('btnBaixarImagem');
   if (btnCopiar) btnCopiar.style.display = tipo === 'cobranca_pendencias' ? 'none' : 'block';
