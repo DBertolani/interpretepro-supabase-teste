@@ -1,6 +1,16 @@
 var dadosFiltradosAtuais = [];
 var agenciasGlobais = [], dadosPagosGlobais = [], historicoGlobal = [], equipeGlobal = [], clientesGlobais = [], tiposServicoGlobal = [];
 var dadosGeraisRelatorio = [];
+
+// Carrega os documentos do Google Drive vinculados ao usuário logado.
+async function carregarDocumentosDrive(emailUsuario) {
+  const { data, error } = await supabaseClient
+    .from('documentos_arquivos')
+    .select('*')
+    .eq('email_usuario', emailUsuario)
+    .order('criado_em', { ascending: false });
+  return data || [];
+}
 let ordemDataHistorico = 'desc';
 let origemNavegacao = 'dash';
 const servicoCache = new Map();
