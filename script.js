@@ -1984,7 +1984,7 @@ function gerarRelatorio() {
           <div style="margin-top:8px; background:#fafafa; padding:8px; border-radius:6px; border:1px solid #e0e0e0;">`;
         nfPorM[nome].ags[ag].items.forEach(it => {
           h += `<div style="font-size:13px; padding:8px 0; border-bottom:1px dashed #ccc; display:flex; justify-content:space-between;">
-            <span>🗓️ Realizado: ${escaparHtmlRelatorio(it.data || formatarDataExtrato(it.dataOriginal))}${it.dataPgto ? " | 💰 Recebido: " + escaparHtmlRelatorio(formatarDataExtrato(it.dataPgto)) : ""} — ${escaparHtmlRelatorio(it.empresa || "Cliente não informado")}</span>
+            <span>🗓️ Demanda: ${escaparHtmlRelatorio(it.data || formatarDataExtrato(it.dataOriginal))}${it.dataPgto ? " | 💰 Pago em: " + escaparHtmlRelatorio(formatarDataExtrato(it.dataPgto)) : ""} — ${escaparHtmlRelatorio(it.empresa || "Cliente não informado")}</span>
             <span style="color:#2e7d32; font-weight:bold;">R$ ${it.valorNum.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
           </div>`;
         });
