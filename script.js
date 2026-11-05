@@ -1666,9 +1666,16 @@ async function abrirRelatorios() {
     if (i.interprete && !lMem.includes(i.interprete)) {
       lMem.push(i.interprete);
       sm.innerHTML += `<option value="${i.interprete}">${i.interprete}</option>`;
-      if (smc) smc.innerHTML += `<option value="${escaparHtmlRelatorio(i.interprete)}">${escaparHtmlRelatorio(i.interprete)}</option>`;
     }
   });
+  if (smc) {
+    const membrosCadastrados = equipeGlobal.length ? equipeGlobal : lMem;
+    membrosCadastrados.filter(Boolean).forEach(nome => {
+      if (!Array.from(smc.options).some(opcao => opcao.value === nome)) {
+        smc.innerHTML += `<option value="${escaparHtmlRelatorio(nome)}">${escaparHtmlRelatorio(nome)}</option>`;
+      }
+    });
+  }
   const dataFimCobranca = document.getElementById('filtroDataFimCobranca');
   if (dataFimCobranca) dataFimCobranca.value = hj.toISOString().split('T')[0];
   gerarRelatorio();
@@ -1766,7 +1773,7 @@ async function copiarExtratoPendencias() {
 
   let texto = 'EXTRATO DE PENDÊNCIAS — INTÉRPRETEPRO\n' +
     'Agência: ' + nomeAgencia + '\n' +
-    'Membro: ' + nomeMembro + '\n' +
+    (membro === 'todos' ? '' : 'Membro: ' + nomeMembro + '\n') +
     'Período: ' + periodo + '\n\n' +
     'ATENDIMENTOS\n';
   itens.forEach((item, indice) => {
