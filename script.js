@@ -1256,11 +1256,11 @@ function toggleDataEdicao() {
 function aoMudarAgencia() {
   var ag = document.getElementById('agencia').value;
   var obj = agenciasGlobais.find(a => a.nome === ag);
-  if (obj) {
+  if (obj && !valorBaseEditadoManualmente) {
     var num = converterParaFloat(obj.valor);
     document.getElementById('valor-base').value = num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    calcularTotalLive();
   }
+  calcularTotalLive();
 }
 
 function calcularTotalLive() {
