@@ -5,6 +5,7 @@ var dadosGeraisRelatorio = [];
 
 // Identifica automaticamente a execução em homologação ou desenvolvimento local.
 const isHomologacao = window.location.hostname.includes("github.io") || window.location.hostname.includes("localhost");
+const schemaAtivo = isHomologacao ? "homologacao" : "public";
 
 function aplicarIdentificacaoAmbiente() {
   const badge = document.getElementById("badge-ambiente");
@@ -35,7 +36,14 @@ const servicoCache = new Map();
 const SUPABASE_URL = "https://bvavzgmsiflydrlgeiqf.supabase.co"; // Ex: https://bvavzgmsifflydrlgeiqf.supabase.co
 const SUPABASE_ANON_KEY = "sb_publishable_IgTCeiytetM678AtADKUtQ_n3SL6akf"; // Ex: sb_publishable_...
 
-var supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+var supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  db: { schema: schemaAtivo },
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    flowType: 'pkce'
+  }
+});
 
 // Controle de segurança: manter false até as Edge Functions estarem publicadas
 // e os Secrets de TESTE configurados no projeto de homologação.
