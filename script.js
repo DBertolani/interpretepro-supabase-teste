@@ -1757,40 +1757,27 @@ function renderizarExtratoPendencias() {
 }
 
 async function copiarExtratoPendencias() {
-  const agencia = document.getElementById('filtroAgenciaCobranca').value;
-  const membro = document.getElementById('filtroMembroCobranca')?.value || 'todos';
-  const inicio = document.getElementById('filtroDataInicioCobranca').value;
-  const fim = document.getElementById('filtroDataFimCobranca').value;
-  const itens = dadosFiltradosAtuais;
-  if (!itens.length) return mostrarToast('⚠️ Não há atendimentos para copiar neste filtro.', 'erro');
-
-  const total = itens.reduce((soma, item) => soma + (Number(item.valorNum) || 0), 0);
-  const nomeAgencia = agencia === 'todas' ? 'Todas as Agências' : agencia;
-  const nomeMembro = membro === 'todos' ? 'Todos os Membros' : membro;
-  const periodo = (inicio ? formatarDataExtrato(inicio) : 'Início não definido') + ' até ' +
-    (fim ? formatarDataExtrato(fim) : 'Data atual');
-  const moeda = valor => Number(valor || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-  let texto = 'EXTRATO DE PENDÊNCIAS — INTÉRPRETEPRO\n' +
-    'Agência: ' + nomeAgencia + '\n' +
-    (membro === 'todos' ? '' : 'Membro: ' + nomeMembro + '\n') +
-    'Período: ' + periodo + '\n\n' +
-    'ATENDIMENTOS\n';
-  itens.forEach((item, indice) => {
-    texto += (indice + 1) + '. ' +
-      (item.data || formatarDataExtrato(item.dataOriginal)) + ' | ' +
-      (item.empresa || 'Cliente não informado') + ' | ' +
-      (item.interprete || '—') + ' | R$ ' + moeda(item.valorNum) + '\n';
+  const agencia=document.getElementById('filtroAgenciaCobranca').value;
+  const inicio=document.getElementById('filtroDataInicioCobranca').value;
+  const fim=document.getElementById('filtroDataFimCobranca').value;
+  const itens=dadosFiltradosAtuais;
+  if(!itens.length)return mostrarToast('⚠️ Não há atendimentos para copiar neste filtro.','erro');
+  const total=itens.reduce((s,i)=>s+(Number(i.valorNum)||0),0);
+  const nomeAgencia=agencia==='todas'?'Todas as Agências':agencia;
+  const periodo=(inicio?formatarDataExtrato(inicio):'Início não definido')+' até '+(fim?formatarDataExtrato(fim):'Data atual');
+  const moeda=v=>Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const grupos={};
+  itens.forEach(item=>{const nome=String(item.interprete||'Membro não identificado').trim();if(!grupos[nome])grupos[nome]={total:0,itens:[]};grupos[nome].total+=Number(item.valorNum)||0;grupos[nome].itens.push(item);});
+  let texto='*EXTRATO DE PENDÊNCIAS / COBRANÇA*\n'+'🏢 *Agência:* '+nomeAgencia+'\n'+'📅 *Período:* '+periodo+'\n\n';
+  Object.keys(grupos).sort((a,b)=>a.localeCompare(b,'pt-BR')).forEach(nome=>{
+    const grupo=grupos[nome];
+    texto+='👤 *'+nome+'*\n'+'💰 *Subtotal:* R$ '+moeda(grupo.total)+' ('+grupo.itens.length+' atendimentos)\n';
+    grupo.itens.forEach(item=>{texto+='  • '+(item.data||formatarDataExtrato(item.dataOriginal))+' - '+(item.empresa||'Cliente não informado')+': R$ '+moeda(item.valorNum)+'\n';});
+    texto+='\n';
   });
-  texto += '\nTotal de Atendimentos: ' + itens.length +
-    '\nTOTAL A RECEBER: R$ ' + moeda(total);
-
-  try {
-    await navigator.clipboard.writeText(texto);
-    mostrarToast('📄 Texto copiado com sucesso!', 'sucesso');
-  } catch (erro) {
-    mostrarToast('❌ Não foi possível copiar. Verifique a permissão da área de transferência.', 'erro');
-  }
+  texto+='💵 *TOTAL GERAL A RECEBER: R$ '+moeda(total)+'*\n'+'📊 *Total de Atendimentos:* '+itens.length;
+  try{navigator.clipboard.writeText(texto).then(()=>mostrarToast('📄 Texto copiado com sucesso!','sucesso')).catch(()=>mostrarToast('❌ Não foi possível copiar. Verifique a permissão da área de transferência.','erro'));}
+  catch(erro){mostrarToast('❌ Não foi possível copiar. Verifique a permissão da área de transferência.','erro');}
 }
 
 async function salvarImagemExtrato() {
