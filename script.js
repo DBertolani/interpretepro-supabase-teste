@@ -1736,7 +1736,15 @@ async function confirmarBaixaLote() {
     atendimentosSelecionadosLote.clear();
     mostrarToast(`✅ ${resposta.quantidade || itens.length} pagamentos registrados!`);
     await abrirHistorico();
-    await voltarDashboard();
+
+    // Atualiza os números do dashboard em segundo plano, sem tirar o usuário
+    // da tela de Histórico após concluir a baixa em lote.
+    const dadosDashboard = await chamarGoogle("carregarDadosIniciais");
+    if (dadosDashboard?.dados) {
+      const valorPendente = document.getElementById("valor-pendente");
+      if (valorPendente) valorPendente.innerText = "R$ " + dadosDashboard.dados.pendente;
+      renderizarPendenteDetalhado(dadosDashboard.dados.pendenteDetalhado);
+    }
   } catch (erro) {
     console.error("Erro na baixa de pagamentos em lote:", erro);
     mostrarToast(erro.message || "❌ Erro ao registrar os pagamentos.", "erro");
