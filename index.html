@@ -329,7 +329,7 @@
 
           <div class="form-row-duo">
             <div style="flex: 1;"><label>Data:</label><input type="date" id="data" required></div>
-            <div style="flex: 1.5;"><label>Tipo de Serviço:</label><select id="tipoServico" required></select></div>
+            <div style="flex: 1.5;"><label>Tipo de Serviço:</label><select id="tipoServico" required onchange="atualizarObrigatoriedadeHorarios()"></select></div>
           </div>
 
           <label>Intérprete:</label><select id="interprete" required></select>
@@ -369,7 +369,7 @@
           </div>
 
           <label id="label-valor">Valor:</label>
-          <input type="text" inputmode="numeric" id="valor-base" oninput="formatarMoeda(this); calcularTotalLive()"
+          <input type="text" inputmode="numeric" id="valor-base" oninput="valorBaseEditadoManualmente = true; formatarMoeda(this); calcularTotalLive()"
             required>
 
           <div class="box-valor-live">
@@ -458,13 +458,26 @@
           <select id="tipoRelatorio" onchange="gerarRelatorio()">
             <option value="nf">📄 Nota Fiscal (Por Agência/Membro)</option>
             <option value="horas">⏱️ Produtividade (Total de Horas)</option>
+            <option value="cobranca_pendencias">💰 Extrato de Pendências / Cobrança (Por Agência)</option>
           </select>
-          <label id="labelMesFiltro">Mês Recebido:</label><input type="month" id="filtroMesRelatorio"
-            onchange="gerarRelatorio()">
-          <label>Membro:</label><select id="filtroMembroRelatorio" onchange="gerarRelatorio()"></select>
-          <label>Agência (Opcional):</label><select id="filtroAgenciaRelatorio" onchange="gerarRelatorio()"></select>
+          <div id="filtros-relatorio-padrao">
+            <label id="labelMesFiltro">Mês Recebido:</label><input type="month" id="filtroMesRelatorio"
+              onchange="gerarRelatorio()">
+            <label>Membro:</label><select id="filtroMembroRelatorio" onchange="gerarRelatorio()"></select>
+            <label>Agência (Opcional):</label><select id="filtroAgenciaRelatorio" onchange="gerarRelatorio()"></select>
+          </div>
+          <div id="filtros-cobranca-pendencias" style="display:none;">
+            <label>Agência:</label>
+            <select id="filtroAgenciaCobranca" onchange="gerarRelatorio()">
+              <option value="todas">Todas as Agências</option>
+            </select>
+            <label>Data Início:</label>
+            <input type="date" id="filtroDataInicioCobranca" onchange="gerarRelatorio()">
+            <label>Data Fim:</label>
+            <input type="date" id="filtroDataFimCobranca" onchange="gerarRelatorio()">
+          </div>
         </div>
-        <div class="relatorio-stats">
+        <div class="relatorio-stats" id="relatorio-stats">
           <div class="stat-card"><span class="stat-label">Faturamento</span><strong id="valor-total-relatorio">R$
               0,00</strong></div>
           <div class="stat-card"><span class="stat-label">Total Horas</span><strong
