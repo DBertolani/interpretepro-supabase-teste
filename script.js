@@ -1650,18 +1650,24 @@ async function abrirRelatorios() {
   var sa = document.getElementById('filtroAgenciaRelatorio');
   var sm = document.getElementById('filtroMembroRelatorio');
   var sc = document.getElementById('filtroAgenciaCobranca');
+  var smc = document.getElementById('filtroMembroCobranca');
   sa.innerHTML = '<option value="todas">Todas as Agências</option>';
   sm.innerHTML = '<option value="todos">Todos os Membros</option>';
   if (sc) sc.innerHTML = '<option value="todas">Todas as Agências</option>';
+  if (smc) smc.innerHTML = '<option value="todos">Todos os Membros</option>';
 
   var lAg = [], lMem = [];
   res.dados.forEach(i => {
-    if (!lAg.includes(i.agencia)) {
+    if (i.agencia && !lAg.includes(i.agencia)) {
       lAg.push(i.agencia);
       sa.innerHTML += `<option value="${i.agencia}">${i.agencia}</option>`;
       if (sc) sc.innerHTML += `<option value="${escaparHtmlRelatorio(i.agencia)}">${escaparHtmlRelatorio(i.agencia)}</option>`;
     }
-    if (!lMem.includes(i.interprete)) { lMem.push(i.interprete); sm.innerHTML += `<option value="${i.interprete}">${i.interprete}</option>`; }
+    if (i.interprete && !lMem.includes(i.interprete)) {
+      lMem.push(i.interprete);
+      sm.innerHTML += `<option value="${i.interprete}">${i.interprete}</option>`;
+      if (smc) smc.innerHTML += `<option value="${escaparHtmlRelatorio(i.interprete)}">${escaparHtmlRelatorio(i.interprete)}</option>`;
+    }
   });
   const dataFimCobranca = document.getElementById('filtroDataFimCobranca');
   if (dataFimCobranca) dataFimCobranca.value = hj.toISOString().split('T')[0];
@@ -1683,6 +1689,7 @@ function escaparHtmlRelatorio(valor) {
 function renderizarExtratoPendencias() {
   const container = document.getElementById('lista-relatorio');
   const agencia = document.getElementById('filtroAgenciaCobranca').value;
+  const membro = document.getElementById('filtroMembroCobranca')?.value || 'todos';
   const inicio = document.getElementById('filtroDataInicioCobranca').value;
   const fim = document.getElementById('filtroDataFimCobranca').value;
 
@@ -1694,6 +1701,7 @@ function renderizarExtratoPendencias() {
   const pendentes = dadosGeraisRelatorio.filter(item =>
     item.status === 'Pendente' &&
     (agencia === 'todas' || item.agencia === agencia) &&
+    (membro === 'todos' || item.interprete === membro) &&
     (!inicio || (item.dataOriginal || '') >= inicio) &&
     (!fim || (item.dataOriginal || '') <= fim)
   ).sort((a, b) => (a.dataOriginal || '').localeCompare(b.dataOriginal || ''));
@@ -1701,20 +1709,22 @@ function renderizarExtratoPendencias() {
   dadosFiltradosAtuais = pendentes;
   const total = pendentes.reduce((soma, item) => soma + (Number(item.valorNum) || 0), 0);
   const nomeAgencia = agencia === 'todas' ? 'Todas as Agências' : agencia;
+  const nomeMembro = membro === 'todos' ? 'Todos os Membros' : membro;
   const periodo = (inicio ? formatarDataExtrato(inicio) : 'Início não definido') +
     ' até ' + (fim ? formatarDataExtrato(fim) : 'Data atual');
 
-  let html = `<section id="extrato-cobranca" style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:14px;margin-top:12px;">
-    <div style="text-align:center;border-bottom:1px solid #eee;padding-bottom:12px;margin-bottom:10px;">
-      <h3 style="margin:0 0 6px;color:#4a148c;">Extrato de Pendências</h3>
-      <strong>${escaparHtmlRelatorio(nomeAgencia)}</strong>
-      <div style="font-size:12px;color:#666;margin-top:4px;">Período: ${escaparHtmlRelatorio(periodo)}</div>
+  let html = `<section id="extrato-cobranca" style="font-family:Arial,Helvetica,sans-serif;background:#fff;border:1px solid #e8e3ed;border-radius:12px;padding:18px;margin-top:12px;color:#333;box-shadow:0 2px 8px rgba(74,20,140,.06);">
+    <div style="text-align:center;border-bottom:1px solid #eee;padding-bottom:14px;margin-bottom:12px;">
+      <h3 style="font-family:Arial,Helvetica,sans-serif;margin:0 0 7px;color:#4a148c;font-size:19px;font-weight:700;">Extrato de Pendências</h3>
+      <div style="font-size:14px;font-weight:700;color:#444;">${escaparHtmlRelatorio(nomeAgencia)}</div>
+      <div style="font-size:13px;color:#666;margin-top:4px;">Membro: ${escaparHtmlRelatorio(nomeMembro)}</div>
+      <div style="font-size:12px;color:#777;margin-top:4px;">Período: ${escaparHtmlRelatorio(periodo)}</div>
     </div>`;
 
   if (!pendentes.length) {
     html += "<p style='text-align:center;color:#666;padding:18px 4px;'>Nenhum atendimento pendente encontrado neste período.</p>";
   } else {
-    html += "<div style='overflow-x:auto;'><table style='width:100%;border-collapse:collapse;font-size:12px;text-align:left;'><thead><tr style='background:#f7f4fa;'><th style='padding:8px 5px;'>Data</th><th style='padding:8px 5px;'>Cliente / Empresa</th><th style='padding:8px 5px;'>Intérprete</th><th style='padding:8px 5px;'>Serviço / Horário</th><th style='padding:8px 5px;text-align:right;'>Valor</th></tr></thead><tbody>";
+    html += "<div style='overflow-x:auto;'><table style='font-family:Arial,Helvetica,sans-serif;width:100%;border-collapse:collapse;font-size:12px;text-align:left;color:#333;'><thead><tr style='background:#f3eaf8;color:#4a148c;'><th style='padding:10px 7px;font-weight:700;border-bottom:1px solid #e5d9ed;'>Data</th><th style='padding:10px 7px;font-weight:700;border-bottom:1px solid #e5d9ed;'>Cliente / Empresa</th><th style='padding:10px 7px;font-weight:700;border-bottom:1px solid #e5d9ed;'>Intérprete</th><th style='padding:10px 7px;font-weight:700;border-bottom:1px solid #e5d9ed;'>Serviço / Horário</th><th style='padding:10px 7px;font-weight:700;border-bottom:1px solid #e5d9ed;text-align:right;'>Valor</th></tr></thead><tbody>";
     pendentes.forEach(item => {
       const horario = item.inicio && item.fim ? item.inicio + '–' + item.fim : '—';
       html += `<tr style="border-bottom:1px solid #eee;">
@@ -1728,36 +1738,74 @@ function renderizarExtratoPendencias() {
     html += '</tbody></table></div>';
   }
 
-  html += `<div style="margin-top:14px;padding:13px;background:#e8f5e9;border:1px solid #a5d6a7;border-radius:8px;color:#1b5e20;">
-    <div style="font-size:13px;">Quantidade de Atendimentos Pendentes: <strong>${pendentes.length}</strong></div>
-    <div style="font-size:16px;font-weight:bold;margin-top:6px;">TOTAL ACUMULADO A COBRAR: R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+  html += `<div style="font-family:Arial,Helvetica,sans-serif;margin-top:15px;padding:14px;background:#edf7ef;border:1px solid #c8e2cd;border-radius:9px;color:#1b5e20;">
+    <div style="font-size:13px;">Total de Atendimentos: <strong>${pendentes.length}</strong></div>
+    <div style="font-size:17px;font-weight:700;margin-top:6px;">TOTAL A RECEBER: R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
   </div></section>
   <div style="display:flex;gap:10px;margin-top:12px;">
-    <button type="button" class="btn-primario" style="background:#25D366;flex:1;" onclick="copiarExtratoPendencias()">📋 Copiar para WhatsApp</button>
-    <button type="button" class="btn-primario" style="background:#546e7a;flex:1;" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+    <button type="button" class="btn-primario" style="background-color:#9c27b0;flex:1;" onclick="copiarExtratoPendencias()">📄 Copiar Texto</button>
+    <button type="button" class="btn-primario" style="background-color:#1976d2;flex:1;" onclick="salvarImagemExtrato()">🖼️ Salvar Imagem</button>
   </div>`;
   container.innerHTML = html;
 }
 
 async function copiarExtratoPendencias() {
   const agencia = document.getElementById('filtroAgenciaCobranca').value;
+  const membro = document.getElementById('filtroMembroCobranca')?.value || 'todos';
   const inicio = document.getElementById('filtroDataInicioCobranca').value;
   const fim = document.getElementById('filtroDataFimCobranca').value;
   const itens = dadosFiltradosAtuais;
+  if (!itens.length) return mostrarToast('⚠️ Não há atendimentos para copiar neste filtro.', 'erro');
+
   const total = itens.reduce((soma, item) => soma + (Number(item.valorNum) || 0), 0);
   const nomeAgencia = agencia === 'todas' ? 'Todas as Agências' : agencia;
+  const nomeMembro = membro === 'todos' ? 'Todos os Membros' : membro;
   const periodo = (inicio ? formatarDataExtrato(inicio) : 'Início não definido') + ' até ' +
     (fim ? formatarDataExtrato(fim) : 'Data atual');
-  let texto = `*EXTRATO DE PENDÊNCIAS — INTÉRPRETEPRO*\nAgência: ${nomeAgencia}\nPeríodo: ${periodo}\n\n`;
+  const moeda = valor => Number(valor || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  let texto = 'EXTRATO DE PENDÊNCIAS — INTÉRPRETEPRO\n' +
+    'Agência: ' + nomeAgencia + '\n' +
+    'Membro: ' + nomeMembro + '\n' +
+    'Período: ' + periodo + '\n\n' +
+    'ATENDIMENTOS\n';
   itens.forEach((item, indice) => {
-    texto += `${indice + 1}. ${item.data || formatarDataExtrato(item.dataOriginal)} — ${item.empresa || 'Cliente não informado'}\n   Intérprete: ${item.interprete || '—'}\n   Serviço: ${item.tipoServico || '—'}${item.inicio && item.fim ? ' (' + item.inicio + '–' + item.fim + ')' : ''}\n   Valor: R$ ${(Number(item.valorNum)||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}\n\n`;
+    texto += (indice + 1) + '. ' +
+      (item.data || formatarDataExtrato(item.dataOriginal)) + ' | ' +
+      (item.empresa || 'Cliente não informado') + ' | ' +
+      (item.interprete || '—') + ' | R$ ' + moeda(item.valorNum) + '\n';
   });
-  texto += `*Atendimentos pendentes: ${itens.length}*\n*TOTAL A COBRAR: R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:2})}*`;
+  texto += '\nTotal de Atendimentos: ' + itens.length +
+    '\nTOTAL A RECEBER: R$ ' + moeda(total);
+
   try {
     await navigator.clipboard.writeText(texto);
-    mostrarToast('📋 Copiado para a área de transferência!', 'sucesso');
+    mostrarToast('📄 Texto copiado com sucesso!', 'sucesso');
   } catch (erro) {
     mostrarToast('❌ Não foi possível copiar. Verifique a permissão da área de transferência.', 'erro');
+  }
+}
+
+async function salvarImagemExtrato() {
+  const botao = document.querySelector('#lista-relatorio button[onclick="salvarImagemExtrato()"]');
+  const original = botao ? botao.innerHTML : '🖼️ Salvar Imagem';
+  if (botao) { botao.innerHTML = '⏳ Gerando Imagem...'; botao.disabled = true; }
+
+  try {
+    const html2canvas = await carregarHtml2Canvas();
+    const card = document.getElementById('extrato-cobranca');
+    if (!card) throw new Error('Card do extrato não encontrado.');
+    const canvas = await html2canvas(card, { scale: 2, backgroundColor: '#ffffff' });
+    const link = document.createElement('a');
+    const dataHoje = new Date().toISOString().slice(0, 10);
+    link.download = 'Extrato_Pendencias_InterpretePro_' + dataHoje + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    mostrarToast('🖼️ Imagem salva!', 'sucesso');
+  } catch (erro) {
+    mostrarToast('❌ Erro ao gerar imagem do extrato.', 'erro');
+  } finally {
+    if (botao) { botao.innerHTML = original; botao.disabled = false; }
   }
 }
 
