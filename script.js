@@ -1655,7 +1655,7 @@ async function abrirRelatorios() {
     if (!lAg.includes(i.agencia)) {
       lAg.push(i.agencia);
       sa.innerHTML += `<option value="${i.agencia}">${i.agencia}</option>`;
-      if (sc) sc.innerHTML += `<option value="${i.agencia}">${i.agencia}</option>`;
+      if (sc) sc.innerHTML += `<option value="${escaparHtmlRelatorio(i.agencia)}">${escaparHtmlRelatorio(i.agencia)}</option>`;
     }
     if (!lMem.includes(i.interprete)) { lMem.push(i.interprete); sm.innerHTML += `<option value="${i.interprete}">${i.interprete}</option>`; }
   });
