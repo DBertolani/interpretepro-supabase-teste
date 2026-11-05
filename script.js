@@ -1387,6 +1387,24 @@ function calcularTotalLive() {
     }
     p.innerText = "R$ " + vI.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
+
+  // Enquanto valor e horários não forem alterados, a prévia deve refletir
+  // exatamente o total já gravado, inclusive em divisões com fração de centavo.
+  if (estadoFinanceiroOriginalEdicao) {
+    const tipoAtual = document.querySelector('input[name="tipoCobranca"]:checked').value;
+    const valorAtual = converterParaFloat(campoValor.value);
+    const financeiroIntacto =
+      hI === estadoFinanceiroOriginalEdicao.inicio &&
+      hF === estadoFinanceiroOriginalEdicao.fim &&
+      tipoAtual === estadoFinanceiroOriginalEdicao.tipoCobranca &&
+      Math.abs(valorAtual - estadoFinanceiroOriginalEdicao.valorBase) < 0.000001;
+    if (financeiroIntacto) {
+      p.innerText = "R$ " + estadoFinanceiroOriginalEdicao.valorTotal.toLocaleString('pt-BR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+  }
 }
 
 function verificarBloqueioLeitura() {
