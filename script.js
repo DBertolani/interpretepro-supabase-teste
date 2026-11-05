@@ -1,4 +1,5 @@
 var dadosFiltradosAtuais = [];
+const atendimentosSelecionadosLote = new Set();
 var agenciasGlobais = [], dadosPagosGlobais = [], historicoGlobal = [], equipeGlobal = [], clientesGlobais = [], minhasEmpresasFinais = [], tiposServicoGlobal = [];
 var dadosGeraisRelatorio = [];
 
@@ -145,7 +146,7 @@ async function chamarGoogle(acao, dadosExtras = {}) {
     // ---------------------------------------------------------
     // 3. GRAVAÇÃO DE ATENDIMENTOS NO SUPABASE
     // ---------------------------------------------------------
-    if (["salvarRegistro", "atualizarRegistro", "buscarServicoPorLinha", "darBaixaPagamento", "excluirRegistro"].includes(acao)) {
+    if (["salvarRegistro", "atualizarRegistro", "buscarServicoPorLinha", "darBaixaPagamento", "darBaixaPagamentoLote", "excluirRegistro"].includes(acao)) {
       const { data: authData, error: authError } = await supabaseClient.auth.getUser();
       const usuario = authData && authData.user;
       if (authError || !usuario || !usuario.id || !usuario.email) {
@@ -193,6 +194,33 @@ async function chamarGoogle(acao, dadosExtras = {}) {
           throw new Error("Atendimento não encontrado ou sem permissão para alterá-lo.");
         }
         return { status: "Sucesso", id: requisicao.data?.id || null };
+      }
+
+      if (acao === "darBaixaPagamentoLote") {
+        const ids = Array.isArray(dadosExtras.ids)
+          ? [...new Set(dadosExtras.ids.map(id => String(id || "").trim()).filter(Boolean))]
+          : [];
+        const dataPagamento = String(dadosExtras.data || "").trim();
+
+        if (!ids.length) throw new Error("Selecione ao menos um atendimento pendente.");
+        if (ids.length > 100) throw new Error("Selecione no máximo 100 atendimentos por vez.");
+        if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(dataPagamento)) {
+          throw new Error("Informe uma data de pagamento válida.");
+        }
+
+        const { data, error } = await supabaseClient.from(tabela)
+          .update({ status_pgto: "Pago", data_pgto: dataPagamento })
+          .in("id", ids)
+          .eq("email_usuario", usuario.email)
+          .eq("status_pgto", "Pendente")
+          .select("id");
+
+        if (error) throw error;
+        const idsAtualizados = (data || []).map(item => String(item.id));
+        if (idsAtualizados.length !== ids.length) {
+          throw new Error("Nem todos os atendimentos puderam ser atualizados. Atualize o histórico e confira os registros antes de tentar novamente.");
+        }
+        return { status: "Sucesso", quantidade: idsAtualizados.length };
       }
 
       const idRecebido = typeof dadosExtras === "object" && dadosExtras !== null
@@ -1465,12 +1493,13 @@ function renderizarHistorico(l) {
     return `
       <div class="item-pendente item-historico"
            onclick="abrirDetalhesServico('${i.linha}')"
-           style="border-left-color:${p ? '#4CAF50' : '#ff9800'}; cursor:pointer;"
+           style="border-left-color:${p ? '#4CAF50' : '#ff9800'}; cursor:pointer; position:relative; padding-right:42px;"
            data-status="${p ? 'pago' : 'pendente'}"
            data-agencia="${String(i.agencia).toLowerCase()}"
            data-empresa="${String(i.empresa).toLowerCase()}"
            data-interprete="${String(i.interprete).toLowerCase()}"
            data-data-iso="${i.dataOriginal}">
+        ${!p ? `<label onclick="event.stopPropagation()" style="position:absolute;right:12px;top:12px;display:flex;align-items:center;cursor:pointer;" title="Selecionar para baixa em lote"><input class="checkbox-baixa-lote" type="checkbox" data-id="${String(i.linha).replace(/"/g,'&quot;')}" onchange="alternarSelecaoBaixaLote(this)" style="width:17px;height:17px;margin:0;accent-color:#2e7d32;cursor:pointer;"></label>` : ''}
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <strong>${i.agencia}</strong>
           <span style="font-size:10px; font-weight:bold; padding:2px 8px; border-radius:10px; background:${p ? '#e8f5e9' : '#fff3e0'}; color:${p ? '#2e7d32' : '#e65100'}">
@@ -1594,6 +1623,114 @@ function filtrarListaHistorico() {
     let okMembro = (mem === 'todos' || card.getAttribute('data-interprete') === mem);
     let okCliente = (!cl || card.getAttribute('data-empresa').includes(cl));
     card.style.display = (okData && okStatus && okAgencia && okMembro && okCliente) ? 'block' : 'none';
+  }
+  atualizarAcoesBaixaLote();
+}
+
+function obterItensSelecionadosBaixaLote() {
+  return historicoGlobal.filter(item =>
+    item.status === "Pendente" && atendimentosSelecionadosLote.has(String(item.linha))
+  );
+}
+
+function formatarMoedaBaixaLote(valor) {
+  return Number(valor || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+function atualizarAcoesBaixaLote() {
+  const barra = document.getElementById("barra-baixa-lote");
+  const resumo = document.getElementById("resumo-baixa-lote");
+  const selecionarTodos = document.getElementById("selecionarTodosBaixaLote");
+  if (!barra || !resumo) return;
+
+  const selecionados = obterItensSelecionadosBaixaLote();
+  const total = selecionados.reduce((soma, item) => soma + Number(item.valorNum || 0), 0);
+  resumo.textContent = `${selecionados.length} selecionados • Total: ${formatarMoedaBaixaLote(total)}`;
+  barra.style.display = selecionados.length ? "flex" : "none";
+
+  const visiveis = Array.from(document.querySelectorAll("#lista-html .item-historico"))
+    .filter(card => card.style.display !== "none" && card.dataset.status === "pendente");
+  const checks = visiveis.map(card => card.querySelector(".checkbox-baixa-lote")).filter(Boolean);
+  if (selecionarTodos) {
+    selecionarTodos.checked = checks.length > 0 && checks.every(check => check.checked);
+    selecionarTodos.indeterminate = checks.some(check => check.checked) && !selecionarTodos.checked;
+  }
+}
+
+function alternarSelecaoBaixaLote(checkbox) {
+  const id = String(checkbox?.dataset?.id || "");
+  if (!id) return;
+  if (checkbox.checked) atendimentosSelecionadosLote.add(id);
+  else atendimentosSelecionadosLote.delete(id);
+  atualizarAcoesBaixaLote();
+}
+
+function selecionarTodosBaixaLote(checkbox) {
+  const cards = Array.from(document.querySelectorAll("#lista-html .item-historico"))
+    .filter(card => card.style.display !== "none" && card.dataset.status === "pendente");
+  cards.forEach(card => {
+    const campo = card.querySelector(".checkbox-baixa-lote");
+    if (!campo) return;
+    campo.checked = checkbox.checked;
+    const id = String(campo.dataset.id || "");
+    if (checkbox.checked) atendimentosSelecionadosLote.add(id);
+    else atendimentosSelecionadosLote.delete(id);
+  });
+  atualizarAcoesBaixaLote();
+}
+
+function abrirModalBaixaLote() {
+  const itens = obterItensSelecionadosBaixaLote();
+  if (!itens.length) return mostrarToast("Selecione atendimentos pendentes.", "erro");
+
+  const total = itens.reduce((soma, item) => soma + Number(item.valorNum || 0), 0);
+  const lista = document.getElementById("resumo-itens-baixa-lote");
+  const totalEl = document.getElementById("total-modal-baixa-lote");
+  const dataEl = document.getElementById("data-pagamento-lote");
+  if (lista) {
+    lista.innerHTML = itens.map(item =>
+      `<div style="padding:7px 0;border-bottom:1px solid #eee;font-size:12px;color:#444;">${escaparHtmlRelatorio(item.data)} • ${escaparHtmlRelatorio(item.empresa)} • ${escaparHtmlRelatorio(item.interprete)} — <strong>${formatarMoedaBaixaLote(item.valorNum)}</strong></div>`
+    ).join("");
+  }
+  if (totalEl) totalEl.textContent = formatarMoedaBaixaLote(total);
+  if (dataEl) {
+    const hoje = new Date();
+    dataEl.value = [hoje.getFullYear(), String(hoje.getMonth()+1).padStart(2,"0"), String(hoje.getDate()).padStart(2,"0")].join("-");
+  }
+  document.getElementById("modal-baixa-lote").style.display = "flex";
+}
+
+function fecharModalBaixaLote() {
+  const modal = document.getElementById("modal-baixa-lote");
+  if (modal) modal.style.display = "none";
+}
+
+async function confirmarBaixaLote() {
+  if (verificarBloqueioLeitura()) return;
+  const itens = obterItensSelecionadosBaixaLote();
+  const data = document.getElementById("data-pagamento-lote")?.value || "";
+  if (!itens.length) return mostrarToast("Nenhum atendimento pendente selecionado.", "erro");
+  if (!data) return mostrarToast("Informe a data do pagamento.", "erro");
+
+  const botao = document.getElementById("btn-confirmar-baixa-lote");
+  if (botao) { botao.disabled = true; botao.textContent = "⏳ Registrando..."; }
+  try {
+    const resposta = await chamarGoogle("darBaixaPagamentoLote", {
+      ids: itens.map(item => String(item.linha)),
+      data
+    });
+    if (resposta?.status !== "Sucesso") throw new Error("Não foi possível confirmar a baixa em lote.");
+
+    fecharModalBaixaLote();
+    atendimentosSelecionadosLote.clear();
+    mostrarToast(`✅ ${resposta.quantidade || itens.length} pagamentos registrados!`);
+    await abrirHistorico();
+    await voltarDashboard();
+  } catch (erro) {
+    console.error("Erro na baixa de pagamentos em lote:", erro);
+    mostrarToast(erro.message || "❌ Erro ao registrar os pagamentos.", "erro");
+  } finally {
+    if (botao) { botao.disabled = false; botao.textContent = "✔️ Confirmar Baixa"; }
   }
 }
 
