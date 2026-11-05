@@ -1283,9 +1283,9 @@ function abrirRegistro(linha = "", dados = null) {
       : converterParaFloat(dados.valor || 0);
     const duracaoOriginal = calcularDuracaoEmHoras(dados.inicio || "", dados.fim || "");
     const cobrancaOriginal = duracaoOriginal > 0 ? "hora" : "fixo";
-    const valorBaseOriginal = cobrancaOriginal === "hora"
+    const valorBaseOriginal = Number((cobrancaOriginal === "hora"
       ? valorTotalBanco / duracaoOriginal
-      : valorTotalBanco;
+      : valorTotalBanco).toFixed(2));
 
     document.querySelector('input[name="tipoCobranca"][value="hora"]').checked = cobrancaOriginal === "hora";
     document.querySelector('input[name="tipoCobranca"][value="fixo"]').checked = cobrancaOriginal === "fixo";
