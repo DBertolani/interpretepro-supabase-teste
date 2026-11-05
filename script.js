@@ -1645,8 +1645,115 @@ async function abrirRelatorios() {
   gerarRelatorio();
 }
 
+function formatarDataExtrato(dataIso) {
+  if (!dataIso) return '';
+  const partes = String(dataIso).split('-');
+  return partes.length === 3 ? partes.reverse().join('/') : String(dataIso);
+}
+
+function escaparHtmlRelatorio(valor) {
+  return String(valor ?? '').replace(/[&<>"']/g, caractere => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[caractere]);
+}
+
+function renderizarExtratoPendencias() {
+  const container = document.getElementById('lista-relatorio');
+  const agencia = document.getElementById('filtroAgenciaCobranca').value;
+  const inicio = document.getElementById('filtroDataInicioCobranca').value;
+  const fim = document.getElementById('filtroDataFimCobranca').value;
+
+  if (inicio && fim && inicio > fim) {
+    container.innerHTML = "<p style='text-align:center;color:#c62828;padding:15px;'>A Data Início não pode ser posterior à Data Fim.</p>";
+    return;
+  }
+
+  const pendentes = dadosGeraisRelatorio.filter(item =>
+    item.status === 'Pendente' &&
+    (agencia === 'todas' || item.agencia === agencia) &&
+    (!inicio || (item.dataOriginal || '') >= inicio) &&
+    (!fim || (item.dataOriginal || '') <= fim)
+  ).sort((a, b) => (a.dataOriginal || '').localeCompare(b.dataOriginal || ''));
+
+  dadosFiltradosAtuais = pendentes;
+  const total = pendentes.reduce((soma, item) => soma + (Number(item.valorNum) || 0), 0);
+  const nomeAgencia = agencia === 'todas' ? 'Todas as Agências' : agencia;
+  const periodo = (inicio ? formatarDataExtrato(inicio) : 'Início não definido') +
+    ' até ' + (fim ? formatarDataExtrato(fim) : 'Data atual');
+
+  let html = `<section id="extrato-cobranca" style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:14px;margin-top:12px;">
+    <div style="text-align:center;border-bottom:1px solid #eee;padding-bottom:12px;margin-bottom:10px;">
+      <h3 style="margin:0 0 6px;color:#4a148c;">Extrato de Pendências</h3>
+      <strong>${escaparHtmlRelatorio(nomeAgencia)}</strong>
+      <div style="font-size:12px;color:#666;margin-top:4px;">Período: ${escaparHtmlRelatorio(periodo)}</div>
+    </div>`;
+
+  if (!pendentes.length) {
+    html += "<p style='text-align:center;color:#666;padding:18px 4px;'>Nenhum atendimento pendente encontrado neste período.</p>";
+  } else {
+    html += "<div style='overflow-x:auto;'><table style='width:100%;border-collapse:collapse;font-size:12px;text-align:left;'><thead><tr style='background:#f7f4fa;'><th style='padding:8px 5px;'>Data</th><th style='padding:8px 5px;'>Cliente / Empresa</th><th style='padding:8px 5px;'>Intérprete</th><th style='padding:8px 5px;'>Serviço / Horário</th><th style='padding:8px 5px;text-align:right;'>Valor</th></tr></thead><tbody>";
+    pendentes.forEach(item => {
+      const horario = item.inicio && item.fim ? item.inicio + '–' + item.fim : '—';
+      html += `<tr style="border-bottom:1px solid #eee;">
+        <td style="padding:8px 5px;white-space:nowrap;">${escaparHtmlRelatorio(item.data || formatarDataExtrato(item.dataOriginal))}</td>
+        <td style="padding:8px 5px;">${escaparHtmlRelatorio(item.empresa || '—')}</td>
+        <td style="padding:8px 5px;">${escaparHtmlRelatorio(item.interprete || '—')}</td>
+        <td style="padding:8px 5px;">${escaparHtmlRelatorio(item.tipoServico || '—')}<br><span style="color:#777;">${escaparHtmlRelatorio(horario)}</span></td>
+        <td style="padding:8px 5px;text-align:right;white-space:nowrap;">R$ ${(Number(item.valorNum)||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</td>
+      </tr>`;
+    });
+    html += '</tbody></table></div>';
+  }
+
+  html += `<div style="margin-top:14px;padding:13px;background:#e8f5e9;border:1px solid #a5d6a7;border-radius:8px;color:#1b5e20;">
+    <div style="font-size:13px;">Quantidade de Atendimentos Pendentes: <strong>${pendentes.length}</strong></div>
+    <div style="font-size:16px;font-weight:bold;margin-top:6px;">TOTAL ACUMULADO A COBRAR: R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+  </div></section>
+  <div style="display:flex;gap:10px;margin-top:12px;">
+    <button type="button" class="btn-primario" style="background:#25D366;flex:1;" onclick="copiarExtratoPendencias()">📋 Copiar para WhatsApp</button>
+    <button type="button" class="btn-primario" style="background:#546e7a;flex:1;" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+  </div>`;
+  container.innerHTML = html;
+}
+
+async function copiarExtratoPendencias() {
+  const agencia = document.getElementById('filtroAgenciaCobranca').value;
+  const inicio = document.getElementById('filtroDataInicioCobranca').value;
+  const fim = document.getElementById('filtroDataFimCobranca').value;
+  const itens = dadosFiltradosAtuais;
+  const total = itens.reduce((soma, item) => soma + (Number(item.valorNum) || 0), 0);
+  const nomeAgencia = agencia === 'todas' ? 'Todas as Agências' : agencia;
+  const periodo = (inicio ? formatarDataExtrato(inicio) : 'Início não definido') + ' até ' +
+    (fim ? formatarDataExtrato(fim) : 'Data atual');
+  let texto = `*EXTRATO DE PENDÊNCIAS — INTÉRPRETEPRO*\nAgência: ${nomeAgencia}\nPeríodo: ${periodo}\n\n`;
+  itens.forEach((item, indice) => {
+    texto += `${indice + 1}. ${item.data || formatarDataExtrato(item.dataOriginal)} — ${item.empresa || 'Cliente não informado'}\n   Intérprete: ${item.interprete || '—'}\n   Serviço: ${item.tipoServico || '—'}${item.inicio && item.fim ? ' (' + item.inicio + '–' + item.fim + ')' : ''}\n   Valor: R$ ${(Number(item.valorNum)||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}\n\n`;
+  });
+  texto += `*Atendimentos pendentes: ${itens.length}*\n*TOTAL A COBRAR: R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:2})}*`;
+  try {
+    await navigator.clipboard.writeText(texto);
+    mostrarToast('📋 Copiado para a área de transferência!', 'sucesso');
+  } catch (erro) {
+    mostrarToast('❌ Não foi possível copiar. Verifique a permissão da área de transferência.', 'erro');
+  }
+}
+
 function gerarRelatorio() {
   var tipo = document.getElementById('tipoRelatorio').value;
+  const filtrosPadrao = document.getElementById('filtros-relatorio-padrao');
+  const filtrosCobranca = document.getElementById('filtros-cobranca-pendencias');
+  const statsRelatorio = document.getElementById('relatorio-stats');
+  if (filtrosPadrao) filtrosPadrao.style.display = tipo === 'cobranca_pendencias' ? 'none' : 'block';
+  if (filtrosCobranca) filtrosCobranca.style.display = tipo === 'cobranca_pendencias' ? 'block' : 'none';
+  if (statsRelatorio) statsRelatorio.style.display = tipo === 'cobranca_pendencias' ? 'none' : 'grid';
+  const btnCopiar = document.getElementById('btnCopiarRelatorio');
+  const btnImagem = document.getElementById('btnBaixarImagem');
+  if (btnCopiar) btnCopiar.style.display = tipo === 'cobranca_pendencias' ? 'none' : 'block';
+  if (btnImagem) btnImagem.style.display = tipo === 'cobranca_pendencias' ? 'none' : 'block';
+  if (tipo === 'cobranca_pendencias') {
+    renderizarExtratoPendencias();
+    return;
+  }
   var mesFiltro = document.getElementById('filtroMesRelatorio').value;
   var agFiltro = document.getElementById('filtroAgenciaRelatorio').value;
   var memFiltro = document.getElementById('filtroMembroRelatorio').value;
