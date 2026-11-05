@@ -203,9 +203,20 @@ async function chamarGoogle(acao, dadosExtras = {}) {
         const dataPagamento = String(dadosExtras.data || "").trim();
 
         if (!ids.length) throw new Error("Selecione ao menos um atendimento pendente.");
-        if (ids.length > 100) throw new Error("Selecione no máximo 100 atendimentos por vez.");
-        if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(dataPagamento)) {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(dataPagamento)) {
           throw new Error("Informe uma data de pagamento válida.");
+        }
+
+        // Confere todos os IDs antes da atualização para evitar baixa parcial
+        // quando algum registro já tiver sido alterado ou não pertencer ao usuário.
+        const { data: pendentesValidos, error: erroValidacao } = await supabaseClient
+          .from(tabela).select("id")
+          .in("id", ids)
+          .eq("email_usuario", usuario.email)
+          .eq("status_pgto", "Pendente");
+        if (erroValidacao) throw erroValidacao;
+        if ((pendentesValidos || []).length !== ids.length) {
+          throw new Error("A seleção contém atendimentos que não estão mais pendentes ou não podem ser acessados. Atualize o histórico e selecione novamente.");
         }
 
         const { data, error } = await supabaseClient.from(tabela)
