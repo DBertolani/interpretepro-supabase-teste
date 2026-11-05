@@ -1253,6 +1253,7 @@ function abrirRegistro(linha = "", dados = null) {
 
   if (linha === "") {
     valorBaseEditadoManualmente = false;
+    estadoFinanceiroOriginalEdicao = null;
     document.getElementById('titulo-form').innerText = "Novo Atendimento";
     document.getElementById('formRegistro').reset();
     document.getElementById('data').valueAsDate = new Date();
@@ -1275,7 +1276,31 @@ function abrirRegistro(linha = "", dados = null) {
     document.getElementById('fim').value = dados.fim || "";
     document.getElementById('interprete').value = dados.interprete || "";
     document.getElementById('tipoServico').value = dados.tipoServico || "";
-    document.getElementById('valor-base').value = (dados.valor || "").replace("R$ ", "").trim();
+
+    // O banco armazena o valor TOTAL. No formulário por hora, exibir o valor/hora.
+    const valorTotalBanco = Number.isFinite(Number(dados.valorNum))
+      ? Number(dados.valorNum)
+      : converterParaFloat(dados.valor || 0);
+    const duracaoOriginal = calcularDuracaoEmHoras(dados.inicio || "", dados.fim || "");
+    const cobrancaOriginal = duracaoOriginal > 0 ? "hora" : "fixo";
+    const valorBaseOriginal = cobrancaOriginal === "hora"
+      ? valorTotalBanco / duracaoOriginal
+      : valorTotalBanco;
+
+    document.querySelector('input[name="tipoCobranca"][value="hora"]').checked = cobrancaOriginal === "hora";
+    document.querySelector('input[name="tipoCobranca"][value="fixo"]').checked = cobrancaOriginal === "fixo";
+    document.getElementById('valor-base').value = valorBaseOriginal.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+
+    estadoFinanceiroOriginalEdicao = {
+      valorTotal: valorTotalBanco,
+      inicio: dados.inicio || "",
+      fim: dados.fim || "",
+      tipoCobranca: cobrancaOriginal,
+      valorBase: valorBaseOriginal
+    };
     document.getElementById('obs').value = dados.obs || "";
     if (dados.agencia === "Particular") {
       document.getElementById('origem-p').checked = true;
@@ -1298,6 +1323,19 @@ function toggleDataEdicao() {
 }
 
 let valorBaseEditadoManualmente = false;
+let estadoFinanceiroOriginalEdicao = null;
+
+function calcularDuracaoEmHoras(inicio, fim) {
+  if (!inicio || !fim) return 0;
+  const [horaInicio, minutoInicio] = inicio.split(":").map(Number);
+  const [horaFim, minutoFim] = fim.split(":").map(Number);
+  if (![horaInicio, minutoInicio, horaFim, minutoFim].every(Number.isFinite)) return 0;
+
+  const dataInicio = new Date(0, 0, 0, horaInicio, minutoInicio);
+  const dataFim = new Date(0, 0, 0, horaFim, minutoFim);
+  if (dataFim < dataInicio) dataFim.setDate(dataFim.getDate() + 1);
+  return (dataFim - dataInicio) / 3600000;
+}
 
 function servicoDispensaHorarios() {
   const tipo = String(document.getElementById('tipoServico')?.value || '').toLowerCase();
@@ -1370,15 +1408,29 @@ async function enviarDados(e) {
     ? "Particular"
     : document.getElementById('agencia').value;
 
+  const inicioAtual = document.getElementById('inicio').value;
+  const fimAtual = document.getElementById('fim').value;
+  const tipoCobrancaAtual = document.querySelector('input[name="tipoCobranca"]:checked').value;
+  const valorBaseAtual = converterParaFloat(document.getElementById('valor-base').value);
+  const financeiroPermaneceIgual = linhaId !== "" &&
+    estadoFinanceiroOriginalEdicao &&
+    inicioAtual === estadoFinanceiroOriginalEdicao.inicio &&
+    fimAtual === estadoFinanceiroOriginalEdicao.fim &&
+    tipoCobrancaAtual === estadoFinanceiroOriginalEdicao.tipoCobranca &&
+    Math.abs(valorBaseAtual - estadoFinanceiroOriginalEdicao.valorBase) < 0.000001;
+  const valorFinalCalculado = financeiroPermaneceIgual
+    ? estadoFinanceiroOriginalEdicao.valorTotal.toFixed(2).replace(".", ",")
+    : document.getElementById('valor-live-preview').innerText.replace("R$ ", "");
+
   const d = {
     tipoServico: document.getElementById('tipoServico').value,
     data: document.getElementById('data').value,
     agencia: valorAgencia,
     empresa: document.getElementById('empresa').value,
-    inicio: document.getElementById('inicio').value,
-    fim: document.getElementById('fim').value,
+    inicio: inicioAtual,
+    fim: fimAtual,
     interprete: document.getElementById('interprete').value,
-    valorFinal: document.getElementById('valor-live-preview').innerText.replace("R$ ", ""),
+    valorFinal: valorFinalCalculado,
     obs: document.getElementById('obs').value,
     status: (linhaId === "") ? "Pendente" : document.getElementById('edit-status').value,
     statusAntigo: (linhaId !== "") ? document.getElementById('edit-status').value : "Pendente",
