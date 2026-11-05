@@ -1,5 +1,5 @@
 var dadosFiltradosAtuais = [];
-var agenciasGlobais = [], dadosPagosGlobais = [], historicoGlobal = [], equipeGlobal = [], clientesGlobais = [], tiposServicoGlobal = [];
+var agenciasGlobais = [], dadosPagosGlobais = [], historicoGlobal = [], equipeGlobal = [], clientesGlobais = [], minhasEmpresasFinais = [], tiposServicoGlobal = [];
 var dadosGeraisRelatorio = [];
 
 // Identifica automaticamente a execução em homologação ou desenvolvimento local.
@@ -102,6 +102,7 @@ async function chamarGoogle(acao, dadosExtras = {}) {
           agencias: (resAgencias.data || []).map(a => ({ nome: a.nome_agencia, valor: a.valor_hora })),
           equipe: (resEquipe.data || []).map(e => e.nome_interprete).filter(Boolean),
           clientes: (resClientes.data || []).map(c => c.nome_cliente),
+          clientesFinais: (resClientes.data || []).map(c => c.nome_cliente),
           tiposServico: (resServicos.data || []).map(s => s.tipo_servico)
         }
       };
@@ -953,31 +954,16 @@ function mostrarTelaLogin() {
 }
 
 function atualizarSelectsFormulario(d) {
-  agenciasGlobais = d.agencias || [];
-  equipeGlobal = d.equipe || [];
-  clientesGlobais = d.clientes || [];
-  tiposServicoGlobal = d.tiposServico || [];
-
-  var selServ = document.getElementById('tipoServico');
-  if (selServ) {
-    selServ.innerHTML = '<option value="" disabled selected>O que foi feito?</option>';
-    tiposServicoGlobal.forEach(s => selServ.innerHTML += `<option value="${s}">${s}</option>`);
-  }
-  var selAg = document.getElementById('agencia');
-  if (selAg) {
-    selAg.innerHTML = '<option value="" disabled selected>Escolha...</option>';
-    agenciasGlobais.forEach(a => selAg.innerHTML += `<option value="${a.nome}">${a.nome}</option>`);
-  }
-  var selEq = document.getElementById('interprete');
-  if (selEq) {
-    selEq.innerHTML = '<option value="" disabled selected>Quem executou?</option>';
-    equipeGlobal.forEach(e => selEq.innerHTML += `<option value="${e}">${e}</option>`);
-  }
-  var dl = document.getElementById('listaEmpresasDatalist');
-  if (dl) {
-    dl.innerHTML = "";
-    clientesGlobais.forEach(c => dl.innerHTML += `<option value="${c}">`);
-  }
+  agenciasGlobais=d.agencias||[]; equipeGlobal=d.equipe||[]; clientesGlobais=d.clientes||[];
+  minhasEmpresasFinais=d.clientesFinais||[]; tiposServicoGlobal=d.tiposServico||[];
+  var selServ=document.getElementById('tipoServico');
+  if(selServ){selServ.innerHTML='<option value="" disabled selected>O que foi feito?</option>';tiposServicoGlobal.forEach(s=>selServ.innerHTML+=`<option value="${escaparHtmlRelatorio(s)}">${escaparHtmlRelatorio(s)}</option>`);}
+  var selAg=document.getElementById('agencia');
+  if(selAg){selAg.innerHTML='<option value="" disabled selected>Escolha...</option>';agenciasGlobais.forEach(a=>selAg.innerHTML+=`<option value="${escaparHtmlRelatorio(a.nome)}">${escaparHtmlRelatorio(a.nome)}</option>`);}
+  var selEq=document.getElementById('interprete');
+  if(selEq){selEq.innerHTML='<option value="" disabled selected>Quem executou?</option>';equipeGlobal.forEach(e=>selEq.innerHTML+=`<option value="${escaparHtmlRelatorio(e)}">${escaparHtmlRelatorio(e)}</option>`);}
+  var dl=document.getElementById('listaEmpresasDatalist');
+  if(dl){dl.innerHTML="";clientesGlobais.forEach(c=>dl.innerHTML+=`<option value="${escaparHtmlRelatorio(c)}">`);}
 }
 
 // ============================================================
@@ -1637,48 +1623,30 @@ function chamarEditar(l) {
 
 // --- 7. RELATÓRIOS ---
 async function abrirRelatorios() {
-  esconderTodasTelas();
-  document.getElementById('tela-relatorios').style.display = 'block';
-  document.getElementById('lista-relatorio').innerHTML = '<div class="loader"></div>';
-
-  const res = await chamarGoogle("buscarTodosServicos");
-  dadosGeraisRelatorio = res.dados;
-
-  var hj = new Date();
-  document.getElementById('filtroMesRelatorio').value = hj.getFullYear() + "-" + ("0" + (hj.getMonth() + 1)).slice(-2);
-
-  var sa = document.getElementById('filtroAgenciaRelatorio');
-  var sm = document.getElementById('filtroMembroRelatorio');
-  var sc = document.getElementById('filtroAgenciaCobranca');
-  var smc = document.getElementById('filtroMembroCobranca');
-  sa.innerHTML = '<option value="todas">Todas as Agências</option>';
-  sm.innerHTML = '<option value="todos">Todos os Membros</option>';
-  if (sc) sc.innerHTML = '<option value="todas">Todas as Agências</option>';
-  if (smc) smc.innerHTML = '<option value="todos">Todos os Membros</option>';
-
-  var lAg = [], lMem = [];
-  res.dados.forEach(i => {
-    if (i.agencia && !lAg.includes(i.agencia)) {
-      lAg.push(i.agencia);
-      sa.innerHTML += `<option value="${i.agencia}">${i.agencia}</option>`;
-      if (sc) sc.innerHTML += `<option value="${escaparHtmlRelatorio(i.agencia)}">${escaparHtmlRelatorio(i.agencia)}</option>`;
-    }
-    if (i.interprete && !lMem.includes(i.interprete)) {
-      lMem.push(i.interprete);
-      sm.innerHTML += `<option value="${i.interprete}">${i.interprete}</option>`;
-    }
+  esconderTodasTelas();document.getElementById('tela-relatorios').style.display='block';document.getElementById('lista-relatorio').innerHTML='<div class="loader"></div>';
+  const res=await chamarGoogle("buscarTodosServicos");dadosGeraisRelatorio=res.dados;
+  var hj=new Date();document.getElementById('filtroMesRelatorio').value=hj.getFullYear()+"-"+("0"+(hj.getMonth()+1)).slice(-2);
+  var sa=document.getElementById('filtroAgenciaRelatorio'),sm=document.getElementById('filtroMembroRelatorio'),sc=document.getElementById('filtroAgenciaCobranca'),smc=document.getElementById('filtroMembroCobranca');
+  sa.innerHTML='<option value="todas">Todas as Agências</option>';sm.innerHTML='<option value="todos">Todos os Membros</option>';
+  if(sc)sc.innerHTML='<option value="todas">Todas as Agências</option>';if(smc)smc.innerHTML='<option value="todos">Todos os Membros</option>';
+  var lAg=[],lMem=[];
+  res.dados.forEach(i=>{
+    if(i.agencia&&!lAg.includes(i.agencia)){lAg.push(i.agencia);sa.innerHTML+=`<option value="${escaparHtmlRelatorio(i.agencia)}">${escaparHtmlRelatorio(i.agencia)}</option>`;if(sc)sc.innerHTML+=`<option value="${escaparHtmlRelatorio(i.agencia)}">${escaparHtmlRelatorio(i.agencia)}</option>`;}
+    if(i.interprete&&!lMem.includes(i.interprete)){lMem.push(i.interprete);sm.innerHTML+=`<option value="${escaparHtmlRelatorio(i.interprete)}">${escaparHtmlRelatorio(i.interprete)}</option>`;}
   });
-  if (smc) {
-    const membrosCadastrados = equipeGlobal.length ? equipeGlobal : lMem;
-    membrosCadastrados.filter(Boolean).forEach(nome => {
-      if (!Array.from(smc.options).some(opcao => opcao.value === nome)) {
-        smc.innerHTML += `<option value="${escaparHtmlRelatorio(nome)}">${escaparHtmlRelatorio(nome)}</option>`;
-      }
-    });
-  }
-  const dataFimCobranca = document.getElementById('filtroDataFimCobranca');
-  if (dataFimCobranca) dataFimCobranca.value = hj.toISOString().split('T')[0];
-  gerarRelatorio();
+  if(smc)(equipeGlobal.length?equipeGlobal:lMem).filter(Boolean).forEach(n=>{if(!Array.from(smc.options).some(o=>o.value===n))smc.innerHTML+=`<option value="${escaparHtmlRelatorio(n)}">${escaparHtmlRelatorio(n)}</option>`;});
+  atualizarFiltroClienteFinalCobranca();
+  const fim=document.getElementById('filtroDataFimCobranca');if(fim)fim.value=hj.toISOString().split('T')[0];gerarRelatorio();
+}
+
+function atualizarFiltroClienteFinalCobranca() {
+  const select=document.getElementById('filtroClienteFinalCobranca');if(!select)return;
+  const agencia=document.getElementById('filtroAgenciaCobranca')?.value||'todas',anterior=select.value,names=new Set();
+  (minhasEmpresasFinais||[]).forEach(c=>{const n=typeof c==='string'?c:(c?.nome_cliente||c?.nome||'');if(n&&String(n).trim())names.add(String(n).trim());});
+  dadosGeraisRelatorio.filter(i=>i.status==='Pendente'&&(agencia==='todas'||i.agencia===agencia)).forEach(i=>{if(i.empresa&&String(i.empresa).trim())names.add(String(i.empresa).trim());});
+  const lista=Array.from(names).sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  select.innerHTML='<option value="todos">Todos os Clientes</option>'+lista.map(n=>`<option value="${escaparHtmlRelatorio(n)}">${escaparHtmlRelatorio(n)}</option>`).join('');
+  select.value=lista.includes(anterior)?anterior:'todos';
 }
 
 function formatarDataExtrato(dataIso) {
@@ -1694,52 +1662,24 @@ function escaparHtmlRelatorio(valor) {
 }
 
 function renderizarExtratoPendencias() {
-  const container=document.getElementById('lista-relatorio');
-  const agencia=document.getElementById('filtroAgenciaCobranca').value;
-  const membro=document.getElementById('filtroMembroCobranca')?.value||'todos';
-  const inicio=document.getElementById('filtroDataInicioCobranca').value;
-  const fim=document.getElementById('filtroDataFimCobranca').value;
+  const container=document.getElementById('lista-relatorio'),agencia=document.getElementById('filtroAgenciaCobranca').value;
+  const membro=document.getElementById('filtroMembroCobranca')?.value||'todos',inicio=document.getElementById('filtroDataInicioCobranca').value,fim=document.getElementById('filtroDataFimCobranca').value;
   if(inicio&&fim&&inicio>fim){container.innerHTML="<p style='text-align:center;color:#c62828;padding:15px;'>A Data Início não pode ser posterior à Data Fim.</p>";return;}
-  const pendentes=dadosGeraisRelatorio.filter(item=>item.status==='Pendente'&&(agencia==='todas'||item.agencia===agencia)&&(membro==='todos'||item.interprete===membro)&&(!inicio||(item.dataOriginal||'')>=inicio)&&(!fim||(item.dataOriginal||'')<=fim)).sort((a,b)=>(a.dataOriginal||'').localeCompare(b.dataOriginal||''));
-  dadosFiltradosAtuais=pendentes;
-  const total=pendentes.reduce((s,i)=>s+(Number(i.valorNum)||0),0);
-  const nomeAgencia=agencia==='todas'?'Todas as Agências':agencia;
-  const periodo=(inicio?formatarDataExtrato(inicio):'Início não definido')+' até '+(fim?formatarDataExtrato(fim):'Data atual');
-  const moeda=v=>Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-  const grupos={};
-  pendentes.forEach(item=>{const nome=String(item.interprete||'Membro não identificado').trim();if(!grupos[nome])grupos[nome]={total:0,itens:[]};grupos[nome].total+=Number(item.valorNum)||0;grupos[nome].itens.push(item);});
+  atualizarFiltroClienteFinalCobranca();const cliente=document.getElementById('filtroClienteFinalCobranca')?.value||'todos';
+  const pendentes=dadosGeraisRelatorio.filter(i=>i.status==='Pendente'&&(agencia==='todas'||i.agencia===agencia)&&(membro==='todos'||i.interprete===membro)&&(cliente==='todos'||i.empresa===cliente)&&(!inicio||(i.dataOriginal||'')>=inicio)&&(!fim||(i.dataOriginal||'')<=fim)).sort((a,b)=>(a.dataOriginal||'').localeCompare(b.dataOriginal||''));
+  dadosFiltradosAtuais=pendentes;const total=pendentes.reduce((s,i)=>s+(Number(i.valorNum)||0),0),nomeAgencia=agencia==='todas'?'Todas as Agências':agencia;
+  const periodo=(inicio?formatarDataExtrato(inicio):'Início não definido')+' até '+(fim?formatarDataExtrato(fim):'Data atual'),moeda=v=>Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}),grupos={};
+  pendentes.forEach(i=>{const n=String(i.interprete||'Membro não identificado').trim();if(!grupos[n])grupos[n]={total:0,itens:[]};grupos[n].total+=Number(i.valorNum)||0;grupos[n].itens.push(i);});
   let html=`<section id="extrato-cobranca" style="font-family:Arial,Helvetica,sans-serif;background:#fff;border:1px solid #e8e3ed;border-radius:12px;padding:18px;margin-top:12px;color:#333;box-shadow:0 2px 8px rgba(74,20,140,.06);">
-    <div style="text-align:center;border-bottom:1px solid #eee;padding-bottom:14px;margin-bottom:14px;">
-      <h3 style="margin:0 0 7px;color:#4a148c;font-size:19px;font-weight:700;">Extrato de Pendências / Cobrança</h3>
-      <div style="font-size:14px;font-weight:700;color:#444;">${escaparHtmlRelatorio(nomeAgencia)}</div>
-      <div style="font-size:12px;color:#777;margin-top:4px;">Período: ${escaparHtmlRelatorio(periodo)}</div>
-    </div>
-    <div class="relatorio-stats" style="margin:0 0 16px;">
-      <div class="stat-card"><span class="stat-label">Faturamento Pendente</span><strong style="color:#2e7d32;">R$ ${moeda(total)}</strong></div>
-      <div class="stat-card"><span class="stat-label">Total Atendimentos</span><strong>${pendentes.length}</strong></div>
-    </div>`;
+    <div style="text-align:center;border-bottom:1px solid #eee;padding-bottom:14px;margin-bottom:14px;"><h3 style="margin:0 0 7px;color:#4a148c;font-size:19px;font-weight:700;">Extrato de Pendências / Cobrança</h3><div style="font-size:14px;font-weight:700;color:#444;">${escaparHtmlRelatorio(nomeAgencia)}</div><div style="font-size:12px;color:#777;margin-top:4px;">Período: ${escaparHtmlRelatorio(periodo)}</div><div style="font-size:12px;color:#777;margin-top:3px;">Cliente: ${cliente==='todos'?'Todos os Clientes':escaparHtmlRelatorio(cliente)}</div></div>
+    <div class="relatorio-stats" style="margin:0 0 16px;"><div class="stat-card"><span class="stat-label">Faturamento Pendente</span><strong style="color:#2e7d32;">R$ ${moeda(total)}</strong></div><div class="stat-card"><span class="stat-label">Total Atendimentos</span><strong>${pendentes.length}</strong></div></div>`;
   if(!pendentes.length)html+="<p style='text-align:center;color:#666;padding:18px 4px;'>Nenhum atendimento pendente encontrado neste período.</p>";
   else Object.keys(grupos).sort((a,b)=>a.localeCompare(b,'pt-BR')).forEach(nome=>{
-    const grupo=grupos[nome];
-    html+=`<div class="item-pendente" style="border-left:5px solid #9c27b0;margin-bottom:12px;padding:12px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
-        <strong style="color:#4a148c;font-size:15px;">👤 ${escaparHtmlRelatorio(nome)}</strong>
-        <strong style="color:#2e7d32;font-size:15px;">Subtotal: R$ ${moeda(grupo.total)}</strong>
-      </div>
-      <div style="font-size:12px;color:#666;margin:4px 0 8px;">${grupo.itens.length} atendimentos pendentes</div><div style="border-top:1px solid #eee;">`;
-    grupo.itens.forEach(item=>{
-      const horario=item.inicio&&item.fim?item.inicio+'–'+item.fim:'';
-      html+=`<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:8px 2px;border-bottom:1px solid #eee;font-size:12px;">
-        <div style="min-width:0;flex:1;"><div style="font-weight:600;color:#333;">📅 ${escaparHtmlRelatorio(item.data||formatarDataExtrato(item.dataOriginal))} — ${escaparHtmlRelatorio(item.empresa||'Cliente não informado')}</div>
-        <div style="color:#666;margin-top:3px;">${escaparHtmlRelatorio(item.tipoServico||'Serviço não informado')}${horario?' • '+escaparHtmlRelatorio(horario):''}</div></div>
-        <strong style="color:#2e7d32;white-space:nowrap;">R$ ${moeda(item.valorNum)}</strong></div>`;
-    });
-    html+='</div></div>';
+    const grupo=grupos[nome];html+=`<div class="item-pendente" style="border-left:5px solid #9c27b0;margin-bottom:12px;padding:12px;"><details class="extrato-membro-accordion" open ontoggle="this.querySelector('.seta-accordion').textContent=this.open?'▼':'▶️'" style="border:0;"><summary style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;cursor:pointer;list-style:none;color:#4a148c;"><span style="font-weight:700;"><span class="seta-accordion">▼</span> 👤 ${escaparHtmlRelatorio(nome)}</span><strong style="color:#2e7d32;font-size:15px;">Subtotal: R$ ${moeda(grupo.total)}</strong></summary><div style="font-size:12px;color:#666;margin:4px 0 8px;">${grupo.itens.length} atendimentos pendentes</div><div style="border-top:1px solid #eee;">`;
+    grupo.itens.forEach(i=>{const horario=i.inicio&&i.fim?i.inicio+'–'+i.fim:'';html+=`<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:8px 2px;border-bottom:1px solid #eee;font-size:12px;"><div style="min-width:0;flex:1;"><div style="font-weight:600;color:#333;">📅 ${escaparHtmlRelatorio(i.data||formatarDataExtrato(i.dataOriginal))} — ${escaparHtmlRelatorio(i.empresa||'Cliente não informado')}</div><div style="color:#666;margin-top:3px;">${escaparHtmlRelatorio(i.tipoServico||'Serviço não informado')}${horario?' • '+escaparHtmlRelatorio(horario):''}</div></div><strong style="color:#2e7d32;white-space:nowrap;">R$ ${moeda(i.valorNum)}</strong></div>`;});
+    html+='</div></details></div>';
   });
-  html+='</section><div style="display:flex;gap:10px;margin-top:12px;">'+
-    '<button type="button" class="btn-primario" style="background-color:#9c27b0;flex:1;" onclick="copiarExtratoPendencias()">📄 Copiar Texto</button>'+
-    '<button type="button" class="btn-primario" style="background-color:#1976d2;flex:1;" onclick="salvarImagemExtrato()">🖼️ Salvar Imagem</button></div>';
-  container.innerHTML=html;
+  html+='</section><div style="display:flex;gap:10px;margin-top:12px;"><button type="button" class="btn-primario" style="background-color:#9c27b0;flex:1;" onclick="copiarExtratoPendencias()">📄 Copiar Texto</button><button type="button" class="btn-primario" style="background-color:#1976d2;flex:1;" onclick="salvarImagemExtrato()">🖼️ Salvar Imagem</button></div>';container.innerHTML=html;
 }
 
 async function copiarExtratoPendencias() {
@@ -1767,17 +1707,13 @@ async function copiarExtratoPendencias() {
 }
 
 async function salvarImagemExtrato() {
-  const botao=document.querySelector('#lista-relatorio button[onclick="salvarImagemExtrato()"]');
-  const original=botao?botao.innerHTML:'🖼️ Salvar Imagem';
-  if(botao){botao.innerHTML='⏳ Gerando Imagem...';botao.disabled=true;}
-  carregarHtml2Canvas().then(html2canvas=>{
-    const card=document.getElementById('extrato-cobranca');if(!card)throw new Error('Card do extrato não encontrado.');
-    return html2canvas(card,{scale:2,backgroundColor:'#ffffff'});
-  }).then(canvas=>{
-    const link=document.createElement('a');link.download='Extrato_Pendencias_InterpretePro_'+new Date().toISOString().slice(0,10)+'.png';
-    link.href=canvas.toDataURL('image/png');link.click();mostrarToast('🖼️ Imagem salva!','sucesso');
-  }).catch(erro=>{console.error('Erro ao exportar extrato:',erro);mostrarToast('❌ Erro ao gerar imagem do extrato.','erro');})
-  .finally(()=>{if(botao){botao.innerHTML=original;botao.disabled=false;}});
+  const botao=document.querySelector('#lista-relatorio button[onclick="salvarImagemExtrato()"]'),original=botao?botao.innerHTML:'🖼️ Salvar Imagem',card=document.getElementById('extrato-cobranca');
+  if(!card)return mostrarToast('❌ Card do extrato não encontrado.','erro');
+  const detalhes=Array.from(card.querySelectorAll('details')),estados=detalhes.map(d=>({elemento:d,aberto:d.open}));
+  if(botao){botao.innerHTML='⏳ Gerando Imagem...';botao.disabled=true;}detalhes.forEach(d=>d.open=true);
+  try{const html2canvas=await carregarHtml2Canvas(),canvas=await html2canvas(card,{scale:2,backgroundColor:'#ffffff'}),link=document.createElement('a');link.download='Extrato_Pendencias_InterpretePro_'+new Date().toISOString().slice(0,10)+'.png';link.href=canvas.toDataURL('image/png');link.click();mostrarToast('🖼️ Imagem salva!','sucesso');}
+  catch(erro){console.error('Erro ao exportar extrato:',erro);mostrarToast('❌ Erro ao gerar imagem do extrato.','erro');}
+  finally{estados.forEach(e=>{if(e.elemento.isConnected)e.elemento.open=e.aberto;});if(botao){botao.innerHTML=original;botao.disabled=false;}}
 }
 
 function gerarRelatorio() {
@@ -1854,7 +1790,7 @@ function gerarRelatorio() {
           <div style="margin-top:8px; background:#fafafa; padding:8px; border-radius:6px; border:1px solid #e0e0e0;">`;
         nfPorM[nome].ags[ag].items.forEach(it => {
           h += `<div style="font-size:13px; padding:8px 0; border-bottom:1px dashed #ccc; display:flex; justify-content:space-between;">
-            <span>📅 ${it.data} - ${it.empresa}</span>
+            <span>🗓️ Realizado: ${escaparHtmlRelatorio(it.data || formatarDataExtrato(it.dataOriginal))}${it.dataPgto ? " | 💰 Recebido: " + escaparHtmlRelatorio(formatarDataExtrato(it.dataPgto)) : ""} — ${escaparHtmlRelatorio(it.empresa || "Cliente não informado")} — R$ ${it.valorNum.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
             <span style="color:#2e7d32; font-weight:bold;">R$ ${it.valorNum.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
           </div>`;
         });
@@ -1979,29 +1915,12 @@ function carregarHtml2Canvas() {
 }
 
 function baixarImagemRelatorio() {
-  var btn = document.getElementById('btnBaixarImagem'), orig = btn.innerHTML;
-  btn.innerHTML = "⏳ Gerando Foto..."; btn.disabled = true;
-  document.querySelectorAll('details').forEach(d => d.open = true);
-
-  carregarHtml2Canvas()
-    .then(html2canvas => html2canvas(
-      document.querySelector('#tela-relatorios .card'),
-      { scale: 2 }
-    ))
-    .then(canvas => {
-      var link = document.createElement('a');
-      link.download = `Relatorio_InterpretePro_${document.getElementById('filtroMesRelatorio').value}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-      btn.innerHTML = orig;
-      btn.disabled = false;
-      mostrarToast("🖼️ Imagem salva!");
-    })
-    .catch(() => {
-      btn.innerHTML = orig;
-      btn.disabled = false;
-      mostrarToast("❌ Erro ao gerar imagem", "erro");
-    });
+  const btn=document.getElementById('btnBaixarImagem'),orig=btn?btn.innerHTML:'🖼️ Salvar Imagem';
+  const detalhes=Array.from(document.querySelectorAll('#tela-relatorios .card details')),estados=detalhes.map(d=>({elemento:d,aberto:d.open}));
+  if(btn){btn.innerHTML='⏳ Gerando Foto...';btn.disabled=true;}detalhes.forEach(d=>d.open=true);
+  carregarHtml2Canvas().then(html2canvas=>html2canvas(document.querySelector('#tela-relatorios .card'),{scale:2})).then(canvas=>{
+    const link=document.createElement('a');link.download=`Relatorio_InterpretePro_${document.getElementById('filtroMesRelatorio').value}.png`;link.href=canvas.toDataURL('image/png');link.click();mostrarToast('🖼️ Imagem salva!');
+  }).catch(()=>mostrarToast('❌ Erro ao gerar imagem','erro')).finally(()=>{estados.forEach(e=>{if(e.elemento.isConnected)e.elemento.open=e.aberto;});if(btn){btn.innerHTML=orig;btn.disabled=false;}});
 }
 
 // --- 8. CONFIGURAÇÕES ---
