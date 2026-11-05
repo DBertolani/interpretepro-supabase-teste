@@ -1211,6 +1211,7 @@ function abrirRegistro(linha = "", dados = null) {
   origemNavegacao = (linha === "") ? 'dash' : 'historico';
 
   if (linha === "") {
+    valorBaseEditadoManualmente = false;
     document.getElementById('titulo-form').innerText = "Novo Atendimento";
     document.getElementById('formRegistro').reset();
     document.getElementById('data').valueAsDate = new Date();
@@ -1224,6 +1225,7 @@ function abrirRegistro(linha = "", dados = null) {
       fecharRegistroManual();
       return;
     }
+    valorBaseEditadoManualmente = true;
     document.getElementById('titulo-form').innerText = "Editar Atendimento";
     document.getElementById('secao-edicao-financeira').style.display = "block";
     document.getElementById('data').value = dados.dataOriginal || "";
@@ -1245,12 +1247,28 @@ function abrirRegistro(linha = "", dados = null) {
     document.getElementById('edit-data-pgto').value = dados.dataPgtoOriginal || "";
     toggleDataEdicao();
   }
+  atualizarObrigatoriedadeHorarios();
   calcularTotalLive();
 }
 
 function toggleDataEdicao() {
   const status = document.getElementById('edit-status').value;
   document.getElementById('box-data-recebimento-edit').style.display = (status === "Pago") ? "block" : "none";
+}
+
+let valorBaseEditadoManualmente = false;
+
+function servicoDispensaHorarios() {
+  const tipo = String(document.getElementById('tipoServico')?.value || '').toLowerCase();
+  return tipo.includes('tradu') || tipo.includes('ediç') || tipo.includes('edicao') || tipo.includes('edição');
+}
+
+function atualizarObrigatoriedadeHorarios() {
+  const opcionais = servicoDispensaHorarios();
+  ['inicio', 'fim'].forEach(id => {
+    const campo = document.getElementById(id);
+    if (campo) campo.required = !opcionais;
+  });
 }
 
 function aoMudarAgencia() {
@@ -1279,21 +1297,11 @@ function calcularTotalLive() {
     horas = (dF - dI) / 3600000;
   }
 
-  var agNome = document.getElementById('agencia').value;
-  var objAg = agenciasGlobais.find(a => a.nome === agNome);
-  var valorAgencia = objAg ? converterParaFloat(objAg.valor) : 0;
-
   if (tipo === "hora") {
-    if (objAg && vI !== valorAgencia && vI > valorAgencia) {
-      vI = valorAgencia;
-      campoValor.value = vI.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
+    // O valor/hora sugerido pela agência é editável; não limitar o valor informado.
     p.innerText = "R$ " + (horas * vI).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   } else {
-    if (objAg && vI === valorAgencia && horas > 0) {
-      vI = horas * valorAgencia;
-      campoValor.value = vI.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
+    // No modo fixo, o valor digitado representa o total fechado do serviço.
     p.innerText = "R$ " + vI.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 }
@@ -1339,10 +1347,13 @@ async function enviarDados(e) {
     if (linhaId === "") {
       await chamarGoogle("salvarRegistro", d);
       const hI = d.inicio, hF = d.fim;
-      const dI = new Date(0, 0, 0, hI.split(":")[0], hI.split(":")[1]);
-      let dF = new Date(0, 0, 0, hF.split(":")[0], hF.split(":")[1]);
-      if (dF < dI) dF.setDate(dF.getDate() + 1);
-      const horas = (dF - dI) / 3600000;
+      let horas = 0;
+      if (hI && hF) {
+        const dI = new Date(0, 0, 0, hI.split(":")[0], hI.split(":")[1]);
+        let dF = new Date(0, 0, 0, hF.split(":")[0], hF.split(":")[1]);
+        if (dF < dI) dF.setDate(dF.getDate() + 1);
+        horas = (dF - dI) / 3600000;
+      }
       if (horas > 1.0) {
         mostrarToast("✅ Registro salvo!");
         await perguntarDuplicacao(d);
