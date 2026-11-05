@@ -1755,10 +1755,11 @@ async function salvarImagemExtrato() {
   const botao=document.querySelector('#lista-relatorio button[onclick="salvarImagemExtrato()"]'),original=botao?botao.innerHTML:'🖼️ Salvar Imagem',card=document.getElementById('extrato-cobranca');
   if(!card)return mostrarToast('❌ Card do extrato não encontrado.','erro');
   const detalhes=Array.from(card.querySelectorAll('details')),estados=detalhes.map(d=>({elemento:d,aberto:d.open}));
-  if(botao){botao.innerHTML='⏳ Gerando Imagem...';botao.disabled=true;}detalhes.forEach(d=>d.open=true);
+  if(botao){botao.innerHTML='⏳ Gerando Imagem...';botao.disabled=true;}
+  detalhes.forEach(d=>{d.open=true;const seta=d.querySelector('.seta-accordion');if(seta)seta.textContent='▼';});
   try{const html2canvas=await carregarHtml2Canvas(),canvas=await html2canvas(card,{scale:2,backgroundColor:'#ffffff'}),link=document.createElement('a');link.download='Extrato_Pendencias_InterpretePro_'+new Date().toISOString().slice(0,10)+'.png';link.href=canvas.toDataURL('image/png');link.click();mostrarToast('🖼️ Imagem salva!','sucesso');}
   catch(erro){console.error('Erro ao exportar extrato:',erro);mostrarToast('❌ Erro ao gerar imagem do extrato.','erro');}
-  finally{estados.forEach(e=>{if(e.elemento.isConnected)e.elemento.open=e.aberto;});if(botao){botao.innerHTML=original;botao.disabled=false;}}
+  finally{estados.forEach(e=>{if(e.elemento.isConnected){e.elemento.open=e.aberto;const seta=e.elemento.querySelector('.seta-accordion');if(seta)seta.textContent=e.aberto?'▼':'▶️';}});if(botao){botao.innerHTML=original;botao.disabled=false;}}
 }
 
 function gerarRelatorio() {
@@ -1961,11 +1962,16 @@ function carregarHtml2Canvas() {
 
 function baixarImagemRelatorio() {
   const btn=document.getElementById('btnBaixarImagem'),orig=btn?btn.innerHTML:'🖼️ Salvar Imagem';
-  const detalhes=Array.from(document.querySelectorAll('#tela-relatorios .card details')),estados=detalhes.map(d=>({elemento:d,aberto:d.open}));
-  if(btn){btn.innerHTML='⏳ Gerando Foto...';btn.disabled=true;}detalhes.forEach(d=>d.open=true);
+  const detalhes=Array.from(document.querySelectorAll('#tela-relatorios .card details'));
+  const estados=detalhes.map(d=>({elemento:d,aberto:d.open}));
+  if(btn){btn.innerHTML='⏳ Gerando Foto...';btn.disabled=true;}
+  detalhes.forEach(d=>{d.open=true;const seta=d.querySelector('.seta-accordion');if(seta)seta.textContent='▼';});
   carregarHtml2Canvas().then(html2canvas=>html2canvas(document.querySelector('#tela-relatorios .card'),{scale:2})).then(canvas=>{
     const link=document.createElement('a');link.download=`Relatorio_InterpretePro_${document.getElementById('filtroMesRelatorio').value}.png`;link.href=canvas.toDataURL('image/png');link.click();mostrarToast('🖼️ Imagem salva!');
-  }).catch(()=>mostrarToast('❌ Erro ao gerar imagem','erro')).finally(()=>{estados.forEach(e=>{if(e.elemento.isConnected)e.elemento.open=e.aberto;});if(btn){btn.innerHTML=orig;btn.disabled=false;}});
+  }).catch(()=>mostrarToast('❌ Erro ao gerar imagem','erro')).finally(()=>{
+    estados.forEach(e=>{if(e.elemento.isConnected){e.elemento.open=e.aberto;const seta=e.elemento.querySelector('.seta-accordion');if(seta)seta.textContent=e.aberto?'▼':'▶️';}});
+    if(btn){btn.innerHTML=orig;btn.disabled=false;}
+  });
 }
 
 // --- 8. CONFIGURAÇÕES ---
