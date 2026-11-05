@@ -444,6 +444,16 @@
 
         </div>
 
+        <div id="controles-baixa-lote" style="margin:12px 0 8px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+          <label style="display:flex;align-items:center;gap:7px;font-size:12px;color:#666;cursor:pointer;margin:0;">
+            <input type="checkbox" id="selecionarTodosBaixaLote" onchange="selecionarTodosBaixaLote(this)" style="width:16px;height:16px;margin:0;accent-color:#2e7d32;">
+            Selecionar Todos (pendentes visíveis)
+          </label>
+        </div>
+        <div id="barra-baixa-lote" style="display:none;position:sticky;bottom:8px;z-index:20;background:#f1f8e9;border:1px solid #c5e1a5;border-radius:10px;padding:10px 12px;align-items:center;justify-content:space-between;gap:8px;box-shadow:0 3px 12px rgba(0,0,0,.12);">
+          <strong id="resumo-baixa-lote" style="font-size:12px;color:#33691e;">0 selecionados • Total: R$ 0,00</strong>
+          <button type="button" onclick="abrirModalBaixaLote()" class="btn-primario" style="margin:0;padding:9px 11px;background:#2e7d32;font-size:12px;white-space:nowrap;">💰 Dar Baixa nos Selecionados</button>
+        </div>
         <div id="lista-html"></div>
       </div>
     </div>
@@ -811,6 +821,24 @@
           <button onclick="fecharModalDetalhes()" class="btn-voltar"
             style="width: 100%; border: none; background: #eee;">Fechar</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-baixa-lote" class="modal-lgpd" style="display:none;z-index:12000;">
+    <div class="modal-content" style="max-width:420px;text-align:left;">
+      <h3 style="margin:0 0 8px;color:#2e7d32;">💰 Confirmar Baixa em Lote</h3>
+      <p style="font-size:12px;color:#666;margin:0 0 10px;">Confira os atendimentos selecionados:</p>
+      <div id="resumo-itens-baixa-lote" style="max-height:190px;overflow-y:auto;margin-bottom:12px;"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;background:#f1f8e9;border-radius:8px;padding:10px;margin-bottom:14px;">
+        <strong style="font-size:13px;color:#33691e;">Total selecionado</strong>
+        <strong id="total-modal-baixa-lote" style="font-size:17px;color:#2e7d32;">R$ 0,00</strong>
+      </div>
+      <label for="data-pagamento-lote" style="font-size:12px;font-weight:bold;">Data do Pagamento</label>
+      <input type="date" id="data-pagamento-lote" style="width:100%;box-sizing:border-box;margin:6px 0 16px;padding:10px;border:1px solid #ccc;border-radius:6px;">
+      <div style="display:flex;gap:10px;">
+        <button type="button" onclick="fecharModalBaixaLote()" class="btn-voltar" style="flex:1;margin:0;">Cancelar</button>
+        <button type="button" id="btn-confirmar-baixa-lote" onclick="confirmarBaixaLote()" class="btn-primario" style="flex:1;margin:0;background:#2e7d32;">✔️ Confirmar Baixa</button>
       </div>
     </div>
   </div>
