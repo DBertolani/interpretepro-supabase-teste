@@ -1254,6 +1254,7 @@ function abrirRegistro(linha = "", dados = null) {
   if (linha === "") {
     valorBaseEditadoManualmente = false;
     estadoFinanceiroOriginalEdicao = null;
+    ultimoTipoCobranca = "hora";
     document.getElementById('titulo-form').innerText = "Novo Atendimento";
     document.getElementById('formRegistro').reset();
     document.getElementById('data').valueAsDate = new Date();
@@ -1308,6 +1309,7 @@ function abrirRegistro(linha = "", dados = null) {
       tipoCobranca: cobrancaOriginal,
       valorBase: valorBaseOriginal
     };
+    ultimoTipoCobranca = cobrancaOriginal;
     document.getElementById('obs').value = dados.obs || "";
     if (dados.agencia === "Particular") {
       document.getElementById('origem-p').checked = true;
@@ -1331,6 +1333,7 @@ function toggleDataEdicao() {
 
 let valorBaseEditadoManualmente = false;
 let estadoFinanceiroOriginalEdicao = null;
+let ultimoTipoCobranca = "hora";
 
 function calcularDuracaoEmHoras(inicio, fim) {
   if (!inicio || !fim) return 0;
@@ -1342,6 +1345,13 @@ function calcularDuracaoEmHoras(inicio, fim) {
   const dataFim = new Date(0, 0, 0, horaFim, minutoFim);
   if (dataFim < dataInicio) dataFim.setDate(dataFim.getDate() + 1);
   return (dataFim - dataInicio) / 3600000;
+}
+
+function obterDuracaoHoras() {
+  const inicio = document.getElementById('inicio')?.value || '';
+  const fim = document.getElementById('fim')?.value || '';
+  const duracao = calcularDuracaoEmHoras(inicio, fim);
+  return duracao > 0 ? duracao : 1;
 }
 
 function servicoDispensaHorarios() {
@@ -1368,19 +1378,33 @@ function aoMudarAgencia() {
 }
 
 function calcularTotalLive() {
-  const tipo = document.querySelector('input[name="tipoCobranca"]:checked')?.value || "hora";
+  const radioSelecionado = document.querySelector('input[name="tipoCobranca"]:checked');
+  const tipo = radioSelecionado?.value || "hora";
   const campoValor = document.getElementById('valor-base');
-  const valorDigitado = converterParaFloat(campoValor.value);
   const preview = document.getElementById('valor-live-preview');
   const inicio = document.getElementById('inicio').value;
   const fim = document.getElementById('fim').value;
-  const horas = calcularDuracaoEmHoras(inicio, fim);
+  const duracao = obterDuracaoHoras();
+  let valorDigitado = converterParaFloat(campoValor.value);
 
-  // Fixo representa o valor total informado, sem multiplicação ou conversão.
-  const subtotal = tipo === "fixo"
-    ? valorDigitado
-    : horas * valorDigitado;
+  // Ao alternar o rádio, converte o próprio campo para a nova unidade.
+  // A variável guarda a seleção anterior para não converter em eventos de input.
+  if (tipo !== ultimoTipoCobranca) {
+    if (tipo === "fixo") {
+      valorDigitado = valorDigitado * duracao;
+    } else {
+      valorDigitado = valorDigitado / duracao;
+    }
+    campoValor.value = valorDigitado.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+    valorBaseEditadoManualmente = true;
+    ultimoTipoCobranca = tipo;
+  }
 
+  // Fixo = valor total digitado; Hora = valor unitário × duração.
+  const subtotal = tipo === "fixo" ? valorDigitado : valorDigitado * duracao;
   preview.innerText = "R$ " + subtotal.toLocaleString('pt-BR', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
