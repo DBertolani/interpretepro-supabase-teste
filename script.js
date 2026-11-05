@@ -954,16 +954,32 @@ function mostrarTelaLogin() {
 }
 
 function atualizarSelectsFormulario(d) {
-  agenciasGlobais=d.agencias||[]; equipeGlobal=d.equipe||[]; clientesGlobais=d.clientes||[];
-  minhasEmpresasFinais=d.clientesFinais||[]; tiposServicoGlobal=d.tiposServico||[];
-  var selServ=document.getElementById('tipoServico');
-  if(selServ){selServ.innerHTML='<option value="" disabled selected>O que foi feito?</option>';tiposServicoGlobal.forEach(s=>selServ.innerHTML+=`<option value="${escaparHtmlRelatorio(s)}">${escaparHtmlRelatorio(s)}</option>`);}
-  var selAg=document.getElementById('agencia');
-  if(selAg){selAg.innerHTML='<option value="" disabled selected>Escolha...</option>';agenciasGlobais.forEach(a=>selAg.innerHTML+=`<option value="${escaparHtmlRelatorio(a.nome)}">${escaparHtmlRelatorio(a.nome)}</option>`);}
-  var selEq=document.getElementById('interprete');
-  if(selEq){selEq.innerHTML='<option value="" disabled selected>Quem executou?</option>';equipeGlobal.forEach(e=>selEq.innerHTML+=`<option value="${escaparHtmlRelatorio(e)}">${escaparHtmlRelatorio(e)}</option>`);}
-  var dl=document.getElementById('listaEmpresasDatalist');
-  if(dl){dl.innerHTML="";clientesGlobais.forEach(c=>dl.innerHTML+=`<option value="${escaparHtmlRelatorio(c)}">`);}
+  agenciasGlobais = d.agencias || [];
+  equipeGlobal = d.equipe || [];
+  clientesGlobais = d.clientes || [];
+  minhasEmpresasFinais = d.clientesFinais || [];
+  tiposServicoGlobal = d.tiposServico || [];
+
+  var selServ = document.getElementById('tipoServico');
+  if (selServ) {
+    selServ.innerHTML = '<option value="" disabled selected>O que foi feito?</option>';
+    tiposServicoGlobal.forEach(s => selServ.innerHTML += `<option value="${s}">${s}</option>`);
+  }
+  var selAg = document.getElementById('agencia');
+  if (selAg) {
+    selAg.innerHTML = '<option value="" disabled selected>Escolha...</option>';
+    agenciasGlobais.forEach(a => selAg.innerHTML += `<option value="${a.nome}">${a.nome}</option>`);
+  }
+  var selEq = document.getElementById('interprete');
+  if (selEq) {
+    selEq.innerHTML = '<option value="" disabled selected>Quem executou?</option>';
+    equipeGlobal.forEach(e => selEq.innerHTML += `<option value="${e}">${e}</option>`);
+  }
+  var dl = document.getElementById('listaEmpresasDatalist');
+  if (dl) {
+    dl.innerHTML = "";
+    clientesGlobais.forEach(c => dl.innerHTML += `<option value="${c}">`);
+  }
 }
 
 // ============================================================
@@ -1623,20 +1639,49 @@ function chamarEditar(l) {
 
 // --- 7. RELATÓRIOS ---
 async function abrirRelatorios() {
-  esconderTodasTelas();document.getElementById('tela-relatorios').style.display='block';document.getElementById('lista-relatorio').innerHTML='<div class="loader"></div>';
-  const res=await chamarGoogle("buscarTodosServicos");dadosGeraisRelatorio=res.dados;
-  var hj=new Date();document.getElementById('filtroMesRelatorio').value=hj.getFullYear()+"-"+("0"+(hj.getMonth()+1)).slice(-2);
-  var sa=document.getElementById('filtroAgenciaRelatorio'),sm=document.getElementById('filtroMembroRelatorio'),sc=document.getElementById('filtroAgenciaCobranca'),smc=document.getElementById('filtroMembroCobranca');
-  sa.innerHTML='<option value="todas">Todas as Agências</option>';sm.innerHTML='<option value="todos">Todos os Membros</option>';
-  if(sc)sc.innerHTML='<option value="todas">Todas as Agências</option>';if(smc)smc.innerHTML='<option value="todos">Todos os Membros</option>';
-  var lAg=[],lMem=[];
-  res.dados.forEach(i=>{
-    if(i.agencia&&!lAg.includes(i.agencia)){lAg.push(i.agencia);sa.innerHTML+=`<option value="${escaparHtmlRelatorio(i.agencia)}">${escaparHtmlRelatorio(i.agencia)}</option>`;if(sc)sc.innerHTML+=`<option value="${escaparHtmlRelatorio(i.agencia)}">${escaparHtmlRelatorio(i.agencia)}</option>`;}
-    if(i.interprete&&!lMem.includes(i.interprete)){lMem.push(i.interprete);sm.innerHTML+=`<option value="${escaparHtmlRelatorio(i.interprete)}">${escaparHtmlRelatorio(i.interprete)}</option>`;}
+  esconderTodasTelas();
+  document.getElementById('tela-relatorios').style.display = 'block';
+  document.getElementById('lista-relatorio').innerHTML = '<div class="loader"></div>';
+
+  const res = await chamarGoogle("buscarTodosServicos");
+  dadosGeraisRelatorio = res.dados;
+
+  var hj = new Date();
+  document.getElementById('filtroMesRelatorio').value = hj.getFullYear() + "-" + ("0" + (hj.getMonth() + 1)).slice(-2);
+
+  var sa = document.getElementById('filtroAgenciaRelatorio');
+  var sm = document.getElementById('filtroMembroRelatorio');
+  var sc = document.getElementById('filtroAgenciaCobranca');
+  var smc = document.getElementById('filtroMembroCobranca');
+  sa.innerHTML = '<option value="todas">Todas as Agências</option>';
+  sm.innerHTML = '<option value="todos">Todos os Membros</option>';
+  if (sc) sc.innerHTML = '<option value="todas">Todas as Agências</option>';
+  if (smc) smc.innerHTML = '<option value="todos">Todos os Membros</option>';
+
+  var lAg = [], lMem = [];
+  res.dados.forEach(i => {
+    if (i.agencia && !lAg.includes(i.agencia)) {
+      lAg.push(i.agencia);
+      sa.innerHTML += `<option value="${i.agencia}">${i.agencia}</option>`;
+      if (sc) sc.innerHTML += `<option value="${escaparHtmlRelatorio(i.agencia)}">${escaparHtmlRelatorio(i.agencia)}</option>`;
+    }
+    if (i.interprete && !lMem.includes(i.interprete)) {
+      lMem.push(i.interprete);
+      sm.innerHTML += `<option value="${i.interprete}">${i.interprete}</option>`;
+    }
   });
-  if(smc)(equipeGlobal.length?equipeGlobal:lMem).filter(Boolean).forEach(n=>{if(!Array.from(smc.options).some(o=>o.value===n))smc.innerHTML+=`<option value="${escaparHtmlRelatorio(n)}">${escaparHtmlRelatorio(n)}</option>`;});
+  if (smc) {
+    const membrosCadastrados = equipeGlobal.length ? equipeGlobal : lMem;
+    membrosCadastrados.filter(Boolean).forEach(nome => {
+      if (!Array.from(smc.options).some(opcao => opcao.value === nome)) {
+        smc.innerHTML += `<option value="${escaparHtmlRelatorio(nome)}">${escaparHtmlRelatorio(nome)}</option>`;
+      }
+    });
+  }
   atualizarFiltroClienteFinalCobranca();
-  const fim=document.getElementById('filtroDataFimCobranca');if(fim)fim.value=hj.toISOString().split('T')[0];gerarRelatorio();
+  const dataFimCobranca = document.getElementById('filtroDataFimCobranca');
+  if (dataFimCobranca) dataFimCobranca.value = hj.toISOString().split('T')[0];
+  gerarRelatorio();
 }
 
 function atualizarFiltroClienteFinalCobranca() {
@@ -1790,7 +1835,7 @@ function gerarRelatorio() {
           <div style="margin-top:8px; background:#fafafa; padding:8px; border-radius:6px; border:1px solid #e0e0e0;">`;
         nfPorM[nome].ags[ag].items.forEach(it => {
           h += `<div style="font-size:13px; padding:8px 0; border-bottom:1px dashed #ccc; display:flex; justify-content:space-between;">
-            <span>🗓️ Realizado: ${escaparHtmlRelatorio(it.data || formatarDataExtrato(it.dataOriginal))}${it.dataPgto ? " | 💰 Recebido: " + escaparHtmlRelatorio(formatarDataExtrato(it.dataPgto)) : ""} — ${escaparHtmlRelatorio(it.empresa || "Cliente não informado")} — R$ ${it.valorNum.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+            <span>🗓️ Realizado: ${escaparHtmlRelatorio(it.data || formatarDataExtrato(it.dataOriginal))}${it.dataPgto ? " | 💰 Recebido: " + escaparHtmlRelatorio(formatarDataExtrato(it.dataPgto)) : ""} — ${escaparHtmlRelatorio(it.empresa || "Cliente não informado")}</span>
             <span style="color:#2e7d32; font-weight:bold;">R$ ${it.valorNum.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
           </div>`;
         });
