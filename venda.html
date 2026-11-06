@@ -13,11 +13,11 @@
   <meta name="keywords" content="gestao interprete libras, sistema gestao interprete de libras, aplicativo controle agencias libras, software tradutor interprete libras tils, relatorio nota fiscal interprete, orcamento interprete libras febrapils, baixa em lote faturas">
   <meta name="author" content="IntérpretePro">
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
-  <link rel="canonical" href="https://interpretepro.deab.com.br/venda.html">
+  <link rel="canonical" href="https://interpretepro.deab.com.br/venda">
 
   <!-- OpenGraph / Facebook / WhatsApp / LinkedIn -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://interpretepro.deab.com.br/venda.html">
+  <meta property="og:url" content="https://interpretepro.deab.com.br/venda">
   <meta property="og:title" content="IntérpretePro | Gestão Financeira & Atendimentos para Intérpretes de Libras">
   <meta property="og:description" content="Organize sua agenda, controle faturas de agências que pagam a prazo e gere relatórios para Nota Fiscal em segundos. Teste 7 dias grátis sem cartão de crédito!">
   <meta property="og:image" content="https://interpretepro.deab.com.br/logo.webp">
@@ -126,7 +126,7 @@
             "@type": "ListItem",
             "position": 2,
             "name": "Página Oficial & Planos",
-            "item": "https://interpretepro.deab.com.br/venda.html"
+            "item": "https://interpretepro.deab.com.br/venda"
           }
         ]
       }
@@ -1481,11 +1481,11 @@
         </div>
 
         <div class="simulador-actions">
-          <a href="simulador-orcamento.html" class="btn-abrir-simulador">
+          <a href="simulador-orcamento" class="btn-abrir-simulador">
             <span>🚀 Acessar Simulador de Orçamento Gratuito</span>
             <span>&rarr;</span>
           </a>
-          <a href="simulador-orcamento.html" target="_blank" class="btn-abrir-simulador-novaaba">
+          <a href="simulador-orcamento" target="_blank" class="btn-abrir-simulador-novaaba">
             <span>Abrir em Nova Aba ↗</span>
           </a>
         </div>
@@ -1556,8 +1556,8 @@
       <h2>Planos Oficiais do IntérpretePro (1 Mês, 3 Meses e 1 Ano)</h2>
       <p class="lead">Escolha o período ideal para sua rotina. Economize muito mais do que a assinatura ao evitar cobranças esquecidas e adicionais não faturados.</p>
 
-      <!-- Barra de Identificação de Ambiente -->
-      <div class="env-badge-bar">
+      <!-- Barra de Identificação de Ambiente (Oculta por padrão em produção e homologação; ativada somente com ?debug=1) -->
+      <div class="env-badge-bar" id="env-badge-bar" style="display: none;">
         <div class="env-indicator">
           <span class="env-dot" id="env-dot"></span>
           <span id="env-label">Identificando ambiente Supabase...</span>
@@ -1662,10 +1662,10 @@
     <div class="share-bar">
       <p>Conhece colegas intérpretes que sofrem com controle de agências e orçamentos?</p>
       <div class="share-btns">
-        <a class="btn-share whatsapp" href="https://api.whatsapp.com/send?text=Colega%2C%20conhece%20o%20Int%C3%A9rpretePro%3F%20%C3%89%20o%20sistema%20de%20gest%C3%A3o%20feito%20para%20int%C3%A9rpretes%20de%20Libras%3A%20https%3A%2F%2Finterpretepro.deab.com.br%2Fvenda.html" target="_blank">
+        <a class="btn-share whatsapp" href="https://api.whatsapp.com/send?text=Colega%2C%20conhece%20o%20Int%C3%A9rpretePro%3F%20%C3%89%20o%20sistema%20de%20gest%C3%A3o%20feito%20para%20int%C3%A9rpretes%20de%20Libras%3A%20https%3A%2F%2Finterpretepro.deab.com.br%2Fvenda" target="_blank">
           <span>💬 Compartilhar no WhatsApp</span>
         </a>
-        <a class="btn-share linkedin" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Finterpretepro.deab.com.br%2Fvenda.html" target="_blank">
+        <a class="btn-share linkedin" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Finterpretepro.deab.com.br%2Fvenda" target="_blank">
           <span>💼 LinkedIn</span>
         </a>
         <button type="button" class="btn-share copiar" onclick="copiarLinkPagina()">
@@ -1693,7 +1693,7 @@
     </p>
     <p>
       <a href="index.html">Acessar Sistema</a> &bull;
-      <a href="simulador-orcamento.html">Simulador de Orçamento Gratuito</a> &bull;
+      <a href="simulador-orcamento">Simulador de Orçamento Gratuito</a> &bull;
       <a href="privacidade.html">Política de Privacidade</a> &bull;
       <a href="#planos">Planos & Preços</a>
     </p>
@@ -1713,8 +1713,9 @@
     }
 
     function copiarLinkPagina() {
-      navigator.clipboard.writeText(window.location.href).then(() => {
-        alert("Link copiado! Você já pode compartilhar nas redes sociais.");
+      const urlLimpa = "https://interpretepro.deab.com.br/venda";
+      navigator.clipboard.writeText(urlLimpa).then(() => {
+        alert("Link copiado com sucesso! Você já pode compartilhar nas redes sociais: " + urlLimpa);
       });
     }
 
@@ -1740,10 +1741,22 @@
     }
 
     function atualizarBadgeAmbiente(env, origem) {
+      const bar = document.getElementById("env-badge-bar");
       const dot = document.getElementById("env-dot");
       const label = document.getElementById("env-label");
-      if (!dot || !label) return;
+      if (!bar || !dot || !label) return;
 
+      const urlParams = new URLSearchParams(window.location.search);
+      const isDebug = urlParams.has("debug") || urlParams.has("dev") || urlParams.has("admin") || urlParams.has("env");
+
+      // Em Produção e em Homologação comum: NUNCA poluir a página com badges técnicos
+      // O badge só aparece se explicitamente ativado via URL com ?debug=1 ou ?dev=1
+      if (!isDebug) {
+        bar.style.display = "none";
+        return;
+      }
+
+      bar.style.display = "flex";
       if (env === "producao") {
         dot.className = "env-dot dot-prod";
         label.innerHTML = `Ambiente: <strong>Produção</strong> &bull; Supabase schema: <code style="color: #2e7d32;">public.interpretepro_planos</code> (${origem})`;
