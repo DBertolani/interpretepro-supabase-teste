@@ -2828,8 +2828,23 @@ Assim que me responder, gero sua proposta comercial completa imediatamente!`;
     }
 
     function obterUrlSimuladorLimpa() {
-      // Retorna a URL canônica limpa sem terminação .html
-      return "https://interpretepro.deab.com.br/simulador-orcamento";
+      const origin = window.location.origin;
+      const pathname = window.location.pathname;
+      const pathParts = pathname.split("/").filter(Boolean);
+
+      let basePath = "";
+      // Se estiver em subpasta (ex: /interpretepro-supabase-teste/ no GitHub Pages)
+      if (pathParts.length > 1 && !pathParts[0].includes(".")) {
+        basePath = "/" + pathParts[0];
+      }
+
+      // No GitHub Pages puro (.github.io), arquivos estáticos precisam de .html
+      // Na Vercel ou domínio próprio (com vercel.json), usamos a rota limpa sem .html
+      const isGitHubPages = window.location.hostname.includes("github.io");
+      const usaExtensao = isGitHubPages || (pathname.endsWith(".html") && !window.location.hostname.includes("interpretepro.deab.com.br") && !window.location.hostname.includes("vercel.app"));
+      const ext = usaExtensao ? ".html" : "";
+
+      return `${origin}${basePath}/simulador-orcamento${ext}`;
     }
 
     function compartilharWhatsApp() {
