@@ -1662,10 +1662,10 @@
     <div class="share-bar">
       <p>Conhece colegas intérpretes que sofrem com controle de agências e orçamentos?</p>
       <div class="share-btns">
-        <a class="btn-share whatsapp" href="https://api.whatsapp.com/send?text=Colega%2C%20conhece%20o%20Int%C3%A9rpretePro%3F%20%C3%89%20o%20sistema%20de%20gest%C3%A3o%20feito%20para%20int%C3%A9rpretes%20de%20Libras%3A%20https%3A%2F%2Finterpretepro.deab.com.br%2Fvenda" target="_blank">
+        <a id="btn-share-wa" class="btn-share whatsapp" href="#" onclick="compartilharWhatsAppVenda(event)" target="_blank">
           <span>💬 Compartilhar no WhatsApp</span>
         </a>
-        <a class="btn-share linkedin" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Finterpretepro.deab.com.br%2Fvenda" target="_blank">
+        <a id="btn-share-li" class="btn-share linkedin" href="#" onclick="compartilharLinkedInVenda(event)" target="_blank">
           <span>💼 LinkedIn</span>
         </a>
         <button type="button" class="btn-share copiar" onclick="copiarLinkPagina()">
@@ -1712,11 +1712,61 @@
       return (num || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
     }
 
+    // =========================================================
+    // IDENTIFICAÇÃO DINÂMICA DO DOMÍNIO ATUAL (HOMOLOGAÇÃO / PRODUÇÃO)
+    // =========================================================
+    function obterUrlAmbienteAtual(pagina = "venda") {
+      const origin = window.location.origin;
+      const pathname = window.location.pathname;
+      const pathParts = pathname.split("/").filter(Boolean);
+
+      let basePath = "";
+      // Se estiver em subpasta (ex: /nome-do-repo/ no GitHub Pages)
+      if (pathParts.length > 1 && !pathParts[0].includes(".")) {
+        basePath = "/" + pathParts[0];
+      }
+
+      // No GitHub Pages puro, arquivos estáticos precisam de .html
+      // Na Vercel ou domínio próprio (com vercel.json), usamos a rota limpa sem .html
+      const isGitHubPages = window.location.hostname.includes("github.io");
+      const usaExtensao = isGitHubPages || (pathname.endsWith(".html") && !window.location.hostname.includes("interpretepro.deab.com.br") && !window.location.hostname.includes("vercel.app"));
+      const ext = usaExtensao ? ".html" : "";
+
+      return `${origin}${basePath}/${pagina}${ext}`;
+    }
+
+    function compartilharWhatsAppVenda(e) {
+      if (e) e.preventDefault();
+      const url = obterUrlAmbienteAtual("venda");
+      const texto = encodeURIComponent("Colega, conhece o IntérpretePro? É o sistema de gestão feito para intérpretes de Libras: " + url);
+      window.open("https://api.whatsapp.com/send?text=" + texto, "_blank");
+    }
+
+    function compartilharLinkedInVenda(e) {
+      if (e) e.preventDefault();
+      const url = encodeURIComponent(obterUrlAmbienteAtual("venda"));
+      window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, "_blank");
+    }
+
     function copiarLinkPagina() {
-      const urlLimpa = "https://interpretepro.deab.com.br/venda";
-      navigator.clipboard.writeText(urlLimpa).then(() => {
-        alert("Link copiado com sucesso! Você já pode compartilhar nas redes sociais: " + urlLimpa);
+      const url = obterUrlAmbienteAtual("venda");
+      navigator.clipboard.writeText(url).then(() => {
+        alert("Link copiado com sucesso! Você já pode compartilhar nas redes sociais: " + url);
+      }).catch(() => {
+        prompt("Copie o link abaixo:", url);
       });
+    }
+
+    function atualizarLinksCompartilhamentoVenda() {
+      const url = obterUrlAmbienteAtual("venda");
+      const btnWa = document.getElementById("btn-share-wa");
+      const btnLi = document.getElementById("btn-share-li");
+      if (btnWa) {
+        btnWa.href = "https://api.whatsapp.com/send?text=" + encodeURIComponent("Colega, conhece o IntérpretePro? É o sistema de gestão feito para intérpretes de Libras: " + url);
+      }
+      if (btnLi) {
+        btnLi.href = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+      }
     }
 
     // =========================================================
@@ -1832,8 +1882,9 @@
       carregarPlanosSupabase(novoEnv);
     }
 
-    // Inicialização automática dos planos ao carregar
+    // Inicialização automática dos planos e dos links de compartilhamento
     carregarPlanosSupabase(detectarAmbiente());
+    atualizarLinksCompartilhamentoVenda();
   </script>
 </body>
 </html>
