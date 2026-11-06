@@ -13,11 +13,11 @@
   <meta name="keywords" content="simulador orcamento interprete libras, tabela honorarios febrapils 2026, calculadora interprete libras, orcamento traducao libras, revezamento dupla interpretes libras, valor hora interprete libras, traducao audiovisual libras">
   <meta name="author" content="IntérpretePro">
   <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://interpretepro.deab.com.br/simulador-orcamento.html">
+  <link rel="canonical" href="https://interpretepro.deab.com.br/simulador-orcamento">
 
   <!-- OpenGraph / Facebook / WhatsApp / LinkedIn -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://interpretepro.deab.com.br/simulador-orcamento.html">
+  <meta property="og:url" content="https://interpretepro.deab.com.br/simulador-orcamento">
   <meta property="og:title" content="Simulador de Orçamento para Intérprete de Libras (FEBRAPILS)">
   <meta property="og:description" content="Calcule propostas comerciais completas: interpretação ao vivo, gravação audiovisual, duplas de revezamento, adicionais de streaming e copie para o WhatsApp com 1 clique!">
   <meta property="og:image" content="https://interpretepro.deab.com.br/logo.webp">
@@ -44,12 +44,12 @@
     "@graph": [
       {
         "@type": "WebApplication",
-        "@id": "https://interpretepro.deab.com.br/simulador-orcamento.html#app",
+        "@id": "https://interpretepro.deab.com.br/simulador-orcamento#app",
         "name": "Simulador de Orçamento para Intérprete de Libras FEBRAPILS",
         "applicationCategory": "BusinessApplication",
         "operatingSystem": "All",
         "browserRequirements": "Requires JavaScript",
-        "url": "https://interpretepro.deab.com.br/simulador-orcamento.html",
+        "url": "https://interpretepro.deab.com.br/simulador-orcamento",
         "description": "Calculadora online e gratuita para precificação de serviços de Tradução e Interpretação de Libras baseada na tabela FEBRAPILS, com suporte a pacotes combinados, triagem inteligente de WhatsApp, revezamento, streaming e simulação com desconto.",
         "offers": {
           "@type": "Offer",
@@ -59,7 +59,7 @@
       },
       {
         "@type": "FAQPage",
-        "@id": "https://interpretepro.deab.com.br/simulador-orcamento.html#faq",
+        "@id": "https://interpretepro.deab.com.br/simulador-orcamento#faq",
         "mainEntity": [
           {
             "@type": "Question",
@@ -100,7 +100,7 @@
             "@type": "ListItem",
             "position": 2,
             "name": "Simulador de Orçamento FEBRAPILS",
-            "item": "https://interpretepro.deab.com.br/simulador-orcamento.html"
+            "item": "https://interpretepro.deab.com.br/simulador-orcamento"
           }
         ]
       }
@@ -1700,7 +1700,7 @@
   <!-- Footer -->
   <footer>
     <p>Simulador desenvolvido como contribuição para a comunidade de Tradutores e Intérpretes de Língua de Sinais (TILS).</p>
-    <p><a href="index.html">IntérpretePro</a> &bull; <a href="venda.html">Página Oficial de Gestão</a> &bull; <a href="privacidade.html">Privacidade</a></p>
+    <p><a href="index.html">IntérpretePro</a> &bull; <a href="venda">Página Oficial de Gestão</a> &bull; <a href="privacidade.html">Privacidade</a></p>
     <p>&copy; 2026 IntérpretePro. Todos os direitos reservados.</p>
   </footer>
 
@@ -2827,20 +2827,27 @@ Assim que me responder, gero sua proposta comercial completa imediatamente!`;
       });
     }
 
+    function obterUrlSimuladorLimpa() {
+      // Retorna a URL canônica limpa sem terminação .html
+      return "https://interpretepro.deab.com.br/simulador-orcamento";
+    }
+
     function compartilharWhatsApp() {
-      const msg = encodeURIComponent("Conheça o Simulador de Orçamento para Intérpretes de Libras baseado na tabela oficial FEBRAPILS: " + window.location.href);
+      const url = obterUrlSimuladorLimpa();
+      const msg = encodeURIComponent("Conheça o Simulador de Orçamento para Intérpretes de Libras baseado na tabela oficial FEBRAPILS: " + url);
       window.open("https://api.whatsapp.com/send?text=" + msg, "_blank");
     }
 
     function compartilharTelegram() {
-      const url = encodeURIComponent(window.location.href);
+      const url = encodeURIComponent(obterUrlSimuladorLimpa());
       const text = encodeURIComponent("Simulador de Orçamento para Intérpretes de Libras (FEBRAPILS)");
       window.open(`https://t.me/share/url?url=${url}&text=${text}`, "_blank");
     }
 
     function copiarLinkSimulador() {
-      navigator.clipboard.writeText(window.location.href).then(() => {
-        alert("Link do simulador copiado com sucesso! Você já pode colar em seus grupos.");
+      const url = obterUrlSimuladorLimpa();
+      navigator.clipboard.writeText(url).then(() => {
+        alert("Link do simulador copiado com sucesso! Você já pode colar em seus grupos: " + url);
       });
     }
 
