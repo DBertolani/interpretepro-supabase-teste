@@ -1,0 +1,10 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/venda", "destination": "/venda.html" },
+    { "source": "/simulador-orcamento", "destination": "/simulador-orcamento.html" },
+    { "source": "/simulador", "destination": "/simulador-orcamento.html" },
+    { "source": "/orcamento", "destination": "/simulador-orcamento.html" },
+    { "source": "/((?!api/|.*\\..*).*)", "destination": "/index.html" }
+  ]
+}
