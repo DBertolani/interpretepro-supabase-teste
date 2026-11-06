@@ -1167,6 +1167,118 @@
         justify-content: center;
       }
     }
+
+    /* ====================================================================
+       SISTEMA DE NOTIFICAÇÃO TOAST MODERNO (SUBSTITUI ALERTS NATIVOS)
+       ==================================================================== */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: calc(100% - 32px);
+      max-width: 440px;
+      pointer-events: none;
+    }
+
+    .toast-card {
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      border-radius: 14px;
+      background: #0f172a;
+      color: #ffffff;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 0 2px 6px rgba(0, 0, 0, 0.25);
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.4;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      animation: toastSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      transition: all 0.25s ease;
+    }
+
+    .toast-card.toast-sucesso {
+      border-left: 5px solid #10b981;
+    }
+
+    .toast-card.toast-alerta {
+      border-left: 5px solid #f59e0b;
+    }
+
+    .toast-card.toast-info {
+      border-left: 5px solid #8b5cf6;
+    }
+
+    .toast-icon {
+      font-size: 22px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .toast-content {
+      flex: 1;
+    }
+
+    .toast-content strong {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 2px;
+    }
+
+    .toast-content span {
+      font-size: 13px;
+      color: #cbd5e1;
+    }
+
+    .toast-btn-fechar {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 20px;
+      line-height: 1;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 6px;
+      transition: color 0.15s;
+    }
+
+    .toast-btn-fechar:hover {
+      color: #ffffff;
+    }
+
+    @keyframes toastSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.96);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes toastFadeOut {
+      from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      to {
+        opacity: 0;
+        transform: translateY(12px) scale(0.96);
+      }
+    }
   </style>
 <script src="/_aistudio-iframe.js?v=1f94f900"></script></head>
 <body>
@@ -1712,6 +1824,59 @@
     }
 
     // =========================================================
+    // SISTEMA DE NOTIFICAÇÃO TOAST MODERNO (SUBSTITUI ALERTS)
+    // =========================================================
+    function exibirToast(mensagem, tipo = 'sucesso', titulo = '') {
+      let container = document.getElementById('toast-container');
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+      }
+
+      container.innerHTML = '';
+
+      const toast = document.createElement('div');
+      toast.className = `toast-card toast-${tipo}`;
+
+      let icone = '✅';
+      let tituloPadrao = 'Sucesso!';
+      if (tipo === 'alerta') {
+        icone = '⚠️';
+        tituloPadrao = 'Atenção';
+      } else if (tipo === 'info') {
+        icone = 'ℹ️';
+        tituloPadrao = 'Informação';
+      }
+
+      const tituloFinal = titulo || (tipo === 'sucesso' ? 'Copiado com sucesso!' : tituloPadrao);
+
+      toast.innerHTML = `
+        <div class="toast-icon">${icone}</div>
+        <div class="toast-content">
+          <strong>${tituloFinal}</strong>
+          <span>${mensagem}</span>
+        </div>
+        <button type="button" class="toast-btn-fechar" aria-label="Fechar">&times;</button>
+      `;
+
+      const fecharToast = () => {
+        toast.style.animation = 'toastFadeOut 0.25s forwards';
+        setTimeout(() => toast.remove(), 250);
+      };
+
+      toast.querySelector('.toast-btn-fechar').addEventListener('click', fecharToast);
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        if (toast.parentElement) {
+          fecharToast();
+        }
+      }, 3500);
+    }
+
+    // =========================================================
     // MODELO DE ESTADO: MÚLTIPLAS ATIVIDADES AO VIVO
     // =========================================================
     let proximoIdAtividade = 2;
@@ -2005,7 +2170,9 @@
 Assim que me passar esses dados, te envio a proposta formal detalhada! 🤟`;
 
       navigator.clipboard.writeText(questionario).then(() => {
-        alert("Questionário copiado com sucesso! Cole na conversa com o cliente no WhatsApp.");
+        exibirToast("Questionário copiado com sucesso! Cole na conversa com o cliente no WhatsApp.", "sucesso", "Questionário Copiado");
+      }).catch(() => {
+        exibirToast("Não foi possível acessar a área de transferência. Selecione e copie manualmente.", "alerta");
       });
     }
 
@@ -2014,7 +2181,7 @@ Assim que me passar esses dados, te envio a proposta formal detalhada! 🤟`;
       const texto = textoOriginal.toLowerCase();
 
       if (!textoOriginal) {
-        alert("Por favor cole o texto da mensagem do cliente na caixa acima para análise.");
+        exibirToast("Por favor, cole o texto da mensagem do cliente na caixa acima para análise.", "alerta", "Mensagem Vazia");
         return;
       }
 
@@ -2360,7 +2527,9 @@ Assim que me responder, gero sua proposta comercial completa imediatamente!`;
     function copiarMensagemPendencias() {
       if (!mensagemPendenciasWhatsApp) return;
       navigator.clipboard.writeText(mensagemPendenciasWhatsApp).then(() => {
-        alert("Mensagem para alinhar o que falta copiada! Cole na conversa com o cliente no WhatsApp.");
+        exibirToast("Mensagem para alinhar o que falta copiada! Cole na conversa com o cliente no WhatsApp.", "sucesso", "Perguntas Copiadas");
+      }).catch(() => {
+        exibirToast("Não foi possível acessar a área de transferência. Selecione e copie manualmente.", "alerta");
       });
     }
 
@@ -2823,7 +2992,7 @@ Assim que me responder, gero sua proposta comercial completa imediatamente!`;
           feedback.style.display = "none";
         }, 3500);
       }).catch(() => {
-        alert("Por favor selecione o texto da proposta e copie manualmente.");
+        exibirToast("Por favor selecione o texto da proposta e copie manualmente.", "alerta");
       });
     }
 
@@ -2862,7 +3031,9 @@ Assim que me responder, gero sua proposta comercial completa imediatamente!`;
     function copiarLinkSimulador() {
       const url = obterUrlSimuladorLimpa();
       navigator.clipboard.writeText(url).then(() => {
-        alert("Link do simulador copiado com sucesso! Você já pode colar em seus grupos: " + url);
+        exibirToast("Link do simulador copiado com sucesso! Você já pode colar em seus grupos.", "sucesso", "Link Copiado");
+      }).catch(() => {
+        exibirToast("Copie o link manualmente: " + url, "info");
       });
     }
 
@@ -2937,7 +3108,9 @@ A Cotação 1 apresenta o valor mais vantajoso para a administração pública, 
       const boxConteudo = document.getElementById("conteudo-modal-cotacoes");
       if (!boxConteudo) return;
       navigator.clipboard.writeText(boxConteudo.textContent).then(() => {
-        alert("Mapa de 3 Cotações e Justificativa de Preço copiado com sucesso! Pronto para anexar na submissão do edital FAPERJ.");
+        exibirToast("Mapa de 3 Cotações e Justificativa de Preço copiado com sucesso! Pronto para anexar na submissão do edital.", "sucesso", "3 Cotações Copiadas");
+      }).catch(() => {
+        exibirToast("Não foi possível acessar a área de transferência. Selecione o texto e copie manualmente.", "alerta");
       });
     }
 
