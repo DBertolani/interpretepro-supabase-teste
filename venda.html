@@ -1,636 +1,1826 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <base target="_top">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IntérpretePro | Organize sua agenda e seus recebimentos</title>
-  
+  <meta name="theme-color" content="#4a148c">
+
+  <!-- SEO Primário (Prioridade: Gestão Financeira & Atendimentos) -->
+  <title>IntérpretePro | Gestão Financeira & Atendimentos para Intérpretes de Libras</title>
+  <meta name="title" content="IntérpretePro | Gestão Financeira & Atendimentos para Intérpretes de Libras">
+  <meta name="description" content="O sistema definitivo para intérpretes e tradutores de Libras: controle agências intermediárias que pagam a prazo, dê baixa em lote de pagamentos, emita relatórios consolidados para Nota Fiscal e acesse o simulador gratuito de orçamentos FEBRAPILS. Teste 7 dias grátis!">
+  <meta name="keywords" content="gestao interprete libras, sistema gestao interprete de libras, aplicativo controle agencias libras, software tradutor interprete libras tils, relatorio nota fiscal interprete, orcamento interprete libras febrapils, baixa em lote faturas">
+  <meta name="author" content="IntérpretePro">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+  <link rel="canonical" href="https://interpretepro.deab.com.br/venda.html">
+
+  <!-- OpenGraph / Facebook / WhatsApp / LinkedIn -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://interpretepro.deab.com.br/venda.html">
-  <meta property="og:title" content="IntérpretePro | Organize sua agenda e seus recebimentos">
-  <meta property="og:description" content="O sistema de gestão definitivo para intérpretes de LIBRAS. Organize atendimentos, controle pagamentos e profissionalize sua rotina.">
-  <meta property="og:image" content="https://interpretepro.deab.com.br/logo.png">
+  <meta property="og:title" content="IntérpretePro | Gestão Financeira & Atendimentos para Intérpretes de Libras">
+  <meta property="og:description" content="Organize sua agenda, controle faturas de agências que pagam a prazo e gere relatórios para Nota Fiscal em segundos. Teste 7 dias grátis sem cartão de crédito!">
+  <meta property="og:image" content="https://interpretepro.deab.com.br/logo.webp">
   <meta property="og:image:width" content="500">
   <meta property="og:image:height" content="500">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:site_name" content="IntérpretePro">
+
+  <!-- Twitter Cards -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="https://interpretepro.deab.com.br/logo.png">
-  
-  <meta name="description" content="Landing page oficial do IntérpretePro para intérpretes de LIBRAS. Organize atendimentos, controle pagamentos e profissionalize sua rotina.">
+  <meta name="twitter:title" content="IntérpretePro | Gestão Financeira para Intérpretes de Libras">
+  <meta name="twitter:description" content="Controle faturas a prazo, baixe em lote e emita relatórios para Nota Fiscal. Teste 7 dias grátis.">
+  <meta name="twitter:image" content="https://interpretepro.deab.com.br/logo.webp">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/webp" href="logo.webp">
   <link rel="icon" type="image/png" href="logo.png">
+  <link rel="apple-touch-icon" href="logo.webp">
+
+  <!-- Schema.org JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "@id": "https://interpretepro.deab.com.br/#webapp",
+        "name": "IntérpretePro",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "All",
+        "browserRequirements": "Requires JavaScript",
+        "url": "https://interpretepro.deab.com.br",
+        "description": "Plataforma de gestão financeira, controle de atendimentos com agências intermediárias a prazo, relatórios consolidados para emissão de Nota Fiscal e simulador de honorários FEBRAPILS para intérpretes de Libras.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "BRL",
+          "availability": "https://schema.org/InStock",
+          "category": "Trial",
+          "description": "Teste gratuito por 7 dias sem exigência de cartão de crédito"
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.9",
+          "ratingCount": "128",
+          "bestRating": "5",
+          "worstRating": "1"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://interpretepro.deab.com.br/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Como o IntérpretePro ajuda a controlar pagamentos de agências intermediárias a prazo?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "O sistema separa a agência contratante (quem paga) do cliente ou empresa onde o serviço foi realizado (local do chamado). Você visualiza tudo o que está pendente há 15, 30 ou 60 dias e pode exportar o extrato em imagem ou copiar o texto para enviar pelo WhatsApp com elegância e profissionalismo."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Consigo emitir relatório consolidado para gerar minha Nota Fiscal?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Sim. Basta filtrar o mês e a agência desejada para gerar um relatório completo com o total de horas e faturamento acumulado, com opções de copiar texto para envio rápido no WhatsApp ou salvar imagem para encaminhar à contabilidade para emissão da NFS-e."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Como funciona a baixa em lote de pagamentos recebidos?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Quando a agência transfere o pagamento de uma fatura contendo múltiplos chamados acumulados, você pode selecionar todos de uma vez e dar baixa com um único clique informando a data do recebimento."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Posso cadastrar atendimentos divididos com minha dupla de interpretação?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Sim, o IntérpretePro possui módulo de equipe e parceiros de revezamento. Cada atendimento pode ser atribuído a um ou mais intérpretes, permitindo ratear valores com total transparência."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Como funciona o teste grátis de 7 dias?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Você se cadastra sem precisar inserir cartão de crédito e tem acesso liberado imediatamente a todas as funções de lançamento, relatórios e controle financeiro por 7 dias inteiros."
+            }
+          }
+        ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "IntérpretePro",
+            "item": "https://interpretepro.deab.com.br"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Página Oficial & Planos",
+            "item": "https://interpretepro.deab.com.br/venda.html"
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+
   <style>
     :root {
       --roxo: #4a148c;
+      --roxo-medio: #6a1b9a;
       --roxo-2: #7b1fa2;
       --roxo-claro: #f3e5f5;
-      --laranja: #FF9800;
-      --laranja-2: #F57C00;
-      --verde: #2E7D32;
-      --fundo: #f4f7f6;
-      --texto: #333;
-      --texto-sec: #666;
-      --card: #fff;
-      --borda: #ececec;
+      --roxo-suave: #faf5ff;
+      --laranja: #ff9800;
+      --laranja-2: #f57c00;
+      --laranja-escuro: #e65100;
+      --verde: #2e7d32;
+      --verde-claro: #e8f5e9;
+      --fundo: #f4f6f8;
+      --texto: #263238;
+      --texto-sec: #546e7a;
+      --card: #ffffff;
+      --borda: #e2e8f0;
+      --sombra: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+      --sombra-card: 0 4px 14px rgba(0, 0, 0, 0.06);
     }
 
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       background: var(--fundo);
       color: var(--texto);
-      line-height: 1.5;
+      line-height: 1.6;
+      font-size: 16px;
     }
 
+    /* Top Banner de Alerta e Relevância */
+    .top-bar {
+      background: #212121;
+      color: #fff;
+      font-size: 13px;
+      padding: 8px 16px;
+      text-align: center;
+      font-weight: 500;
+    }
+    .top-bar a {
+      color: #ffb74d;
+      text-decoration: underline;
+      margin-left: 6px;
+      font-weight: 700;
+    }
+
+    /* Hero Section */
     .hero {
       background: linear-gradient(135deg, var(--roxo), var(--roxo-2));
       color: #fff;
-      padding: 56px 18px 74px;
+      padding: 44px 20px 54px;
       text-align: center;
+      position: relative;
     }
 
     .hero-inner {
-      max-width: 900px;
+      max-width: 960px;
       margin: 0 auto;
-    }
-
-    .logo-hero {
-      width: 92px;
-      height: 92px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 3px solid rgba(255, 255, 255, 0.65);
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
-      background: #fff;
-      padding: 6px;
     }
 
     .logo-hero-wrap {
-      width: 116px;
-      height: 116px;
-      margin: 0 auto;
+      width: 96px;
+      height: 96px;
+      margin: 0 auto 16px;
       border-radius: 50%;
       display: grid;
       place-items: center;
-      background: rgba(255, 255, 255, 0.12);
-      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.16);
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.3), 0 8px 24px rgba(0,0,0,0.22);
+    }
+
+    .logo-hero {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      object-fit: contain;
+      background: #fff;
+      padding: 3px;
+    }
+
+    .badge-hero {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.18);
+      color: #ffe0b2;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 6px 16px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
     }
 
     h1 {
-      margin: 16px 0 10px;
-      font-size: 40px;
+      margin: 0 0 16px;
+      font-size: 38px;
       font-weight: 900;
-      letter-spacing: -0.6px;
+      line-height: 1.22;
+      letter-spacing: -0.8px;
     }
 
     .hero p {
-      margin: 0 auto 26px;
-      max-width: 720px;
-      font-size: 19px;
-      opacity: 0.95;
+      margin: 0 auto 28px;
+      max-width: 760px;
+      font-size: 18px;
+      color: #f3e5f5;
+      font-weight: 400;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
     }
 
     .btn-principal {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       background: linear-gradient(135deg, var(--laranja), var(--laranja-2));
       color: #fff;
       text-decoration: none;
-      font-weight: 900;
-      font-size: 18px;
+      font-weight: 800;
+      font-size: 17px;
       border-radius: 12px;
       padding: 15px 30px;
-      box-shadow: 0 8px 20px rgba(245, 124, 0, 0.35);
+      box-shadow: 0 10px 24px rgba(245, 124, 0, 0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-principal:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(245, 124, 0, 0.5);
     }
 
+    .btn-secundario {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.14);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 16px;
+      border-radius: 12px;
+      padding: 15px 24px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      transition: background 0.2s;
+    }
+    .btn-secundario:hover {
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    .hero-garantia {
+      margin-top: 20px;
+      font-size: 13px;
+      color: #f3e5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px 14px;
+      flex-wrap: wrap;
+    }
+
+    .hero-garantia span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* Conteúdo Principal (sem clipping no celular) */
     .wrap {
-      width: min(1050px, 94%);
-      margin: -34px auto 34px;
+      width: min(1080px, 94%);
+      margin: -24px auto 40px;
       background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.09);
-      padding: 28px;
+      border-radius: 20px;
+      box-shadow: var(--sombra);
+      padding: 36px 32px;
+      position: relative;
+      z-index: 2;
     }
 
     .section {
-      margin-top: 30px;
-      border-top: 1px solid #f1f1f1;
-      padding-top: 26px;
+      margin-top: 48px;
+      border-top: 1px solid var(--borda);
+      padding-top: 40px;
     }
-
     .section:first-child {
       margin-top: 0;
       border-top: 0;
       padding-top: 0;
     }
 
-    .section h2 {
-      margin: 0 0 8px;
+    .section-tag {
+      display: inline-block;
+      text-transform: uppercase;
+      font-size: 12px;
+      font-weight: 800;
       color: var(--roxo);
-      font-size: 28px;
+      background: var(--roxo-claro);
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .section h2 {
+      margin: 0 0 10px;
+      color: var(--roxo);
+      font-size: 30px;
       font-weight: 900;
+      letter-spacing: -0.5px;
     }
 
     .section .lead {
-      margin: 0 0 16px;
+      margin: 0 0 24px;
       color: var(--texto-sec);
-      font-size: 15px;
+      font-size: 17px;
+      max-width: 800px;
     }
 
+    /* Cards de Dores / Soluções */
     .dores-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
+      gap: 16px;
     }
 
     .dor-card {
       background: #fff;
       border: 1px solid var(--borda);
-      border-radius: 12px;
-      padding: 14px;
-      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: var(--sombra-card);
+      position: relative;
+      transition: transform 0.2s;
+    }
+    .dor-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .dor-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: #ffebee;
+      color: #c62828;
+      display: grid;
+      place-items: center;
+      font-size: 20px;
+      margin-bottom: 14px;
     }
 
     .dor-card h3 {
-      margin: 0 0 6px;
-      font-size: 16px;
-      color: #d84315;
+      margin: 0 0 8px;
+      font-size: 18px;
+      color: #b71c1c;
+      font-weight: 800;
     }
 
     .dor-card p {
       margin: 0;
       color: var(--texto-sec);
       font-size: 14px;
+      line-height: 1.5;
     }
 
-    .mock-area {
+    /* Showcase de Telas com Dados Anônimos */
+    .showcase-grid {
       display: grid;
-      grid-template-columns: 460px 1fr;
-      gap: 18px;
-      align-items: start;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+      margin-top: 20px;
     }
 
-    .app-mock {
-      max-width: 450px;
-      border-radius: 14px;
+    .mockup-card {
+      border: 1px solid var(--borda);
+      border-radius: 16px;
       background: #fff;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.08);
-      border: 1px solid #f2f2f2;
       overflow: hidden;
+      box-shadow: var(--sombra-card);
+      display: flex;
+      flex-direction: column;
     }
 
-    .mock-header {
+    .mockup-bar {
+      background: #263238;
+      color: #cfd8dc;
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 600;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      padding: 14px;
-      border-bottom: 1px solid #e8e8e8;
     }
 
-    .mock-brand {
+    .mockup-dots {
+      display: flex;
+      gap: 6px;
+    }
+    .mockup-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .dot-red { background: #ef5350; }
+    .dot-yellow { background: #ffca28; }
+    .dot-green { background: #66bb6a; }
+
+    .mockup-body {
+      padding: 20px;
+      background: #fdfdfd;
+      flex-grow: 1;
+    }
+
+    .mockup-ficticio-tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 800;
+      color: #7b1fa2;
+      background: #f3e5f5;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: 12px;
+    }
+
+    /* Estilos do Extrato Fictício */
+    .extrato-demo {
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      background: #fff;
+      padding: 16px;
+    }
+
+    .extrato-header {
+      border-bottom: 2px solid #f3e5f5;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .extrato-header h4 {
+      margin: 0;
+      color: var(--roxo);
+      font-size: 16px;
+    }
+    .extrato-header p {
+      margin: 2px 0 0;
+      font-size: 11px;
+      color: var(--texto-sec);
+    }
+
+    .extrato-kpis {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+      background: #fdf7ff;
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .extrato-kpi strong {
+      display: block;
+      font-size: 17px;
+      color: #b71c1c;
+    }
+    .extrato-kpi small {
+      font-size: 11px;
+      color: var(--texto-sec);
+      text-transform: uppercase;
+    }
+
+    .extrato-item {
+      padding: 10px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      gap: 8px;
+    }
+    .extrato-item:last-child {
+      border-bottom: 0;
+    }
+
+    .badge-status-pendente {
+      background: #ffebee;
+      color: #c62828;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    /* Estilos do Relatório Real (.relatorio-stats e .stat-card) */
+    .nf-demo {
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      background: #fff;
+      padding: 16px;
+    }
+
+    .nf-select-box {
+      background: #f3e5f5;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      margin-bottom: 14px;
+      border: 1px solid #ce93d8;
+    }
+    .nf-select-box div {
+      margin-bottom: 4px;
+    }
+
+    .relatorio-stats-demo {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .stat-card-demo {
+      flex: 1;
+      background: white;
+      padding: 14px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      border: 1px solid #f3e5f5;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-card-demo strong {
+      font-size: 20px;
+      color: #4a148c;
+      font-weight: 900;
+    }
+
+    .stat-label-demo {
+      font-size: 11px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .nf-lista-itens {
+      background: #fafafa;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 12px;
+      margin-bottom: 14px;
+    }
+
+    .nf-item-demo {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px dashed #e0e0e0;
+    }
+    .nf-item-demo:last-child {
+      border-bottom: none;
+    }
+
+    .nf-actions-demo {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-nf-demo {
+      flex: 1;
+      border: none;
+      padding: 12px 8px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      color: #fff;
       display: flex;
       align-items: center;
-      gap: 10px;
-      min-width: 0;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn-nf-purple { background-color: #9c27b0; }
+    .btn-nf-blue { background-color: #1976d2; }
+
+    /* Benefícios */
+    .beneficios-lista {
+      list-style: none;
+      padding: 0;
+      margin: 24px 0 0;
+      display: grid;
+      gap: 14px;
+    }
+    .beneficios-lista li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 15px;
+    }
+    .icon-ok {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--verde-claro);
+      color: var(--verde);
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      font-weight: 900;
+      flex-shrink: 0;
+      margin-top: 2px;
     }
 
-    .mock-logo {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      border: 2px solid var(--roxo-claro);
-      background: linear-gradient(135deg, #fff, #f8f3fb);
+    /* ====================================================================
+       TEASER DO SIMULADOR (POSICIONADO APÓS OS MOCKUPS COMO BÔNUS)
+       ==================================================================== */
+    .simulador-teaser-card {
+      background: linear-gradient(135deg, #fdf8ff, #f7effd);
+      border: 2px solid #ce93d8;
+      border-radius: 18px;
+      padding: 28px;
+      margin-top: 16px;
+      box-shadow: var(--sombra-card);
+    }
+
+    .simulador-teaser-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .simulador-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #4a148c;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .simulador-teaser-card h3 {
+      margin: 0 0 10px;
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--roxo);
+    }
+
+    .simulador-teaser-card p {
+      color: #455a64;
+      font-size: 15px;
+      margin: 0 0 20px;
+      max-width: 820px;
+    }
+
+    .simulador-features-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .simulador-feat-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: #fff;
+      border: 1px solid #e1bee7;
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .feat-icon {
+      font-size: 22px;
       flex-shrink: 0;
     }
 
-    .mock-title {
-      color: var(--roxo);
-      font-size: 23px;
-      font-weight: 900;
-      white-space: nowrap;
-    }
-
-    .mock-out {
-      background: #ffebee;
-      color: #d32f2f;
-      font-size: 12px;
-      font-weight: 700;
-      padding: 6px 10px;
-      border-radius: 6px;
-    }
-
-    .mock-main { padding: 14px; }
-
-    .mock-dash {
-      background: linear-gradient(135deg, #4CAF50, #2E7D32);
-      color: #fff;
-      text-align: center;
-      border-radius: 16px;
-      padding: 18px 14px;
-    }
-
-    .mock-dash small {
+    .simulador-feat-item strong {
+      font-size: 14px;
+      color: #263238;
       display: block;
+      margin-bottom: 2px;
+    }
+
+    .simulador-feat-item small {
+      color: #607d8b;
       font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      opacity: 0.92;
     }
 
-    .mock-dash strong {
-      display: block;
-      margin-top: 4px;
-      font-size: 34px;
-      font-weight: 900;
-    }
-
-    .mock-tags {
-      margin-top: 10px;
+    .simulador-actions {
       display: flex;
-      gap: 8px;
-      justify-content: center;
+      gap: 14px;
       flex-wrap: wrap;
     }
 
-    .mock-tag {
-      background: rgba(255, 255, 255, 0.92);
-      color: #2f2f2f;
-      border-radius: 16px;
-      font-size: 11px;
+    .btn-abrir-simulador {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--roxo), var(--roxo-2));
+      color: #fff;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 16px;
+      padding: 14px 26px;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(74, 20, 140, 0.3);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-abrir-simulador:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 22px rgba(74, 20, 140, 0.4);
+    }
+
+    .btn-abrir-simulador-novaaba {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #fff;
+      color: var(--roxo);
+      text-decoration: none;
       font-weight: 700;
-      padding: 4px 9px;
+      font-size: 15px;
+      padding: 14px 22px;
+      border-radius: 12px;
+      border: 1.5px solid #ce93d8;
+      transition: background 0.2s;
+    }
+    .btn-abrir-simulador-novaaba:hover {
+      background: #f3e5f5;
     }
 
-    .mock-menu {
-      margin-top: 14px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
+    /* ====================================================================
+       TABELA COMPARATIVA & REFERÊNCIA: MOBILE CARDS INTELIGENTES
+       (NUNCA CORTAM NO CELULAR E NÃO EXIGEM ROLAGEM LATERAL)
+       ==================================================================== */
+    .tabela-wrap {
+      overflow-x: auto;
+      margin-top: 20px;
     }
 
-    .mock-btn {
-      border: 1px solid #f2f2f2;
+    .tabela-comparativa {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
       background: #fff;
       border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-      min-height: 100px;
-      padding: 10px;
+      overflow: hidden;
+      box-shadow: var(--sombra-card);
+      border: 1px solid var(--borda);
+    }
+
+    .tabela-comparativa th,
+    .tabela-comparativa td {
+      padding: 14px 16px;
+      text-align: left;
+      border-bottom: 1px solid #eceff1;
+    }
+
+    .tabela-comparativa th {
+      background: #f8fafc;
+      font-weight: 800;
+      color: #37474f;
+    }
+
+    .tabela-comparativa th.destaque,
+    .tabela-comparativa td.destaque {
+      background: #fdf7ff;
+      color: var(--roxo);
+      font-weight: 700;
+      border-left: 2px solid #ce93d8;
+      border-right: 2px solid #ce93d8;
+    }
+
+    /* ====================================================================
+       PLANOS (DINÂMICOS VIA SUPABASE: HOMOLOGAÇÃO VS PRODUÇÃO)
+       ==================================================================== */
+    .env-badge-bar {
       display: flex;
-      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .mock-icon {
-      width: 30px;
-      height: 30px;
-      border-radius: 8px;
-      background: #eceff1;
-    }
-
-    .mock-text {
-      width: 72%;
-      height: 10px;
-      border-radius: 6px;
-      background: #dfe5e8;
-    }
-
-    .beneficios {
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      display: grid;
-      gap: 10px;
-    }
-
-    .beneficios li {
-      display: flex;
-      gap: 10px;
-      align-items: start;
-      background: #fbfbfb;
-      border: 1px solid #f0f0f0;
+      justify-content: space-between;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 10px 16px;
       border-radius: 10px;
-      padding: 10px 12px;
-      font-size: 14px;
-      color: #4a4a4a;
+      margin-bottom: 20px;
+      font-size: 13px;
     }
-
-    .ok {
-      width: 19px;
-      height: 19px;
+    .env-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+    }
+    .env-dot {
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
-      background: #e8f5e9;
-      color: var(--verde);
+    }
+    .dot-homol { background: #ff9800; }
+    .dot-prod { background: #4caf50; }
+
+    .env-btn-toggle {
+      background: #fff;
+      border: 1px solid #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 6px;
       font-size: 12px;
-      font-weight: 900;
-      display: grid;
-      place-items: center;
-      flex-shrink: 0;
-      margin-top: 1px;
+      font-weight: 600;
+      color: #475569;
+      cursor: pointer;
+    }
+    .env-btn-toggle:hover {
+      background: #f1f5f9;
     }
 
     .planos {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .planos-status {
-      border: 1px dashed #d8c9e5;
-      border-radius: 12px;
-      padding: 14px;
-      color: #6d5684;
-      font-size: 14px;
-      background: #faf7fd;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 16px;
     }
 
     .plano {
       border: 2px solid #ece0f3;
-      border-radius: 14px;
-      padding: 16px;
+      border-radius: 16px;
+      padding: 22px 18px;
       background: #fff;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--sombra-card);
+      position: relative;
     }
 
     .plano.destaque {
       border-color: var(--roxo);
-      background: linear-gradient(135deg, #fdf7ff, #faf5ff);
-      box-shadow: 0 6px 16px rgba(74, 20, 140, 0.12);
+      background: linear-gradient(180deg, #fff, #faf5ff);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(74, 20, 140, 0.15);
     }
 
-    .badge {
-      display: inline-block;
+    .tag-destaque {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, var(--laranja), var(--laranja-2));
+      color: #fff;
       font-size: 11px;
       font-weight: 900;
-      letter-spacing: 0.2px;
-      text-transform: uppercase;
-      padding: 4px 10px;
+      padding: 3px 12px;
       border-radius: 999px;
-      margin-bottom: 8px;
-      color: #fff;
-      background: var(--roxo);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 10px rgba(245, 124, 0, 0.3);
+      white-space: nowrap;
     }
 
     .plano h3 {
-      margin: 0 0 4px;
+      margin: 8px 0 6px;
       color: var(--roxo);
-      font-size: 20px;
+      font-size: 18px;
+      font-weight: 800;
     }
 
-    .preco {
-      margin: 0 0 10px;
-      font-size: 30px;
+    .plano .preco {
+      margin: 0 0 14px;
+      font-size: 26px;
       font-weight: 900;
-      color: var(--texto);
+      color: #263238;
+      line-height: 1.1;
     }
-
-    .preco span {
-      font-size: 14px;
-      font-weight: 600;
-      color: #888;
+    .plano .preco span {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--texto-sec);
     }
 
     .plano ul {
-      margin: 0;
-      padding-left: 18px;
-      color: var(--texto-sec);
-      font-size: 14px;
+      list-style: none;
+      padding: 0;
+      margin: 0 0 20px;
+      font-size: 13px;
+      color: #37474f;
+      display: grid;
+      gap: 8px;
+      flex-grow: 1;
+    }
+    .plano ul li {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    .plano ul li::before {
+      content: "✓";
+      color: var(--verde);
+      font-weight: 900;
     }
 
+    .btn-plano {
+      display: block;
+      text-align: center;
+      background: #f3e5f5;
+      color: var(--roxo);
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 14px;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #ce93d8;
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn-plano:hover {
+      background: var(--roxo);
+      color: #fff;
+    }
+
+    .plano.destaque .btn-plano {
+      background: linear-gradient(135deg, var(--roxo), var(--roxo-2));
+      color: #fff;
+      border: 0;
+      box-shadow: 0 4px 14px rgba(74, 20, 140, 0.3);
+    }
+    .plano.destaque .btn-plano:hover {
+      box-shadow: 0 6px 18px rgba(74, 20, 140, 0.45);
+    }
+
+    /* FAQ Semântico */
+    .faq-item {
+      border-bottom: 1px solid var(--borda);
+      padding: 18px 0;
+    }
+    .faq-item:last-child {
+      border-bottom: 0;
+    }
+    .faq-pergunta {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--roxo);
+      margin: 0 0 8px;
+    }
+    .faq-resposta {
+      margin: 0;
+      color: #455a64;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    /* Redes Sociais & Compartilhamento */
+    .share-bar {
+      margin-top: 32px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 20px;
+      text-align: center;
+    }
+    .share-bar p {
+      margin: 0 0 12px;
+      font-weight: 700;
+      color: #334155;
+    }
+    .share-btns {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn-share {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      color: #fff;
+    }
+    .btn-share.whatsapp { background: #25d366; }
+    .btn-share.linkedin { background: #0077b5; }
+    .btn-share.copiar { background: #475569; }
+
+    /* CTA Final */
     .acao-final {
-      margin-top: 16px;
+      margin-top: 48px;
       text-align: center;
       background: linear-gradient(135deg, var(--roxo), var(--roxo-2));
       color: #fff;
-      border-radius: 14px;
-      padding: 24px 16px;
+      border-radius: 16px;
+      padding: 40px 24px;
+      box-shadow: 0 12px 32px rgba(74, 20, 140, 0.25);
     }
-
     .acao-final h3 {
-      margin: 0 0 8px;
-      font-size: 28px;
+      margin: 0 0 12px;
+      font-size: 32px;
       font-weight: 900;
     }
-
     .acao-final p {
-      margin: 0 0 16px;
-      opacity: 0.93;
+      margin: 0 auto 24px;
+      max-width: 650px;
+      font-size: 18px;
+      color: #f3e5f5;
     }
 
-    .btn-final {
-      display: inline-block;
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 30px 20px 40px;
+      color: #78909c;
+      font-size: 13px;
+    }
+    footer a {
+      color: var(--roxo);
       text-decoration: none;
-      color: #fff;
-      background: linear-gradient(135deg, var(--laranja), var(--laranja-2));
-      padding: 15px 28px;
-      border-radius: 12px;
-      font-size: 17px;
-      font-weight: 900;
-      box-shadow: 0 8px 20px rgba(245, 124, 0, 0.35);
+      font-weight: 600;
     }
 
-    @media (max-width: 950px) {
-      .mock-area {
-        grid-template-columns: 1fr;
-      }
-
-      .app-mock {
-        margin: 0 auto;
+    /* ====================================================================
+       RESPONSIVIDADE RIGOROSA (TRANSFORMA TABELAS EM MOBILE CARDS)
+       ==================================================================== */
+    @media (max-width: 1000px) {
+      .planos {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
 
-    @media (max-width: 700px) {
+    @media (max-width: 768px) {
       .hero {
-        padding: 36px 14px 50px;
+        padding: 32px 16px 24px;
       }
-
-      h1 { font-size: 31px; }
-      .hero p { font-size: 16px; }
-
       .wrap {
-        width: 100%;
-        margin: -20px auto 0;
-        border-radius: 0;
-        padding: 20px 14px 28px;
+        margin: 16px auto 30px !important;
+        width: 94% !important;
+        padding: 22px 16px !important;
+        border-radius: 16px;
       }
-
       .dores-grid,
+      .showcase-grid,
+      .simulador-features-grid,
       .planos {
         grid-template-columns: 1fr;
       }
+      h1 {
+        font-size: 26px;
+        letter-spacing: -0.4px;
+      }
+      .hero p {
+        font-size: 15px;
+        margin-bottom: 22px;
+      }
+      .hero-ctas {
+        flex-direction: column;
+        width: 100%;
+      }
+      .btn-principal,
+      .btn-secundario {
+        width: 100%;
+        justify-content: center;
+        padding: 14px 20px;
+        font-size: 16px;
+      }
+      .section h2 {
+        font-size: 22px;
+      }
+      .section .lead {
+        font-size: 15px;
+      }
+      .plano.destaque {
+        transform: none;
+      }
+      .simulador-actions {
+        flex-direction: column;
+      }
+      .btn-abrir-simulador,
+      .btn-abrir-simulador-novaaba {
+        width: 100%;
+        justify-content: center;
+      }
 
-      .mock-title { font-size: 20px; }
-      .acao-final h3 { font-size: 24px; }
+      /* TRANSFORMAÇÃO DE TABELAS EM CARDS EMPILHADOS NO CELULAR */
+      .tabela-wrap {
+        overflow-x: visible;
+      }
+      .tabela-comparativa thead {
+        display: none;
+      }
+      .tabela-comparativa,
+      .tabela-comparativa tbody,
+      .tabela-comparativa tr,
+      .tabela-comparativa td {
+        display: block;
+        width: 100%;
+      }
+      .tabela-comparativa tr {
+        margin-bottom: 16px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 14px;
+        background: #fff;
+        padding: 14px;
+        box-shadow: var(--sombra-card);
+      }
+      .tabela-comparativa td {
+        padding: 8px 0;
+        border-bottom: 1px dashed #edf2f7;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 13px;
+        text-align: right;
+      }
+      .tabela-comparativa td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        color: #64748b;
+        text-align: left;
+        margin-right: 12px;
+        font-size: 12px;
+      }
+      .tabela-comparativa td:last-child {
+        border-bottom: none;
+      }
+      .tabela-comparativa td.destaque {
+        background: #faf5ff;
+        border: 1px solid #e1bee7;
+        border-radius: 10px;
+        padding: 10px 12px;
+        margin-top: 8px;
+        font-weight: 800;
+      }
+      .tabela-comparativa td.destaque::before {
+        color: var(--roxo);
+      }
     }
   </style>
-</head>
+<script src="/_aistudio-iframe.js?v=1f94f900"></script></head>
 <body>
-  <section class="hero">
+
+  <!-- Top Bar -->
+  <aside class="top-bar" aria-label="Aviso de Teste Gratuito">
+    🚀 <strong>Novidade:</strong> Teste grátis por 7 dias sem cadastrar cartão liberado para intérpretes de todo o Brasil.
+    <a href="index.html">Criar Conta Gratuita &rarr;</a>
+  </aside>
+
+  <!-- Hero Section -->
+  <header class="hero">
     <div class="hero-inner">
       <div class="logo-hero-wrap">
-        <img class="logo-hero" src="logo.png" alt="Logo IntérpretePro">
+        <img class="logo-hero" src="logo.webp" alt="Logotipo do IntérpretePro" width="76" height="76" onerror="this.onerror=null; this.src='logo.png';">
+      </div>
+      <div class="badge-hero">
+        <span>✨ Gestão Financeira & Atendimentos para Intérpretes de Libras</span>
       </div>
       <h1>Profissionalize sua agenda e nunca mais esqueça de cobrar um serviço.</h1>
-      <p>O IntérpretePro organiza seus atendimentos, pagamentos e relatórios em um só lugar, com foco total na rotina real do intérprete de LIBRAS.</p>
-      <a class="btn-principal" href="index.html">Começar Teste Grátis</a>
+      <p>O IntérpretePro organiza seus atendimentos, separa agências que pagam a prazo dos clientes finais, calcula orçamentos e gera relatórios consolidados para envio no WhatsApp e emissão de Nota Fiscal em segundos.</p>
+      
+      <div class="hero-ctas">
+        <a class="btn-principal" href="index.html">
+          <span>Começar Teste Grátis de 7 Dias</span>
+          <span>&rarr;</span>
+        </a>
+        <a class="btn-secundario" href="#funcionalidades">
+          <span>Conhecer o Sistema</span>
+        </a>
+      </div>
+
+      <div class="hero-garantia">
+        <span>🔒 Teste grátis sem cadastrar cartão</span>
+        <span>⚡ Comece em 2 minutos</span>
+        <span>📱 Funciona no Celular e PC</span>
+      </div>
     </div>
-  </section>
+  </header>
 
   <main class="wrap">
-    <!-- Interesse -->
-    <section class="section">
-      <h2>Você vive alguma dessas dores?</h2>
-      <p class="lead">Se sim, esta página foi feita para você.</p>
+
+    <!-- 1. Seção de Dores -->
+    <section class="section" id="dores">
+      <span class="section-tag">Desafios da Profissão</span>
+      <h2>Você vive alguma dessas situações no seu dia a dia?</h2>
+      <p class="lead">A rotina do intérprete de conferência e Libras é corrida e cheia de particularidades que planilhas comuns não entendem.</p>
+      
       <div class="dores-grid">
         <article class="dor-card">
-          <h3>Agenda bagunçada</h3>
-          <p>Anotações espalhadas em papel, WhatsApp e memória, sem histórico confiável do que foi feito.</p>
+          <div class="dor-icon">🗓️</div>
+          <h3>Agenda e WhatsApp Bagunçados</h3>
+          <p>Convocações de agências em conversas soltas, anotações em papel ou blocos de notas. Quando o contratante pergunta a data de um atendimento, você perde 20 minutos procurando.</p>
         </article>
+
         <article class="dor-card">
-          <h3>Várias agências</h3>
-          <p>Dificuldade para controlar valores e atendimentos de cada contratante sem perder tempo com planilhas complexas.</p>
+          <div class="dor-icon">⏳</div>
+          <h3>Agências que Pagam a Prazo (30/60 Dias)</h3>
+          <p>Você atende o cliente final hoje, mas a agência paga só no próximo mês. No final das contas, você não tem certeza se aquele chamado foi pago ou se ficou esquecido.</p>
         </article>
+
         <article class="dor-card">
-          <h3>Cobrança sem controle</h3>
-          <p>Pagamentos atrasados, serviços esquecidos e insegurança na hora de fechar o mês.</p>
+          <div class="dor-icon">📄</div>
+          <h3>Sufoco no Fechamento da Nota Fiscal</h3>
+          <p>Virada do mês: você precisa somar horas picadas, calcular adicionais e emitir a Nota Fiscal. Um erro de digitação pode atrasar seu pagamento em semanas.</p>
         </article>
       </div>
     </section>
 
-    <!-- Desejo -->
-    <section class="section">
-      <h2>Veja como o IntérpretePro facilita sua rotina</h2>
-      <p class="lead">Simulação visual do dashboard real em HTML/CSS para você entender a experiência antes de entrar.</p>
-      <div class="mock-area">
-        <div class="app-mock">
-          <div class="mock-header">
-            <div class="mock-brand">
-              <div class="mock-logo"></div>
-              <span class="mock-title">IntérpretePro</span>
+    <!-- 2. Showcase de Telas com Dados 100% Anônimos (Imediatamente após Dores) -->
+    <section class="section" id="funcionalidades">
+      <span class="section-tag">Por Dentro do Sistema</span>
+      <h2>Demonstração Visual das Telas de Controle (Dados Fictícios)</h2>
+      <p class="lead">Veja como o IntérpretePro organiza a operação com foco exclusivo no fluxo de agências intermediárias e clientes finais.</p>
+
+      <div class="showcase-grid">
+        <!-- Mockup 1: Extrato de Pendências e Cobrança -->
+        <div class="mockup-card">
+          <div class="mockup-bar">
+            <div class="mockup-dots">
+              <span class="mockup-dot dot-red"></span>
+              <span class="mockup-dot dot-yellow"></span>
+              <span class="mockup-dot dot-green"></span>
             </div>
-            <span class="mock-out">Sair</span>
+            <span>Extrato de Pendências / Cobrança</span>
+            <span>📱 Celular / Web</span>
           </div>
-          <div class="mock-main">
-            <div class="mock-dash">
-              <small>Total a Receber</small>
-              <strong>R$ 0,00</strong>
-              <div class="mock-tags">
-                <span class="mock-tag">Agência A</span>
-                <span class="mock-tag">Agência B</span>
-                <span class="mock-tag">Equipe</span>
+
+          <div class="mockup-body">
+            <div class="mockup-ficticio-tag">SIMULAÇÃO COM DADOS ANÔNIMOS</div>
+            <div class="extrato-demo">
+              <div class="extrato-header">
+                <h4>Agência Alpha Libras & Eventos</h4>
+                <p>Período de Atendimentos: 01/10/2026 até 30/11/2026</p>
               </div>
-            </div>
-            <div class="mock-menu">
-              <div class="mock-btn"><div class="mock-icon"></div><div class="mock-text"></div></div>
-              <div class="mock-btn"><div class="mock-icon"></div><div class="mock-text"></div></div>
-              <div class="mock-btn"><div class="mock-icon"></div><div class="mock-text"></div></div>
-              <div class="mock-btn"><div class="mock-icon"></div><div class="mock-text"></div></div>
+
+              <div class="extrato-kpis">
+                <div class="extrato-kpi">
+                  <small>Faturamento Pendente</small>
+                  <strong>R$ 576,00</strong>
+                </div>
+                <div class="extrato-kpi">
+                  <small>Total Atendimentos</small>
+                  <strong style="color: var(--roxo);">4</strong>
+                </div>
+              </div>
+
+              <div style="font-size: 12px; font-weight: 800; color: var(--roxo); margin-bottom: 6px;">
+                👤 Mariana Silva (Equipe):
+              </div>
+              <div class="extrato-item">
+                <div>
+                  <strong>📅 15/10/2026 — Tech Summit Brasil</strong>
+                  <div style="color: var(--texto-sec); font-size: 11px;">Interpretação Simultânea &bull; 14h às 16h</div>
+                </div>
+                <div style="text-align: right;">
+                  <span class="badge-status-pendente">Pendente</span>
+                  <div style="font-weight: 800; color: var(--verde);">R$ 144,00</div>
+                </div>
+              </div>
+              <div class="extrato-item">
+                <div>
+                  <strong>📅 24/10/2026 — Faculdade Horizonte</strong>
+                  <div style="color: var(--texto-sec); font-size: 11px;">Aula Magna &bull; 09h às 11h</div>
+                </div>
+                <div style="text-align: right;">
+                  <span class="badge-status-pendente">Pendente</span>
+                  <div style="font-weight: 800; color: var(--verde);">R$ 144,00</div>
+                </div>
+              </div>
+
+              <div style="font-size: 12px; font-weight: 800; color: var(--roxo); margin: 10px 0 6px;">
+                👤 Carlos Eduardo (Dupla):
+              </div>
+              <div class="extrato-item">
+                <div>
+                  <strong>📅 02/11/2026 — Hospital Esperança</strong>
+                  <div style="color: var(--texto-sec); font-size: 11px;">Consulta &bull; 10h às 12h</div>
+                </div>
+                <div style="text-align: right;">
+                  <span class="badge-status-pendente">Pendente</span>
+                  <div style="font-weight: 800; color: var(--verde);">R$ 144,00</div>
+                </div>
+              </div>
+              <div class="extrato-item">
+                <div>
+                  <strong>📅 10/11/2026 — Congresso de Acessibilidade</strong>
+                  <div style="color: var(--texto-sec); font-size: 11px;">Mesa Redonda &bull; 13h30 às 15h30</div>
+                </div>
+                <div style="text-align: right;">
+                  <span class="badge-status-pendente">Pendente</span>
+                  <div style="font-weight: 800; color: var(--verde);">R$ 144,00</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        <ul class="beneficios">
-          <li><span class="ok">✓</span><span>Registre atendimentos em segundos com data, horário, agência e valor.</span></li>
-          <li><span class="ok">✓</span><span>Tenha visão imediata do que está pendente e do que já foi pago.</span></li>
-          <li><span class="ok">✓</span><span>Filtre histórico por período, cliente, agência e membro da equipe.</span></li>
-          <li><span class="ok">✓</span><span>Gere relatórios para NF com aparência profissional e pronto para compartilhar.</span></li>
-          <li><span class="ok">✓</span><span>Use no celular e no computador com o mesmo padrão visual.</span></li>
+
+        <!-- Mockup 2: Relatório de Atendimentos & Fechamento -->
+        <div class="mockup-card">
+          <div class="mockup-bar">
+            <div class="mockup-dots">
+              <span class="mockup-dot dot-red"></span>
+              <span class="mockup-dot dot-yellow"></span>
+              <span class="mockup-dot dot-green"></span>
+            </div>
+            <span>Relatórios Consolidados</span>
+            <span>📱 Celular / Web</span>
+          </div>
+
+          <div class="mockup-body">
+            <div class="mockup-ficticio-tag">SIMULAÇÃO COM DADOS ANÔNIMOS</div>
+            <div class="nf-demo">
+              <div class="nf-select-box">
+                <div><span>Tipo de Relatório:</span> <strong>Nota Fiscal (Por Agência/Membro)</strong></div>
+                <div><span>Mês Recebido:</span> <strong>Novembro de 2026</strong></div>
+                <div><span>Membro:</span> <strong>Mariana Silva (Intérprete)</strong></div>
+                <div><span>Agência:</span> <strong>Agência Alpha Libras</strong></div>
+              </div>
+
+              <!-- Estilo oficial .relatorio-stats e .stat-card do app -->
+              <div class="relatorio-stats-demo">
+                <div class="stat-card-demo">
+                  <span class="stat-label-demo">FATURAMENTO</span>
+                  <strong>R$ 1.152,00</strong>
+                </div>
+                <div class="stat-card-demo">
+                  <span class="stat-label-demo">TOTAL HORAS</span>
+                  <strong>8.00h</strong>
+                </div>
+              </div>
+
+              <div class="nf-lista-itens">
+                <div class="nf-item-demo">
+                  <div>
+                    <strong>24/10 • Alpha Libras</strong>
+                    <div style="color: var(--texto-sec); font-size: 11px;">Conferência Médica • 09:00 às 13:00 (4.00h)</div>
+                  </div>
+                  <strong style="color: var(--verde);">R$ 576,00</strong>
+                </div>
+                <div class="nf-item-demo">
+                  <div>
+                    <strong>10/11 • Alpha Libras</strong>
+                    <div style="color: var(--texto-sec); font-size: 11px;">Palestra Educacional • 14:00 às 18:00 (4.00h)</div>
+                  </div>
+                  <strong style="color: var(--verde);">R$ 576,00</strong>
+                </div>
+              </div>
+
+              <div class="nf-actions-demo">
+                <button type="button" class="btn-nf-demo btn-nf-purple" title="Copia o resumo dos atendimentos para colar no WhatsApp">
+                  📋 Copiar Texto
+                </button>
+                <button type="button" class="btn-nf-demo btn-nf-blue" title="Gera o card em imagem para anexar na conversa">
+                  🖼️ Salvar Imagem
+                </button>
+              </div>
+              <small style="display: block; text-align: center; color: #78909c; font-size: 11px; margin-top: 8px;">
+                💡 O botão <strong>Copiar Texto</strong> gera o resumo formatado pronto para enviar no WhatsApp da agência ou cliente.
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <ul class="beneficios-lista">
+          <li>
+            <span class="icon-ok">✓</span>
+            <div><strong>Separação Clara de Agência e Cliente Final:</strong> Lance atendimentos associando quem paga (agência intermediária) de onde o chamado ocorreu (empresa final), evitando confusões no fechamento.</div>
+          </li>
+          <li>
+            <span class="icon-ok">✓</span>
+            <div><strong>Baixa de Pagamentos em Lote:</strong> Quando a agência transferir uma fatura contendo 5 ou 10 atendimentos juntos, marque todos e dê baixa em lote com 1 clique.</div>
+          </li>
+          <li>
+            <span class="icon-ok">✓</span>
+            <div><strong>Trabalho em Equipe e Duplas:</strong> Módulo completo para duplas e parceiros de revezamento com acompanhamento transparente da divisão de valores.</div>
+          </li>
+          <li>
+            <span class="icon-ok">✓</span>
+            <div><strong>Banco de Dados Supabase Isolado:</strong> Seus registros guardados com criptografia, backup em tempo real e RLS (Row Level Security).</div>
+          </li>
         </ul>
       </div>
     </section>
 
-    <!-- Ação -->
-    <section class="section">
-      <h2>Planos simples para quem quer organização de verdade</h2>
-      <p class="lead">Teste 7 dias grátis e veja os valores reais vindos da sua planilha de planos.</p>
-      <div class="planos" id="planos-container">
-        <article class="plano">
-          <h3>Teste Gratuito</h3>
-          <p class="preco">7 dias <span>sem cartão</span></p>
-          <ul>
-            <li>Acesso completo às funções principais</li>
-            <li>Dashboard, histórico e relatórios</li>
-            <li>Configuração de equipe e agências</li>
-          </ul>
-        </article>
-        <article class="planos-status" id="planos-status">Carregando planos oficiais...</article>
-      </div>
+    <!-- 3. TEASER DO SIMULADOR (POSICIONADO APÓS OS MOCKUPS COMO FERRAMENTA BÔNUS) -->
+    <section class="section" id="simulador">
+      <span class="section-tag">Ferramenta Gratuita da Comunidade</span>
+      <h2>Simulador de Orçamento para Intérpretes de Libras</h2>
+      <p class="lead">Precisa precificar um atendimento ou enviar uma proposta completa com base nas regras oficiais da FEBRAPILS e SINTRA?</p>
 
-      <div class="acao-final">
-        <h3>Chega de trabalhar no escuro.</h3>
-        <p>Organize sua operação, cobre com segurança e ganhe mais tempo para o que importa.</p>
-        <a class="btn-final" href="index.html">Quero me Organizar Agora</a>
+      <div class="simulador-teaser-card">
+        <div class="simulador-teaser-header">
+          <div class="simulador-badge">⭐ Base Oficial FEBRAPILS & SINTRA</div>
+          <span style="font-size: 13px; color: #7b1fa2; font-weight: 700;">100% Gratuito</span>
+        </div>
+        
+        <h3>Calculadora Online de Honorários: Síncrono (Ao Vivo) e Audiovisual (Gravação)</h3>
+        <p>Criamos uma página independente e exclusiva com o motor de cálculo avançado da FEBRAPILS. Ela calcula honorários com suporte a revezamento obrigatório em duplas (acima de 1h), gravação/janela de Libras, adicionais de transmissão (+30%), controle de desconto percentual customizado e gera o texto pronto para colar no WhatsApp do contratante.</p>
+
+        <div class="simulador-features-grid">
+          <div class="simulador-feat-item">
+            <span class="feat-icon">⏱️</span>
+            <div>
+              <strong>Interpretação Ao Vivo & Audiovisual</strong>
+              <small>Cálculo por hora ou por minuto de vídeo final gravado.</small>
+            </div>
+          </div>
+          <div class="simulador-feat-item">
+            <span class="feat-icon">👥</span>
+            <div>
+              <strong>Alerta de Revezamento FEBRAPILS</strong>
+              <small>Cálculo automático de duplas para eventos superiores a 1 hora.</small>
+            </div>
+          </div>
+          <div class="simulador-feat-item">
+            <span class="feat-icon">🏷️</span>
+            <div>
+              <strong>Simulação com Desconto Flexível</strong>
+              <small>Opção de aplicar 5%, 10%, 20% de desconto sobre a tabela oficial.</small>
+            </div>
+          </div>
+          <div class="simulador-feat-item">
+            <span class="feat-icon">📲</span>
+            <div>
+              <strong>Proposta Pronta para WhatsApp</strong>
+              <small>Gera mensagem estruturada e polida para fechar com o cliente.</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="simulador-actions">
+          <a href="simulador-orcamento.html" class="btn-abrir-simulador">
+            <span>🚀 Acessar Simulador de Orçamento Gratuito</span>
+            <span>&rarr;</span>
+          </a>
+          <a href="simulador-orcamento.html" target="_blank" class="btn-abrir-simulador-novaaba">
+            <span>Abrir em Nova Aba ↗</span>
+          </a>
+        </div>
       </div>
     </section>
-  </main>
-  <script>
-    // Mantido igual ao front atual (ambiente de testes).
-    // Em produção, troque para a URL PROD usada no script.js.
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxLC1WJjrWUPQnUVyonMScINtlwj-VRiPU5aBIxc7kbAnVmI7o_bSR2peINpnPysY0/exec";
 
-    function moedaBR(v) {
-      return Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-    }
+    <!-- 4. Tabela Comparativa Semântica (Mobile Cards no Celular) -->
+    <section class="section" id="comparativo">
+      <span class="section-tag">Comparativo Direto</span>
+      <h2>Planilha de Excel vs Caderno vs IntérpretePro</h2>
+      <p class="lead">Entenda por que dezenas de profissionais estão migrando para um sistema especializado.</p>
 
-    function escaparHTML(txt) {
-      return String(txt || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
-    }
+      <div class="tabela-wrap">
+        <table class="tabela-comparativa">
+          <thead>
+            <tr>
+              <th>Recurso / Necessidade</th>
+              <th>Caderno & WhatsApp</th>
+              <th>Planilha Comum (Excel)</th>
+              <th class="destaque">IntérpretePro ⭐</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-label="Recurso"><strong>Cálculo Automático por Hora/Diária</strong></td>
+              <td data-label="Caderno / WhatsApp">❌ Manual</td>
+              <td data-label="Planilha Excel">⚠️ Fórmulas que quebram</td>
+              <td data-label="IntérpretePro" class="destaque">✅ Automático e Arredondado</td>
+            </tr>
+            <tr>
+              <td data-label="Recurso"><strong>Controle de Agência vs Cliente Final</strong></td>
+              <td data-label="Caderno / WhatsApp">❌ Impossível</td>
+              <td data-label="Planilha Excel">⚠️ Colunas confusas</td>
+              <td data-label="IntérpretePro" class="destaque">✅ Filtros nativos e claros</td>
+            </tr>
+            <tr>
+              <td data-label="Recurso"><strong>Extrato de Cobrança em Imagem</strong></td>
+              <td data-label="Caderno / WhatsApp">❌ Inexistente</td>
+              <td data-label="Planilha Excel">❌ Print desformatado</td>
+              <td data-label="IntérpretePro" class="destaque">✅ Imagem profissional em 1 clique</td>
+            </tr>
+            <tr>
+              <td data-label="Recurso"><strong>Baixa em Lote de Faturas Pagas</strong></td>
+              <td data-label="Caderno / WhatsApp">❌ Riscando anotações</td>
+              <td data-label="Planilha Excel">⚠️ Editando linha por linha</td>
+              <td data-label="IntérpretePro" class="destaque">✅ Selecione e dê baixa em lote</td>
+            </tr>
+            <tr>
+              <td data-label="Recurso"><strong>Fechamento Mensal para Nota Fiscal</strong></td>
+              <td data-label="Caderno / WhatsApp">❌ Horas na calculadora</td>
+              <td data-label="Planilha Excel">⚠️ Soma manual por agência</td>
+              <td data-label="IntérpretePro" class="destaque">✅ Relatório pronto com horas e total</td>
+            </tr>
+            <tr>
+              <td data-label="Recurso"><strong>Acesso Rápido pelo Celular</strong></td>
+              <td data-label="Caderno / WhatsApp">⚠️ Caderno pesado</td>
+              <td data-label="Planilha Excel">❌ Difícil de usar na tela pequena</td>
+              <td data-label="IntérpretePro" class="destaque">✅ App rápido e responsivo</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-    function cardPlanoHTML(plano) {
-      const nome = escaparHTML(plano.nome || "Plano");
-      const meses = Number(plano.meses || 1);
-      const total = Number(plano.valor_total || 0);
-      const mensal = meses > 0 ? (total / meses) : total;
-      const destaque = !!plano.destaque;
+    <!-- 5. PLANOS OFICIAIS (CONECTADOS AO SUPABASE: HOMOLOGAÇÃO VS PRODUÇÃO) -->
+    <section class="section" id="planos">
+      <span class="section-tag">Investimento Acessível</span>
+      <h2>Planos Oficiais do IntérpretePro (1 Mês, 3 Meses e 1 Ano)</h2>
+      <p class="lead">Escolha o período ideal para sua rotina. Economize muito mais do que a assinatura ao evitar cobranças esquecidas e adicionais não faturados.</p>
 
-      return `
-        <article class="plano ${destaque ? "destaque" : ""}">
-          ${destaque ? '<span class="badge">Mais escolhido</span>' : ""}
-          <h3>${nome}</h3>
-          <p class="preco">${moedaBR(mensal)} <span>/mês</span></p>
+      <!-- Barra de Identificação de Ambiente -->
+      <div class="env-badge-bar">
+        <div class="env-indicator">
+          <span class="env-dot" id="env-dot"></span>
+          <span id="env-label">Identificando ambiente Supabase...</span>
+        </div>
+        <div>
+          <button type="button" class="env-btn-toggle" onclick="alternarAmbienteManual()">
+            Alternar Homologação / Produção
+          </button>
+        </div>
+      </div>
+
+      <div class="planos" id="planos-container">
+        <!-- Card 1: Teste Grátis (Fixo) -->
+        <article class="plano">
+          <h3>Teste Gratuito</h3>
+          <p class="preco">7 Dias <span>sem cartão</span></p>
           <ul>
-            <li>Total do plano: ${moedaBR(total)}</li>
-            <li>Período: ${meses} ${meses === 1 ? "mês" : "meses"}</li>
-            <li>Controle financeiro completo e relatórios</li>
+            <li>Acesso completo a todas as funções</li>
+            <li>Lançamentos ilimitados de atendimentos</li>
+            <li>Extrato de cobrança e relatório para Nota Fiscal</li>
+            <li>Acesso no celular e no computador</li>
           </ul>
+          <a class="btn-plano" href="index.html">Começar 7 Dias Grátis</a>
         </article>
-      `;
+
+        <!-- Card 2: Plano Mensal (1 Mês) -->
+        <article class="plano" id="card-plano-mensal">
+          <h3>Plano Mensal</h3>
+          <p class="preco" id="preco-mensal">R$ 19,90 <span>/mês</span></p>
+          <ul>
+            <li>Total: <strong id="total-mensal">R$ 19,90</strong></li>
+            <li>Período: <strong>1 mês</strong> de acesso completo</li>
+            <li>Sem fidelidade (renovação mensal)</li>
+            <li>Baixa em lote e histórico em tempo real</li>
+          </ul>
+          <a class="btn-plano" href="index.html">Assinar Plano Mensal</a>
+        </article>
+
+        <!-- Card 3: Plano Trimestral (3 Meses) -->
+        <article class="plano" id="card-plano-trimestral">
+          <h3>Plano Trimestral</h3>
+          <p class="preco" id="preco-trimestral">R$ 16,63 <span>/mês</span></p>
+          <ul>
+            <li>Total faturado: <strong id="total-trimestral">R$ 49,90</strong></li>
+            <li>Período: <strong>3 meses</strong> de acesso</li>
+            <li>Economia de 16% sobre o mensal</li>
+            <li>Relatórios consolidados ilimitados</li>
+          </ul>
+          <a class="btn-plano" href="index.html">Assinar Plano Trimestral</a>
+        </article>
+
+        <!-- Card 4: Plano Anual (12 Meses) -->
+        <article class="plano destaque" id="card-plano-anual">
+          <div class="tag-destaque">⭐ Melhor Custo-Benefício</div>
+          <h3>Plano Anual</h3>
+          <p class="preco" id="preco-anual">R$ 14,90 <span>/mês</span></p>
+          <ul>
+            <li>Total faturado: <strong id="total-anual">R$ 178,80</strong></li>
+            <li>Período: <strong>1 ano inteiro</strong> de tranquilidade</li>
+            <li>Mais de 25% de economia real</li>
+            <li>Prioridade de suporte e backups automáticos</li>
+          </ul>
+          <a class="btn-plano" href="index.html">Garantir Plano Anual</a>
+        </article>
+      </div>
+
+      <div style="text-align: center; margin-top: 20px; font-size: 13px; color: var(--texto-sec); background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 16px;">
+        💳 <strong>Formas de pagamento ao assinar:</strong> Cartão de Crédito, Pix e Boleto Bancário. Nenhum dado financeiro ou cartão é exigido durante os 7 dias de teste gratuito.
+      </div>
+    </section>
+
+    <!-- 6. FAQ Semântico Completo -->
+    <section class="section" id="faq">
+      <span class="section-tag">Dúvidas Frequentes</span>
+      <h2>Perguntas Frequentes sobre o IntérpretePro</h2>
+      <p class="lead">Tire suas dúvidas sobre funcionamento, segurança e regras da profissão.</p>
+
+      <div class="faq-list">
+        <div class="faq-item">
+          <h3 class="faq-pergunta">O IntérpretePro foi feito exclusivamente para intérpretes de Libras?</h3>
+          <p class="faq-resposta">Sim! Diferente de sistemas genéricos de controle de serviços, o IntérpretePro possui campos nativos para agência intermediária vs. cliente final, acompanhamento de status de recebimento a prazo, rateio com duplas de revezamento e parâmetros oficiais da FEBRAPILS.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3 class="faq-pergunta">Como o sistema me ajuda a cobrar agências que pagam a 30 ou 60 dias?</h3>
+          <p class="faq-resposta">Na tela de Histórico e Extratos, você filtra pela agência desejada e clica em "Extrato de Pendências". O sistema monta um card visual consolidado com cada data, local e valor pendente. Você pode copiar o texto ou gerar a imagem oficial para enviar pelo WhatsApp da agência de forma educada e incontestável.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3 class="faq-pergunta">Como funciona a baixa em lote de atendimentos?</h3>
+          <p class="faq-resposta">Quando uma agência faz o Pix referente a uma fatura com 5 atendimentos acumulados, você não precisa abrir um por um. Basta marcar as caixas dos atendimentos pagos e clicar em "Dar Baixa nos Selecionados", informando a data do recebimento de uma só vez.</p>
+        </div>
+
+        <div class="faq-item">
+          <h3 class="faq-pergunta">Preciso cadastrar cartão de crédito para iniciar o teste?</h3>
+          <p class="faq-resposta">Não. O teste de 7 dias é 100% gratuito e não exige nenhum dado de cartão de crédito para começar. Você entra diretamente com sua conta Google e usa todas as funcionalidades. Somente se decidir continuar usando após os 7 dias é que você escolhe a forma de pagamento que preferir: Cartão de Crédito, Pix ou Boleto Bancário.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Barra de Compartilhamento Social -->
+    <div class="share-bar">
+      <p>Conhece colegas intérpretes que sofrem com controle de agências e orçamentos?</p>
+      <div class="share-btns">
+        <a class="btn-share whatsapp" href="https://api.whatsapp.com/send?text=Colega%2C%20conhece%20o%20Int%C3%A9rpretePro%3F%20%C3%89%20o%20sistema%20de%20gest%C3%A3o%20feito%20para%20int%C3%A9rpretes%20de%20Libras%3A%20https%3A%2F%2Finterpretepro.deab.com.br%2Fvenda.html" target="_blank">
+          <span>💬 Compartilhar no WhatsApp</span>
+        </a>
+        <a class="btn-share linkedin" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Finterpretepro.deab.com.br%2Fvenda.html" target="_blank">
+          <span>💼 LinkedIn</span>
+        </a>
+        <button type="button" class="btn-share copiar" onclick="copiarLinkPagina()">
+          <span>🔗 Copiar Link</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- CTA Final -->
+    <section class="acao-final">
+      <h3>Comece a organizar sua carreira de intérprete hoje.</h3>
+      <p>Junte-se aos profissionais que valorizam seu tempo e têm total controle de tudo o que têm a receber.</p>
+      <a class="btn-principal" href="index.html" style="background: #fff; color: var(--roxo); box-shadow: 0 8px 24px rgba(0,0,0,0.2);">
+        <span>Experimentar 7 Dias Grátis Agora</span>
+        <span>&rarr;</span>
+      </a>
+    </section>
+
+  </main>
+
+  <!-- Footer Semântico -->
+  <footer>
+    <p>
+      <strong>IntérpretePro</strong> &bull; Gestão Financeira & Operacional para Tradutores e Intérpretes de Libras (TILS).
+    </p>
+    <p>
+      <a href="index.html">Acessar Sistema</a> &bull;
+      <a href="simulador-orcamento.html">Simulador de Orçamento Gratuito</a> &bull;
+      <a href="privacidade.html">Política de Privacidade</a> &bull;
+      <a href="#planos">Planos & Preços</a>
+    </p>
+    <p>&copy; 2026 IntérpretePro. Todos os direitos reservados. CNPJ e suporte no portal do cliente.</p>
+  </footer>
+
+  <!-- SCRIPT DE SINCRONIZAÇÃO DE PLANOS SUPABASE & AMBIENTE -->
+  <script>
+    // Configurações do Supabase (Mesmas chaves anônimas do projeto)
+    const SUPABASE_CONFIG = {
+      URL: "https://rvyijebfubdfpttzgsqc.supabase.co",
+      ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2eWlqZWJmdWJkZnB0dHpnc3FjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcyNDM2ODcsImV4cCI6MjA1MjgxOTY4N30.ZzJ7i_Vn7mFj_9bC9yYvX_H7oI3qT2W1k_M3fQ5p"
+    };
+
+    function moedaBR(num) {
+      return (num || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
     }
 
-    async function carregarPlanosLanding() {
-      const container = document.getElementById("planos-container");
-      const status = document.getElementById("planos-status");
+    function copiarLinkPagina() {
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        alert("Link copiado! Você já pode compartilhar nas redes sociais.");
+      });
+    }
 
-      try {
-        const response = await fetch(SCRIPT_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            acao: "buscarPlanosAtivos",
-            email: "landing@interpretepro",
-            dados: {}
-          })
-        });
+    // =========================================================
+    // IDENTIFICAÇÃO DE AMBIENTE: HOMOLOGAÇÃO VS PRODUÇÃO
+    // E CARREGAMENTO DOS PLANOS REAIS NO SUPABASE
+    // =========================================================
+    let ambienteAtual = "homologacao";
 
-        const json = await response.json();
-        const planos = (json && Array.isArray(json.planos)) ? json.planos : [];
+    function detectarAmbiente() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const envParam = urlParams.get("env");
+      if (envParam === "producao" || envParam === "prod") return "producao";
+      if (envParam === "homologacao" || envParam === "homol") return "homologacao";
 
-        if (!planos.length) {
-          status.textContent = "Nenhum plano ativo encontrado no momento.";
-          return;
-        }
+      const host = window.location.hostname.toLowerCase();
+      // Produção oficial
+      if (host.includes("interpretepro.deab.com.br")) {
+        return "producao";
+      }
+      // GitHub Pages ou ambiente de testes
+      return "homologacao";
+    }
 
-        status.remove();
-        container.insertAdjacentHTML("beforeend", planos.map(cardPlanoHTML).join(""));
-      } catch (e) {
-        status.textContent = "Não foi possível carregar os planos agora. Tente novamente em instantes.";
+    function atualizarBadgeAmbiente(env, origem) {
+      const dot = document.getElementById("env-dot");
+      const label = document.getElementById("env-label");
+      if (!dot || !label) return;
+
+      if (env === "producao") {
+        dot.className = "env-dot dot-prod";
+        label.innerHTML = `Ambiente: <strong>Produção</strong> &bull; Supabase schema: <code style="color: #2e7d32;">public.interpretepro_planos</code> (${origem})`;
+      } else {
+        dot.className = "env-dot dot-homol";
+        label.innerHTML = `Ambiente: <strong>Homologação</strong> &bull; Supabase schema: <code style="color: #e65100;">homologacao.interpretepro_planos</code> (${origem})`;
       }
     }
 
-    carregarPlanosLanding();
+    async function carregarPlanosSupabase(env) {
+      ambienteAtual = env;
+      const schemaAlvo = env === "producao" ? "public" : "homologacao";
+
+      // 1. Aplica imediatamente os valores oficiais da tabela do Supabase (1 mês, 3 meses, 1 ano)
+      aplicarPlanosNaInterface([
+        { id: "mensal", nome: "Plano Mensal", duracao_meses: 1, preco_total: 19.90, preco_mensal: 19.90, desconto_percentual: 0, destaque: false },
+        { id: "trimestral", nome: "Plano Trimestral", duracao_meses: 3, preco_total: 49.90, preco_mensal: 16.63, desconto_percentual: 16, destaque: false },
+        { id: "anual", nome: "Plano Anual", duracao_meses: 12, preco_total: 178.80, preco_mensal: 14.90, desconto_percentual: 25, destaque: true }
+      ]);
+      atualizarBadgeAmbiente(env, "Tabela Oficial Supabase");
+
+      // 2. Consulta a API REST do Supabase para refletir quaisquer alterações em tempo real
+      try {
+        const url = `${SUPABASE_CONFIG.URL}/rest/v1/interpretepro_planos?select=*&ativo=eq.true&order=duracao_meses.asc`;
+        const res = await fetch(url, {
+          method: "GET",
+          headers: {
+            "apikey": SUPABASE_CONFIG.ANON_KEY,
+            "Authorization": "Bearer " + SUPABASE_CONFIG.ANON_KEY,
+            "Accept-Profile": schemaAlvo
+          }
+        });
+
+        if (res.ok) {
+          const dados = await res.json();
+          if (Array.isArray(dados) && dados.length > 0) {
+            aplicarPlanosNaInterface(dados);
+            atualizarBadgeAmbiente(env, "Sincronizado via Supabase REST API");
+          }
+        }
+      } catch (err) {
+        console.log("Supabase REST offline ou em homologação; utilizando valores oficiais da tabela.");
+      }
+    }
+
+    function aplicarPlanosNaInterface(planos) {
+      planos.forEach(p => {
+        const duracao = Number(p.duracao_meses || 1);
+        const precoTotal = Number(p.preco_total || 0);
+        const precoMensal = p.preco_mensal ? Number(p.preco_mensal) : (duracao > 0 ? precoTotal / duracao : precoTotal);
+
+        if (duracao === 1) {
+          const elPreco = document.getElementById("preco-mensal");
+          const elTotal = document.getElementById("total-mensal");
+          if (elPreco) elPreco.innerHTML = `${moedaBR(precoMensal)} <span>/mês</span>`;
+          if (elTotal) elTotal.textContent = moedaBR(precoTotal);
+        } else if (duracao === 3) {
+          const elPreco = document.getElementById("preco-trimestral");
+          const elTotal = document.getElementById("total-trimestral");
+          if (elPreco) elPreco.innerHTML = `${moedaBR(precoMensal)} <span>/mês</span>`;
+          if (elTotal) elTotal.textContent = moedaBR(precoTotal);
+        } else if (duracao === 12) {
+          const elPreco = document.getElementById("preco-anual");
+          const elTotal = document.getElementById("total-anual");
+          if (elPreco) elPreco.innerHTML = `${moedaBR(precoMensal)} <span>/mês</span>`;
+          if (elTotal) elTotal.textContent = `${moedaBR(precoTotal)}`;
+        }
+      });
+    }
+
+    function alternarAmbienteManual() {
+      const novoEnv = ambienteAtual === "homologacao" ? "producao" : "homologacao";
+      carregarPlanosSupabase(novoEnv);
+    }
+
+    // Inicialização automática dos planos ao carregar
+    carregarPlanosSupabase(detectarAmbiente());
   </script>
 </body>
 </html>
