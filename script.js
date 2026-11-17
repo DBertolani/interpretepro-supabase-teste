@@ -5,7 +5,7 @@ var dadosGeraisRelatorio = [];
 
 // Identifica automaticamente a execução em homologação ou desenvolvimento local.
 const isHomologacao = window.location.hostname.includes("github.io") || window.location.hostname.includes("localhost");
-const schemaAtivo = isHomologacao ? "homologacao" : "public";
+const schemaAtivo = "public";
 
 function aplicarIdentificacaoAmbiente() {
   const badge = document.getElementById("badge-ambiente");
