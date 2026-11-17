@@ -33,8 +33,8 @@ let origemNavegacao = 'dash';
 const servicoCache = new Map();
 
 // --- 1. CONFIGURAÇÃO DA PONTE (MIGRADO PARA SUPABASE) ---
-const SUPABASE_URL = "https://bvavzgmsiflydrlgeiqf.supabase.co"; // Ex: https://bvavzgmsifflydrlgeiqf.supabase.co
-const SUPABASE_ANON_KEY = "sb_publishable_IgTCeiytetM678AtADKUtQ_n3SL6akf"; // Ex: sb_publishable_...
+const SUPABASE_URL = "https://ywybqrunxreaencndztg.supabase.co"; // Ex: https://bvavzgmsifflydrlgeiqf.supabase.co
+const SUPABASE_ANON_KEY = "sb_publishable_3MB32qjyJD1IMrUHC9KEzA_t2e5L-tP"; // Ex: sb_publishable_...
 
 var supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   db: { schema: schemaAtivo },
