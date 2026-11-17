@@ -1816,8 +1816,8 @@
   <script>
     // Configurações do Supabase (Mesmas chaves anônimas do projeto)
     const SUPABASE_CONFIG = {
-      URL: "https://rvyijebfubdfpttzgsqc.supabase.co",
-      ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2eWlqZWJmdWJkZnB0dHpnc3FjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcyNDM2ODcsImV4cCI6MjA1MjgxOTY4N30.ZzJ7i_Vn7mFj_9bC9yYvX_H7oI3qT2W1k_M3fQ5p"
+      URL: "https://ywybqrunxreaencndztg.supabase.co",
+      ANON_KEY: "sb_publishable_3MB32qjyJD1IMrUHC9KEzA_t2e5L-tP"
     };
 
     function moedaBR(num) {
@@ -1983,7 +1983,7 @@
 
     async function carregarPlanosSupabase(env) {
       ambienteAtual = env;
-      const schemaAlvo = env === "producao" ? "public" : "homologacao";
+      const schemaAlvo = "public";
 
       // 1. Aplica imediatamente os valores oficiais da tabela do Supabase (1 mês, 3 meses, 1 ano)
       aplicarPlanosNaInterface([
@@ -1995,7 +1995,7 @@
 
       // 2. Consulta a API REST do Supabase para refletir quaisquer alterações em tempo real
       try {
-        const url = `${SUPABASE_CONFIG.URL}/rest/v1/interpretepro_planos?select=*&ativo=eq.true&order=duracao_meses.asc`;
+        const url = `${SUPABASE_CONFIG.URL}/rest/v1/interpretepro_planos?select=id,nome,descricao,meses,valor_total,limite_atendimentos_mes,max_usuarios,destaque&ativo=eq.true&order=meses.asc`;
         const res = await fetch(url, {
           method: "GET",
           headers: {
@@ -2008,7 +2008,17 @@
         if (res.ok) {
           const dados = await res.json();
           if (Array.isArray(dados) && dados.length > 0) {
-            aplicarPlanosNaInterface(dados);
+            const planosMapeados = dados.map(plano => ({
+              id: plano.id,
+              nome: plano.nome,
+              descricao: plano.descricao,
+              duracao_meses: Number(plano.meses || 1),
+              preco_total: Number(plano.valor_total || 0),
+              limite_atendimentos_mes: plano.limite_atendimentos_mes,
+              max_usuarios: plano.max_usuarios,
+              destaque: plano.destaque === true
+            }));
+            aplicarPlanosNaInterface(planosMapeados);
             atualizarBadgeAmbiente(env, "Sincronizado via Supabase REST API");
           }
         }

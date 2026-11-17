@@ -190,6 +190,37 @@ async function chamarGoogle(acao, dadosExtras = {}) {
 
         let requisicao;
         if (acao === "salvarRegistro") {
+          const limiteMensalAtivo = Number(localStorage.getItem("user_limite_mes") || 0);
+          if (Number.isFinite(limiteMensalAtivo) && limiteMensalAtivo > 0) {
+            const agora = new Date();
+            const primeiroDiaMes = new Date(agora.getFullYear(), agora.getMonth(), 1);
+            const ultimoDiaMes = new Date(agora.getFullYear(), agora.getMonth() + 1, 0);
+            const dataInicioMes = [
+              primeiroDiaMes.getFullYear(),
+              String(primeiroDiaMes.getMonth() + 1).padStart(2, "0"),
+              "01"
+            ].join("-");
+            const dataFimMes = [
+              ultimoDiaMes.getFullYear(),
+              String(ultimoDiaMes.getMonth() + 1).padStart(2, "0"),
+              String(ultimoDiaMes.getDate()).padStart(2, "0")
+            ].join("-");
+
+            const { count, error: erroContagem } = await supabaseClient
+              .from(tabela)
+              .select("id", { count: "exact", head: true })
+              .eq("email_usuario", usuario.email)
+              .gte("data_evento", dataInicioMes)
+              .lte("data_evento", dataFimMes);
+
+            if (erroContagem) throw erroContagem;
+            if (Number(count || 0) >= limiteMensalAtivo) {
+              return {
+                status: "LimiteAtingido",
+                mensagem: "Você atingiu o limite de " + limiteMensalAtivo + " atendimentos gratuitos neste mês. Faça upgrade para continuar registrando sem limites!"
+              };
+            }
+          }
           requisicao = await supabaseClient.from(tabela).insert(payload).select("id").single();
         } else {
           if (!id) throw new Error("O identificador do atendimento está vazio.");
@@ -316,6 +347,11 @@ async function chamarGoogle(acao, dadosExtras = {}) {
           liberado: true,
           email: usuarioAuth.email,
           plano: "Master Admin",
+          plano_id: "master_admin",
+          conta_pai_email: null,
+          limite_atendimentos_mes: 0,
+          max_usuarios: 999999,
+          limite_mei_anual: 0,
           validade: "Acesso administrativo",
           dadosIniciais: respostaDados.dados
         };
@@ -373,7 +409,7 @@ async function chamarGoogle(acao, dadosExtras = {}) {
       // comercial continuam sendo verificados pela consulta abaixo.
       const { data: cliente, error: erroCliente } = await supabaseClient
         .from("interpretepro_clientes")
-        .select("email, status, data_expiracao, plano")
+        .select("email, status, data_expiracao, plano, plano_id, conta_pai_email, limite_mei_anual")
         .eq("auth_user_id", usuarioAuth.id)
         .maybeSingle();
 
@@ -394,6 +430,26 @@ async function chamarGoogle(acao, dadosExtras = {}) {
           motivo: "Não há uma licença vinculada à sua conta. Entre em contato com o suporte."
         };
       }
+
+      const planoIdAtivo = String(cliente.plano_id || "gratuito").trim() || "gratuito";
+      const { data: limitesPlano, error: erroLimitesPlano } = await supabaseClient
+        .from("interpretepro_planos")
+        .select("limite_atendimentos_mes, max_usuarios")
+        .eq("id", planoIdAtivo)
+        .maybeSingle();
+
+      if (erroLimitesPlano) {
+        console.error("Falha ao carregar limites do plano:", erroLimitesPlano);
+        return {
+          liberado: false,
+          email: usuarioAuth.email,
+          motivo: "Não foi possível carregar os limites do seu plano. O acesso permanece bloqueado até a validação do cadastro."
+        };
+      }
+
+      const limiteAtendimentosMes = Number(limitesPlano?.limite_atendimentos_mes || 0);
+      const maxUsuarios = Number(limitesPlano?.max_usuarios || 1);
+      const limiteMeiAnual = Number(cliente.limite_mei_anual || 0);
 
       const statusLicenca = String(cliente.status || "").trim().toLowerCase();
       const dataExpiracao = cliente.data_expiracao
@@ -426,6 +482,11 @@ async function chamarGoogle(acao, dadosExtras = {}) {
       return {
         liberado: true,
         plano: cliente.plano || "Ativo",
+        plano_id: planoIdAtivo,
+        conta_pai_email: cliente.conta_pai_email || null,
+        limite_atendimentos_mes: limiteAtendimentosMes,
+        max_usuarios: maxUsuarios,
+        limite_mei_anual: limiteMeiAnual,
         validade: cliente.data_expiracao || "Vitalício",
         dadosIniciais: respostaDados.dados
       };
@@ -517,7 +578,7 @@ async function chamarGoogle(acao, dadosExtras = {}) {
     if (acao === "buscarPlanosAtivos") {
       const { data, error } = await supabaseClient
         .from("interpretepro_planos")
-        .select("id, nome, meses, valor_total, ativo, destaque")
+        .select("id, nome, descricao, meses, valor_total, limite_atendimentos_mes, max_usuarios, ativo, destaque")
         .eq("ativo", true)
         .order("meses", { ascending: true });
 
@@ -530,8 +591,11 @@ async function chamarGoogle(acao, dadosExtras = {}) {
         planos: (data || []).map(plano => ({
           id: plano.id,
           nome: plano.nome,
+          descricao: plano.descricao,
           meses: plano.meses,
           valor_total: Number(plano.valor_total),
+          limite_atendimentos_mes: plano.limite_atendimentos_mes,
+          max_usuarios: plano.max_usuarios,
           destaque: plano.destaque
         }))
       };
@@ -844,6 +908,10 @@ function executarAposDoisFrames(callback) {
 function validarPortaria(resposta) {
   if (resposta && resposta.liberado === true) {
     localStorage.setItem("user_plano", resposta.plano || "Ativo");
+    localStorage.setItem("user_plano_id", resposta.plano_id || "gratuito");
+    localStorage.setItem("user_limite_mes", String(Number(resposta.limite_atendimentos_mes || 0)));
+    localStorage.setItem("user_max_usuarios", String(Math.max(1, Number(resposta.max_usuarios || 1))));
+    localStorage.setItem("user_limite_mei", String(Number(resposta.limite_mei_anual || 0)));
     localStorage.setItem("user_modo_leitura", "false");
     localStorage.setItem("user_validade", resposta.validade || "Sem data limite");
     montarApp(resposta.dadosIniciais);
@@ -1100,6 +1168,13 @@ function renderizarModalPlanos(planos) {
   const container = document.getElementById('modal-planos-lista');
   if (!container) return;
   container.innerHTML = '';
+
+  // Exibir somente planos pagos; o plano gratuito não possui checkout.
+  planos = planos.filter(plano => Number(plano.valor_total) > 0);
+  if (!planos.length) {
+    container.innerHTML = '<p style="text-align:center;color:#888;padding:30px 0;">Nenhum plano pago disponível no momento.</p>';
+    return;
+  }
 
   // Plano de 1 mês como base para cálculo de desconto
   const planoBase = planos.find(p => parseInt(p.meses) === 1);
@@ -1488,7 +1563,12 @@ async function enviarDados(e) {
 
   try {
     if (linhaId === "") {
-      await chamarGoogle("salvarRegistro", d);
+      const resSalvar = await chamarGoogle("salvarRegistro", d);
+      if (resSalvar && resSalvar.status === "LimiteAtingido") {
+        mostrarToast(resSalvar.mensagem, "erro");
+        abrirModalPlanos();
+        return;
+      }
       const hI = d.inicio, hF = d.fim;
       let horas = 0;
       if (hI && hF) {
@@ -2301,7 +2381,11 @@ async function salvarEquipe(e) {
   e.preventDefault();
   if (verificarBloqueioLeitura()) return;
   const idEdicao = document.getElementById('equipe-id') ? document.getElementById('equipe-id').value : "";
-  if (!idEdicao && equipeGlobal.length >= 2) { mostrarToast("Limite máximo de 2 membros atingido.", "erro"); return; }
+  const maxUsuarios = Math.max(1, Number(localStorage.getItem("user_max_usuarios") || 1));
+  if (!idEdicao && equipeGlobal.length >= maxUsuarios) {
+    mostrarToast("Seu plano permite até " + maxUsuarios + " profissional(is) na equipe. Faça upgrade para cadastrar mais membros.", "erro");
+    return;
+  }
   const nomeNovo = document.getElementById('configEquipeNome').value.trim();
   const nomeAntigo = document.getElementById('equipe-antigo').value;
   mostrarToast("Salvando membro...");
