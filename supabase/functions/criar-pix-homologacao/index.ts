@@ -1,18 +1,16 @@
-import { errorResponseHomologacao as errorResponse, HttpError, jsonResponseHomologacao as jsonResponse, preflightResponseHomologacao as preflightResponse } from "../_shared/http-homologacao.ts";
-import { mpRequestHomologacao } from "../_shared/mercadopago-homologacao.ts";
-import {
-  getOrCreateOrderHomologacao,
-  loadActivePlanHomologacao,
-  updateOrderHomologacao,
-  validateClientLinkHomologacao,
-  validateRequestKeyHomologacao,
-} from "../_shared/orders-homologacao.ts";
-import { authenticatedUser, requireEmail } from "../_shared/supabase.ts";
-import { backendClientHomologacao } from "../_shared/supabase-homologacao.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-function logPixStage(etapa: string, evento: "inicio" | "concluida" | "falha" = "concluida") {
-  // Não incluir body, e-mail, tokens, IDs de pagamento ou respostas dos provedores.
-  console.info("[criar-pix-homologacao]", { etapa, evento });
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
+function jsonResponse(payload: Record<string, unknown>, status = 200) {
+  return new Response(JSON.stringify(payload), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
 }
 
 function sanitizeDiagnosticText(value: string): string {
@@ -20,92 +18,127 @@ function sanitizeDiagnosticText(value: string): string {
     .replace(/Bearer\s+[^\s"'\\]+/gi, "Bearer [REDACTED]")
     .replace(/TEST-[A-Za-z0-9_-]+/g, "[MP_TEST_TOKEN_REDACTED]")
     .replace(/APP_USR-[A-Za-z0-9_-]+/g, "[MP_ACCESS_TOKEN_REDACTED]")
-    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[EMAIL_REDACTED]")
-    .replace(/([?&](?:access_token|token|key|secret|signature)=)[^&\s]+/gi, "$1[REDACTED]")
-    .replace(/eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g, "[JWT_REDACTED]");
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[EMAIL_REDACTED]");
 }
 
 Deno.serve(async (req: Request) => {
-  if (req.method === "OPTIONS") return preflightResponse(req);
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
   if (req.method !== "POST") {
-    return jsonResponse(req, { status: "Erro", mensagem: "Método não permitido." }, 405);
+    return jsonResponse({ status: "Erro", mensagem: "Método não permitido." }, 405);
   }
 
   let etapaAtual = "inicio_handler";
-  logPixStage(etapaAtual, "inicio");
 
   try {
-    etapaAtual = "autenticacao_usuario";
-    logPixStage(etapaAtual, "inicio");
-    const user = await authenticatedUser(req);
-    requireEmail(user);
-    logPixStage(etapaAtual);
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 
-    etapaAtual = "leitura_body_json";
-    logPixStage(etapaAtual, "inicio");
-    const body = await req.json().catch(() => null) as Record<string, unknown> | null;
-    if (!body) throw new HttpError(400, "Corpo JSON inválido.", "JSON_INVALIDO");
-    logPixStage(etapaAtual);
+    const mpAccessToken = (
+      Deno.env.get("MP_ACCESS_TOKEN_TESTE") ||
+      Deno.env.get("MP_ACCESS_TOKEN") ||
+      ""
+    ).trim();
 
-    etapaAtual = "criacao_cliente_admin";
-    logPixStage(etapaAtual, "inicio");
-    const db = backendClientHomologacao();
-    logPixStage(etapaAtual);
-
-    etapaAtual = "validacao_cliente_teste";
-    logPixStage(etapaAtual, "inicio");
-    await validateClientLinkHomologacao(db, user);
-    logPixStage(etapaAtual);
-
-    etapaAtual = "leitura_validacao_plano";
-    logPixStage(etapaAtual, "inicio");
-    const plan = await loadActivePlanHomologacao(db, body.planoId);
-    logPixStage(etapaAtual);
-
-    etapaAtual = "validacao_chave_idempotencia";
-    logPixStage(etapaAtual, "inicio");
-    const requestKey = validateRequestKeyHomologacao(body.chaveRequisicao);
-    logPixStage(etapaAtual);
-
-    etapaAtual = "consulta_ou_criacao_ordem";
-    logPixStage(etapaAtual, "inicio");
-    const order = await getOrCreateOrderHomologacao(db, user, plan, "pix", requestKey);
-    logPixStage(etapaAtual);
-
-    if (order.status === "concluida" || ["cancelada", "expirada"].includes(String(order.status))) {
-      throw new HttpError(409, "Esta ordem de teste foi encerrada. Inicie uma nova solicitação.", "NOVA_TENTATIVA");
-    }
-
-    if (order.status === "criada" || order.status === "falha") {
-      etapaAtual = "atualizacao_ordem_aguardando_pagamento";
-      logPixStage(etapaAtual, "inicio");
-      await updateOrderHomologacao(db, order.id, {
-        status: "aguardando_pagamento",
-        expira_em: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+    if (!mpAccessToken) {
+      return jsonResponse({
+        status: "Erro",
+        mensagem: "Secret MP_ACCESS_TOKEN_TESTE não configurado no projeto.",
       });
-      logPixStage(etapaAtual);
     }
 
-    etapaAtual = "obter_email_pagador";
+    // 1. Autenticação do usuário
+    etapaAtual = "autenticacao_usuario";
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return jsonResponse({ status: "Erro", mensagem: "Usuário não autenticado." });
+    }
+
+    const supabaseUser = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    const { data: { user }, error: userError } = await supabaseUser.auth.getUser();
+    if (userError || !user || !user.email) {
+      return jsonResponse({ status: "Erro", mensagem: "Sessão inválida ou expirada." });
+    }
+
+    // 2. Leitura do body
+    etapaAtual = "leitura_body_json";
+    const body = await req.json().catch(() => null) as Record<string, unknown> | null;
+    if (!body) {
+      return jsonResponse({ status: "Erro", mensagem: "Corpo JSON inválido." });
+    }
+
+    const planoId = String(body.planoId || "").trim();
+    const requestKey = String(body.chaveRequisicao || crypto.randomUUID()).trim();
+
+    if (!planoId) {
+      return jsonResponse({ status: "Erro", mensagem: "Plano não informado." });
+    }
+
+    // 3. Consulta do plano ativo no banco de homologação
+    etapaAtual = "leitura_validacao_plano";
+    const db = createClient(supabaseUrl, supabaseServiceKey);
+
+    const { data: plan, error: planError } = await db
+      .from("interpretepro_planos")
+      .select("id, nome, meses, valor_total, ativo")
+      .eq("id", planoId)
+      .eq("ativo", true)
+      .maybeSingle();
+
+    if (planError || !plan || Number(plan.valor_total) <= 0) {
+      return jsonResponse({ status: "Erro", mensagem: "Plano inválido ou indisponível." });
+    }
+
+    // 4. Referência externa no formato exigido pela /v1/orders (apenas a-z, 0-9, _ e -, máx 64 chars)
+    const refExterna = \`hom_\${plan.id}_\${requestKey}\`
+      .replace(/[^a-zA-Z0-9_-]/g, "_")
+      .slice(0, 64);
+
+    // Reaproveita ordem Pix já gerada para esta chave de idempotência
+    const { data: pgtoExistente } = await db
+      .from("interpretepro_pagamentos")
+      .select("mp_payment_id, status, payload_resumo")
+      .eq("external_reference", refExterna)
+      .maybeSingle();
+
+    if (pgtoExistente?.payload_resumo?.qr_code) {
+      return jsonResponse({
+        status: "Sucesso",
+        orderId: String(pgtoExistente.payload_resumo.order_id || ""),
+        paymentId: String(pgtoExistente.mp_payment_id || ""),
+        qrCodeBase64: String(pgtoExistente.payload_resumo.qr_code_base64 || ""),
+        qrCodeTexto: String(pgtoExistente.payload_resumo.qr_code || ""),
+        ticketUrl: String(pgtoExistente.payload_resumo.ticket_url || ""),
+      });
+    }
+
+    // 5. E-mail e nome de aprovação automática do pagador de teste (Sandbox Orders API)
+    etapaAtual = "montagem_payload_pix";
     const payerEmail = (
       Deno.env.get("MP_TEST_PAYER_EMAIL") ||
       user.email ||
       "teste_comprador@testuser.com"
     ).trim().toLowerCase();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payerEmail)) {
-      throw new HttpError(500, "Configure um e-mail de teste válido para o pagador.", "MP_TEST_PAYER_INVALIDO");
-    }
 
-    etapaAtual = "montagem_payload_pix";
-    logPixStage(etapaAtual, "inicio");
-    const valorPix = Number(order.valor).toFixed(2);
+    const testFirstName = (
+      Deno.env.get("MP_TEST_PAYER_FIRST_NAME") ?? "APRO"
+    ).trim();
+
+    const valorPix = Number(plan.valor_total).toFixed(2);
+
     const payloadMp = {
       type: "online",
-      external_reference: String(order.referencia_externa || `order_${Date.now()}`),
+      external_reference: refExterna,
       total_amount: valorPix,
       payer: {
         email: payerEmail,
-        first_name: "APRO",
+        ...(testFirstName ? { first_name: testFirstName } : {}),
       },
       transactions: {
         payments: [
@@ -119,87 +152,108 @@ Deno.serve(async (req: Request) => {
         ],
       },
     };
-    // Não registrar o payload completo: ele contém dados pessoais do pagador.
-    console.info("[mp-homologacao] Payload Pix preparado", {
-      endpoint: "/v1/orders",
-      possuiEmail: Boolean(payerEmail),
-      possuiReferenciaExterna: Boolean(payloadMp.external_reference),
-      valorFormatado: valorPix,
-    });
-    logPixStage(etapaAtual);
 
+    // 6. Chamada oficial à Orders API do Mercado Pago
     etapaAtual = "chamada_api_mercado_pago";
-    logPixStage(etapaAtual, "inicio");
-    const mpResponse = await mpRequestHomologacao("/v1/orders", {
+    const mpRes = await fetch("https://api.mercadopago.com/v1/orders", {
       method: "POST",
       headers: {
-        "X-Idempotency-Key": requestKey,
+        "Authorization": \`Bearer \${mpAccessToken}\`,
+        "X-Idempotency-Key": crypto.randomUUID(),
         "Content-Type": "application/json",
       },
       body: JSON.stringify(payloadMp),
     });
-    logPixStage(etapaAtual);
 
+    const mpResponse = await mpRes.json().catch(() => ({}));
+
+    if (!mpRes.ok) {
+      const detalhe = sanitizeDiagnosticText(
+        JSON.stringify({
+          httpStatus: mpRes.status,
+          message: mpResponse?.message,
+          errors: mpResponse?.errors,
+        })
+      );
+      console.error("[criar-pix-homologacao] Falha MP /v1/orders:", detalhe);
+
+      const msgAmigavel =
+        mpResponse?.errors?.[0]?.message ||
+        mpResponse?.message ||
+        \`Mercado Pago retornou HTTP \${mpRes.status}.\`;
+
+      return jsonResponse({
+        status: "Erro",
+        mensagem: msgAmigavel,
+      });
+    }
+
+    // 7. Extração do QR Code e gravação no banco de homologação
     etapaAtual = "validacao_dados_qr_code";
-    logPixStage(etapaAtual, "inicio");
     const payment = mpResponse?.transactions?.payments?.[0];
     const paymentMethod = payment?.payment_method;
 
     const qrCodeTexto = String(paymentMethod?.qr_code || "");
     const qrCodeBase64 = String(paymentMethod?.qr_code_base64 || "");
     const ticketUrl = String(paymentMethod?.ticket_url || "");
-    const mpOrderId = mpResponse?.id;
-    const mpPaymentId = payment?.id;
+    const mpOrderId = String(mpResponse?.id || "");
+    const mpPaymentId = String(payment?.id || mpOrderId);
 
     if (!qrCodeTexto && !ticketUrl) {
-      // Registrar somente a presença dos campos; nunca a resposta bruta do provedor.
-      console.error("[mp-homologacao] Resposta Pix incompleta", {
+      console.error("[criar-pix-homologacao] Resposta Pix incompleta", {
         possuiOrderId: Boolean(mpOrderId),
         possuiPaymentId: Boolean(mpPaymentId),
         possuiQrCode: Boolean(qrCodeTexto),
         possuiTicketUrl: Boolean(ticketUrl),
       });
-      throw new HttpError(
-        502,
-        "Mercado Pago não retornou os dados do Pix.",
-        "PIX_INCOMPLETO",
-      );
+      return jsonResponse({
+        status: "Erro",
+        mensagem: "Mercado Pago não retornou os dados do Pix.",
+      });
     }
-    logPixStage(etapaAtual);
 
-    console.info("[criar-pix-homologacao] Pix de teste criado", {
-      etapa: "resposta_pronta",
-      possuiOrderId: true,
-      possuiPaymentId: true,
-      possuiQrCode: true,
-      possuiQrCodeBase64: Boolean(qrCodeBase64),
+    const { error: insertError } = await db.from("interpretepro_pagamentos").insert({
+      mp_payment_id: mpPaymentId,
+      external_reference: refExterna,
+      email_usuario: user.email,
+      plano_id: plan.id,
+      tipo: "pix",
+      valor: Number(plan.valor_total),
+      status: String(payment?.status || mpResponse?.status || "pending"),
+      payload_resumo: {
+        order_id: mpOrderId,
+        payment_id: mpPaymentId,
+        qr_code: qrCodeTexto,
+        qr_code_base64: qrCodeBase64,
+        ticket_url: ticketUrl,
+      },
     });
 
-    return jsonResponse(req, {
+    if (insertError) {
+      console.error("[criar-pix-homologacao] Erro ao gravar pagamento:", insertError.message);
+    }
+
+    return jsonResponse({
       status: "Sucesso",
-      orderId: String(order.id),
-      paymentId: String(mpPaymentId ?? ""),
+      orderId: mpOrderId,
+      paymentId: mpPaymentId,
       qrCodeBase64,
       qrCodeTexto,
       ticketUrl,
     });
   } catch (error) {
-    // Logar a etapa e uma versão higienizada; nunca registrar body, e-mail ou tokens.
-    const errorName = error instanceof Error ? error.name : typeof error;
     const errorMessage = error instanceof Error
       ? sanitizeDiagnosticText(error.message).slice(0, 500)
       : "Exceção não textual";
-    const errorStack = error instanceof Error && error.stack
-      ? sanitizeDiagnosticText(error.stack).split("\n").slice(0, 12).join("\n").slice(0, 3000)
-      : undefined;
 
     console.error("[criar-pix-homologacao] Exceção capturada", {
       etapa: etapaAtual,
-      nome: errorName,
       mensagem: errorMessage,
-      stack: errorStack,
     });
 
-    return errorResponse(req, error);
+    return jsonResponse({
+      status: "Erro",
+      mensagem: \`Erro na etapa \${etapaAtual}: \${errorMessage}\`,
+    });
   }
 });
